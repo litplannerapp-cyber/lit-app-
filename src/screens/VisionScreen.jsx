@@ -13,7 +13,9 @@ import { BoardEditSheet } from "./vision/BoardEditSheet";
 
 /* Loose-first: anything you add lands unassigned. Drag it (desktop)
    or tap it (mobile) to place it on a board. Boards are editable. */
-export function VisionScreen({ boards, setBoards, looseItems, setLooseItems, boardOpen, setBoardOpen, showToast }) {
+export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, showToast,
+  onAddLooseItem, onPlaceOnBoard, onCreateBoard, onUpdateBoard, onDeleteBoard, onDeleteVisionItem,
+  onReorderBoardItems, onMoveVisionItem, onAddImageToBoard, onPinCover }) {
   const [quick, setQuick] = useState("");
   const [newBoard, setNewBoard] = useState(false);
   const [newName, setNewName] = useState("");
@@ -21,7 +23,7 @@ export function VisionScreen({ boards, setBoards, looseItems, setLooseItems, boa
   const [placing, setPlacing] = useState(null); // loose item being placed (tap flow)
   const [editingBoard, setEditingBoard] = useState(null); // board id in edit sheet
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
-    setLooseItems((ls) => [{ id: uid(), type: "image", content: dataUrl, tags: [] }, ...ls]);
+    onAddLooseItem({ id: uid(), type: "image", content: dataUrl, tags: [] });
     showToast("Image added — place it on a board");
   });
 
@@ -34,28 +36,27 @@ export function VisionScreen({ boards, setBoards, looseItems, setLooseItems, boa
     const isImg = /^https?:\/\/\S+\.(png|jpe?g|webp|gif)/i.test(v);
     const isLink = /^https?:\/\/\S+$/i.test(v);
     const item = { id: uid(), type: isImg ? "image" : isLink ? "link" : "text", content: isImg || isLink ? v.split(" ")[0] : content, tags };
-    setLooseItems((ls) => [item, ...ls]);
+    onAddLooseItem(item);
     setQuick(""); showToast("Added — place it on a board when you like");
   };
 
   const placeOnBoard = (itemId, boardId) => {
-    const item = looseItems.find((i) => i.id === itemId);
-    if (!item) return;
-    setLooseItems((ls) => ls.filter((i) => i.id !== itemId));
-    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
+    onPlaceOnBoard(itemId, boardId);
     setPlacing(null);
     showToast(`Placed on ${boards.find((b) => b.id === boardId)?.name || "board"}`);
   };
 
   const createBoard = () => {
     const v = newName.trim(); if (!v) return;
-    setBoards((bs) => [...bs, { id: uid(), name: v, color: PALETTE[bs.length % PALETTE.length], coverUrl: null, items: [] }]);
+    onCreateBoard(v, PALETTE[boards.length % PALETTE.length]);
     setNewName(""); setNewBoard(false);
   };
 
   if (boardOpen) {
     const board = boards.find((b) => b.id === boardOpen);
-    if (board) return <BoardView board={board} boards={boards} setBoards={setBoards} setLooseItems={setLooseItems} onBack={() => setBoardOpen(null)} showToast={showToast} />;
+    if (board) return <BoardView board={board} boards={boards} onBack={() => setBoardOpen(null)} showToast={showToast}
+      onDeleteVisionItem={onDeleteVisionItem} onReorderItems={onReorderBoardItems} onMoveItem={onMoveVisionItem}
+      onAddImage={onAddImageToBoard} onPinCover={onPinCover} />;
   }
 
   const filteredItems = tagFilter
@@ -177,7 +178,7 @@ export function VisionScreen({ boards, setBoards, looseItems, setLooseItems, boa
               </button>
             ))}
             <div style={{ display: "flex", gap: 16, marginTop: 14 }}>
-              <button onClick={() => { setLooseItems((ls) => ls.filter((i) => i.id !== placing.id)); setPlacing(null); }} style={{ fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer" }}>Release it</button>
+              <button onClick={() => { onDeleteVisionItem(placing.id); setPlacing(null); }} style={{ fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer" }}>Release it</button>
               <button onClick={() => setPlacing(null)} style={{ fontSize: 13.5, color: T.ink3, fontWeight: 600, cursor: "pointer" }}>Leave it loose</button>
             </div>
           </Card>
@@ -188,11 +189,10 @@ export function VisionScreen({ boards, setBoards, looseItems, setLooseItems, boa
       {editingBoard && (
         <BoardEditSheet
           board={boards.find((b) => b.id === editingBoard)}
-          onSave={(name, color) => { setBoards((bs) => bs.map((b) => (b.id === editingBoard ? { ...b, name, color } : b))); setEditingBoard(null); }}
+          onSave={(name, color) => { onUpdateBoard(editingBoard, { name, color }); setEditingBoard(null); }}
           onDelete={() => {
             const b = boards.find((x) => x.id === editingBoard);
-            if (b?.items.length) setLooseItems((ls) => [...b.items, ...ls]);
-            setBoards((bs) => bs.filter((x) => x.id !== editingBoard));
+            onDeleteBoard(editingBoard);
             setEditingBoard(null);
             showToast(b?.items.length ? "Board removed — its items are loose again" : "Board removed");
           }}

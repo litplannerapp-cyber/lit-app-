@@ -4,32 +4,18 @@ import { Card } from "../../components/Card";
 import { Eyebrow } from "../../components/Eyebrow";
 import { VisionTile } from "../../components/VisionTile";
 import { useImagePicker } from "../../hooks/useImagePicker";
-import { uid } from "../../utils/date";
 
-export function BoardView({ board, boards, setBoards, setLooseItems, onBack, showToast }) {
+export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover }) {
   const dragIx = useRef(null);
   const [moveItem, setMoveItem] = useState(null);
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
-    update((b) => ({ ...b, items: [{ id: uid(), type: "image", content: dataUrl, tags: [] }, ...b.items] }));
+    onAddImage(board.id, dataUrl);
     showToast(`Image added to ${board.name}`);
   });
 
-  const update = (fn) => setBoards((bs) => bs.map((b) => (b.id === board.id ? fn(b) : b)));
-  const del = (id) => update((b) => ({ ...b, items: b.items.filter((i) => i.id !== id) }));
-  const pin = (item) => update((b) => ({ ...b, coverUrl: b.coverUrl === item.content ? null : item.content }));
-  const reorder = (from, to) => update((b) => {
-    const items = [...b.items]; const [m] = items.splice(from, 1); items.splice(to, 0, m);
-    return { ...b, items };
-  });
+  const reorder = (from, to) => onReorderItems(board.id, from, to);
   const moveTo = (item, targetId) => {
-    if (targetId === "loose") {
-      setBoards((bs) => bs.map((b) => (b.id === board.id ? { ...b, items: b.items.filter((i) => i.id !== item.id) } : b)));
-      setLooseItems((ls) => [item, ...ls]);
-    } else {
-      setBoards((bs) => bs.map((b) =>
-        b.id === board.id ? { ...b, items: b.items.filter((i) => i.id !== item.id) }
-          : b.id === targetId ? { ...b, items: [item, ...b.items] } : b));
-    }
+    onMoveItem(item.id, targetId === "loose" ? null : targetId);
     setMoveItem(null);
   };
 
@@ -53,8 +39,8 @@ export function BoardView({ board, boards, setBoards, setLooseItems, onBack, sho
               onDragStart={() => (dragIx.current = ix)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => { if (dragIx.current != null && dragIx.current !== ix) reorder(dragIx.current, ix); dragIx.current = null; }}
-              onDelete={() => del(item.id)}
-              onPin={() => pin(item)}
+              onDelete={() => onDeleteVisionItem(item.id)}
+              onPin={() => onPinCover(board.id, item.content)}
               isCover={board.coverUrl === item.content}
             />
           </div>

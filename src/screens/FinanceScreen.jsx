@@ -5,7 +5,6 @@ import { Eyebrow } from "../components/Eyebrow";
 import { Section } from "../components/Section";
 import { Row } from "../components/Row";
 import { useHSwipe } from "../hooks/useHSwipe";
-import { uid } from "../utils/date";
 import { BILL_CATS } from "../constants";
 import { toMonthKey, shiftMonth, monthLabel, financeMonthTotals, suggestBillCategory } from "../utils/finance";
 
@@ -16,7 +15,7 @@ const RepeatIcon = ({ c, s = 15 }) => (
   </svg>
 );
 
-export function FinanceScreen({ finance, setFinance, mk, setMk }) {
+export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, onAddExtra, onAddBill, onAddExpense, onCarryExpenses }) {
   const realMk = toMonthKey();
   const [incomeDraft, setIncomeDraft] = useState("");
   const [extraName, setExtraName] = useState(""); const [extraAmt, setExtraAmt] = useState("");
@@ -42,10 +41,10 @@ export function FinanceScreen({ finance, setFinance, mk, setMk }) {
             One number: what comes in, what goes out, what's left. Set your monthly income to begin.
           </p>
           <input value={incomeDraft} onChange={(e) => setIncomeDraft(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" enterKeyHint="done"
-            onKeyDown={(e) => e.key === "Enter" && incomeDraft && setFinance((f) => ({ ...f, income: Number(incomeDraft) }))}
+            onKeyDown={(e) => e.key === "Enter" && incomeDraft && onSetIncome(Number(incomeDraft))}
             placeholder="Monthly income (€)"
             style={{ width: "100%", padding: "14px 16px", borderRadius: 14, border: "none", outline: "none", background: T.bg, fontSize: 15, textAlign: "center" }} />
-          <button onClick={() => incomeDraft && setFinance((f) => ({ ...f, income: Number(incomeDraft) }))}
+          <button onClick={() => incomeDraft && onSetIncome(Number(incomeDraft))}
             style={{ width: "100%", marginTop: 12, padding: "14px 0", borderRadius: 16, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 14.5, cursor: "pointer" }}>
             Start tracking
           </button>
@@ -57,40 +56,26 @@ export function FinanceScreen({ finance, setFinance, mk, setMk }) {
   const { bills, extras, expenses, billSum, extraSum, expSum, total, left } = financeMonthTotals(finance, mk);
   const pct = (n) => (total > 0 ? Math.max(0, (n / total) * 100) : 0);
   const isPaid = (b) => (b.recurring ? !!b.paidMonths?.[mk] : !!b.paid);
-  const togglePaid = (b) => setFinance((f) => ({
-    ...f,
-    bills: f.bills.map((x) => x.id !== b.id ? x
-      : x.recurring ? { ...x, paidMonths: { ...(x.paidMonths || {}), [mk]: !x.paidMonths?.[mk] } }
-      : { ...x, paid: !x.paid }),
-  }));
+  const togglePaid = (b) => onTogglePaid(b);
 
   const addExtra = () => {
     if (!extraName.trim() || !extraAmt) return;
-    setFinance((f) => ({ ...f, extras: [...f.extras, { id: uid(), name: extraName.trim(), amount: Number(extraAmt), monthKey: mk }] }));
+    onAddExtra({ name: extraName.trim(), amount: Number(extraAmt), monthKey: mk });
     setExtraName(""); setExtraAmt("");
   };
   const addBill = () => {
     if (!billName.trim() || !billAmt) return;
-    setFinance((f) => ({
-      ...f,
-      bills: [...f.bills, {
-        id: uid(), name: billName.trim(), amount: Number(billAmt),
-        category: billCat || suggestBillCategory(billName),
-        recurring: billRecurring,
-        ...(billRecurring ? { paidMonths: {} } : { monthKey: mk, paid: false }),
-      }],
-    }));
+    onAddBill({
+      name: billName.trim(), amount: Number(billAmt),
+      category: billCat || suggestBillCategory(billName),
+      recurring: billRecurring,
+      ...(billRecurring ? {} : { monthKey: mk }),
+    });
     setBillName(""); setBillAmt(""); setBillCat(null);
   };
   const addExp = () => {
     if (!expName.trim() || !expAmt) return;
-    setFinance((f) => {
-      const key = expName.trim().toLowerCase();
-      const existing = f.expenses.find((e) => e.monthKey === mk && e.name.toLowerCase() === key);
-      return existing
-        ? { ...f, expenses: f.expenses.map((e) => (e === existing ? { ...e, amount: e.amount + Number(expAmt), count: (e.count || 1) + 1 } : e)) }
-        : { ...f, expenses: [...f.expenses, { id: uid(), name: expName.trim(), amount: Number(expAmt), count: 1, monthKey: mk }] };
-    });
+    onAddExpense({ name: expName.trim(), amount: Number(expAmt), monthKey: mk });
     setExpName(""); setExpAmt("");
   };
 
@@ -161,14 +146,8 @@ export function FinanceScreen({ finance, setFinance, mk, setMk }) {
         const canSavings = left > 0 && !savingsCarried;
         const canExpenses = expenses.length > 0 && !expensesCarried;
         if (!canSavings && !canExpenses && !savingsCarried && !expensesCarried) return null;
-        const carrySavings = () => setFinance((f) => ({
-          ...f,
-          extras: [...f.extras, { id: uid(), name: `Saved in ${monthLabel(mk).split(" ")[0]}`, amount: Math.round(left), monthKey: nextMk, carriedFrom: mk, kind: "savings" }],
-        }));
-        const carryExpenses = () => setFinance((f) => ({
-          ...f,
-          expenses: [...f.expenses, ...expenses.map((e) => ({ ...e, id: uid(), monthKey: nextMk, carriedFrom: mk }))],
-        }));
+        const carrySavings = () => onAddExtra({ name: `Saved in ${monthLabel(mk).split(" ")[0]}`, amount: Math.round(left), monthKey: nextMk, carriedFrom: mk, kind: "savings" });
+        const carryExpenses = () => onCarryExpenses(expenses, nextMk, mk);
         const rowBtn = (done, can, label, fn) => (
           <button onClick={can ? fn : undefined} disabled={!can}
             style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center", padding: "11px 2px", cursor: can ? "pointer" : "default", borderBottom: `1px solid ${T.hairline}` }}>

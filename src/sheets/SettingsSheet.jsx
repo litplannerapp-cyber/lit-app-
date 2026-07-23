@@ -7,34 +7,20 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 /* Hierarchy: Settings home (profile card → Account subview · Appearance · sign out).
    Appearance is its own first-class group with Light / Dark / System — not a
-   toggle lost inside an account form. */
-export function SettingsSheet({ profile, setProfile, theme, setTheme, onClose, showToast }) {
+   toggle lost inside an account form. Google-only accounts have no password to
+   change and no free-text email (both are owned by the Google identity). */
+export function SettingsSheet({ profile, onSaveName, onSignOut, theme, setTheme, onClose, showToast }) {
   useBodyScrollLock(true);
   const [view, setView] = useState("home"); // "home" | "account"
   const [name, setName] = useState(profile.name);
-  const [email, setEmail] = useState(profile.email);
-  const [curPw, setCurPw] = useState(""); const [newPw, setNewPw] = useState(""); const [confPw, setConfPw] = useState("");
-  const [pwNote, setPwNote] = useState(null);
 
   const initials = (profile.name || "?").trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   const saveAccount = () => {
-    setProfile((p) => ({ ...p, name: name.trim() || p.name, email: email.trim() || p.email }));
+    if (name.trim()) onSaveName(name.trim());
     showToast("Profile updated");
     setView("home");
   };
-  const changePw = () => {
-    if (!curPw || !newPw) { setPwNote("Fill in your current and new password."); return; }
-    if (newPw.length < 8) { setPwNote("New password needs at least 8 characters."); return; }
-    if (newPw !== confPw) { setPwNote("The new passwords don't match yet."); return; }
-    setCurPw(""); setNewPw(""); setConfPw(""); setPwNote(null);
-    showToast("Password updated");
-  };
-
-  const field = (v, set, ph, type = "text") => (
-    <input value={v} onChange={(e) => set(e.target.value)} placeholder={ph} type={type} enterKeyHint="done"
-      style={{ width: "100%", padding: "13px 16px", borderRadius: 14, border: "none", outline: "none", background: T.bg, fontSize: 14, marginBottom: 10 }} />
-  );
 
   if (view === "account") {
     return (
@@ -42,19 +28,13 @@ export function SettingsSheet({ profile, setProfile, theme, setTheme, onClose, s
         <button onClick={() => setView("home")} style={{ fontSize: 13.5, fontWeight: 600, color: T.ink2, cursor: "pointer", marginBottom: 16 }}>← Settings</button>
 
         <Eyebrow style={{ marginBottom: 10 }}>Details</Eyebrow>
-        {field(name, setName, "Your name")}
-        {field(email, setEmail, "Email", "email")}
-        <button onClick={saveAccount} style={{ width: "100%", padding: "14px 0", borderRadius: 15, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 24 }}>
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" enterKeyHint="done"
+          style={{ width: "100%", padding: "13px 16px", borderRadius: 14, border: "none", outline: "none", background: T.bg, fontSize: 14, marginBottom: 10 }} />
+        <input value={profile.email} disabled placeholder="Email"
+          style={{ width: "100%", padding: "13px 16px", borderRadius: 14, border: "none", outline: "none", background: T.bg, fontSize: 14, marginBottom: 10, color: T.ink3 }} />
+        <p style={{ fontSize: 11.5, color: T.ink3, margin: "0 0 16px" }}>Your email comes from your Google account and can't be changed here.</p>
+        <button onClick={saveAccount} style={{ width: "100%", padding: "14px 0", borderRadius: 15, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
           Save changes
-        </button>
-
-        <Eyebrow style={{ marginBottom: 10 }}>Change password</Eyebrow>
-        {field(curPw, setCurPw, "Current password", "password")}
-        {field(newPw, setNewPw, "New password (8+ characters)", "password")}
-        {field(confPw, setConfPw, "Confirm new password", "password")}
-        {pwNote && <p style={{ fontSize: 12.5, color: T.ink2, margin: "0 0 10px" }}>{pwNote}</p>}
-        <button onClick={changePw} style={{ width: "100%", padding: "13px 0", borderRadius: 15, background: T.bg, color: T.ink, fontWeight: 650, fontSize: 13.5, cursor: "pointer" }}>
-          Update password
         </button>
       </Sheet>
     );
@@ -90,7 +70,7 @@ export function SettingsSheet({ profile, setProfile, theme, setTheme, onClose, s
         ))}
       </div>
 
-      <button onClick={() => showToast("Signed out")} style={{ display: "block", width: "100%", padding: "13px 0", borderRadius: 15, background: T.bg, fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer", textAlign: "center" }}>
+      <button onClick={onSignOut} style={{ display: "block", width: "100%", padding: "13px 0", borderRadius: 15, background: T.bg, fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer", textAlign: "center" }}>
         Sign out
       </button>
 

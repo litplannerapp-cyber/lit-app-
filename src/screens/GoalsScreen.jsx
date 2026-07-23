@@ -4,18 +4,16 @@ import { Card } from "../components/Card";
 import { Eyebrow } from "../components/Eyebrow";
 import { MintBar } from "../components/MintBar";
 import { InlineAdd } from "../components/InlineAdd";
-import { uid, keyToDate } from "../utils/date";
+import { keyToDate } from "../utils/date";
 import { goalPct } from "../utils/task";
 
-export function GoalsScreen({ goals, setGoals }) {
+export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreateGoal }) {
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState(""); const [date, setDate] = useState(""); const [msDraft, setMsDraft] = useState("");
 
-  const toggleMs = (gid, mid) => setGoals((gs) => gs.map((g) => (g.id === gid ? { ...g, milestones: g.milestones.map((m) => (m.id === mid ? { ...m, done: !m.done } : m)) } : g)));
-  const addMs = (gid, text) => setGoals((gs) => gs.map((g) => (g.id === gid ? { ...g, milestones: [...g.milestones, { id: uid(), text, done: false }] } : g)));
   const createGoal = () => {
     if (!title.trim()) return;
-    setGoals((gs) => [...gs, { id: uid(), title: title.trim(), targetDate: date, milestones: msDraft.split("\n").map((s) => s.trim()).filter(Boolean).map((text) => ({ id: uid(), text, done: false })) }]);
+    onCreateGoal({ title: title.trim(), targetDate: date, milestones: msDraft.split("\n").map((s) => s.trim()).filter(Boolean) });
     setTitle(""); setDate(""); setMsDraft(""); setAdding(false);
   };
 
@@ -40,7 +38,7 @@ export function GoalsScreen({ goals, setGoals }) {
             {g.milestones.map((m, ix) => {
               const isNext = ix === nextIx;
               return (
-                <button key={m.id} onClick={() => toggleMs(g.id, m.id)}
+                <button key={m.id} onClick={() => onToggleMilestone(g.id, m.id)}
                   style={{ display: "flex", width: "100%", alignItems: "center", gap: 11, padding: "9px 2px", cursor: "pointer", textAlign: "left" }}>
                   <span style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, border: m.done ? "none" : `1.6px solid ${isNext ? T.mint : T.ink3}`, background: m.done ? T.mint : "transparent", display: "grid", placeItems: "center", transition: "all .25s" }}>
                     {m.done && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
@@ -50,7 +48,7 @@ export function GoalsScreen({ goals, setGoals }) {
                 </button>
               );
             })}
-            <InlineAdd placeholder="Add a milestone" onAdd={(v) => addMs(g.id, v)} />
+            <InlineAdd placeholder="Add a milestone" onAdd={(v) => onAddMilestone(g.id, v)} />
           </Card>
         );
       })}
