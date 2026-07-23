@@ -208,12 +208,12 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
             const done = !!top3[i]?.done;
             return (
               <g key={i}>
-                <path d={arc.d} fill="none" stroke={T.hairline} strokeWidth="8" strokeLinecap="round" />
+                <path d={arc.d} fill="none" stroke={T.hairline} strokeWidth="5" strokeLinecap="round" />
                 {done && (
-                  <path d={arc.d} fill="none" stroke="#FF6B5E" strokeWidth="14" strokeLinecap="round"
+                  <path d={arc.d} fill="none" stroke="#FF6B5E" strokeWidth="9" strokeLinecap="round"
                     opacity={0.28} style={{ transition: "opacity .3s ease" }} />
                 )}
-                <path d={arc.d} fill="none" stroke="url(#ring)" strokeWidth="8" strokeLinecap="round"
+                <path d={arc.d} fill="none" stroke="url(#ring)" strokeWidth="5" strokeLinecap="round"
                   strokeDasharray={arc.length} strokeDashoffset={done ? 0 : arc.length}
                   style={{ transition: "stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)" }} />
               </g>

@@ -53,7 +53,7 @@ export function HaloMark({ size = 64 }) {
         </linearGradient>
       </defs>
       {HALO_ARCS.map((arc, i) => (
-        <path key={i} d={arc.d} fill="none" stroke="url(#haloMarkGrad)" strokeWidth="8" strokeLinecap="round" />
+        <path key={i} d={arc.d} fill="none" stroke="url(#haloMarkGrad)" strokeWidth="5" strokeLinecap="round" />
       ))}
     </svg>
   );
