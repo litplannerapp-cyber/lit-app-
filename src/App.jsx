@@ -19,6 +19,8 @@ import { toMonthKey } from "./utils/finance";
 import { byPeriodAndTime } from "./utils/task";
 import * as db from "./lib/db";
 
+const ONBOARDED_KEY = "lit_onboarded";
+
 function LoadingScreen() {
   return (
     <div style={{ minHeight: "100vh", background: T.pageBg, display: "grid", placeItems: "center" }}>
@@ -46,7 +48,7 @@ export default function LitApp() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
-  const [onboarded, setOnboardedState] = useState(false); /* first login → walkthrough shows once, then persisted */
+  const [onboarded, setOnboardedState] = useState(() => localStorage.getItem(ONBOARDED_KEY) === "true"); /* first login → walkthrough shows once, then persisted (localStorage for instant/offline-safe gating, Supabase profile for cross-device) */
   const [coachStep, setCoachStep] = useState(-1); /* -1 = welcome brand moment, 0+ = pointer tour */
   const [tab, setTab] = useState("today");
   const [selectedDay, setSelectedDay] = useState(todayKey);
@@ -81,7 +83,12 @@ export default function LitApp() {
       const data = await db.fetchAll(user.id);
       if (cancelled) return;
       setProfileName(data.profile?.name || defaultName);
-      setOnboardedState(!!data.profile?.onboarded);
+      const onboardedRemote = !!data.profile?.onboarded;
+      if (onboardedRemote) localStorage.setItem(ONBOARDED_KEY, "true");
+      /* trust either source — a device that already finished the tour should
+         never see it again even if the Supabase write silently failed, and a
+         fresh device picks it up from the account once fetchAll returns */
+      setOnboardedState((prev) => prev || onboardedRemote);
       setTasks(data.tasks);
       setCaptures(data.captures);
       setBoards(data.boards);
@@ -362,6 +369,7 @@ export default function LitApp() {
     db.saveProfileName(user.id, name).catch(console.error);
   };
   const finishOnboarding = () => {
+    localStorage.setItem(ONBOARDED_KEY, "true");
     setOnboardedState(true);
     db.saveOnboarded(user.id, true).catch(console.error);
   };

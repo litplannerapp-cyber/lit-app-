@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T } from "../theme";
 import { Card } from "../components/Card";
 import { HaloMark } from "../icons/Icons";
@@ -18,12 +18,17 @@ const COACH_STEPS = [
   { tab: "today", target: "dock", title: "Glide between screens", body: "Tap, or drag your finger across the dock — the app slides right along with you.", place: "top" },
 ];
 
+const SAFE_MARGIN = 18; /* never let the bubble touch the very edge of the viewport (address bar, notch, home indicator) */
+const BUBBLE_W = 280;
+
 export function CoachMarks({ step, setStep, tab, goTab, onDone }) {
   useBodyScrollLock(true);
   const [rect, setRect] = useState(null);
+  const [bubblePos, setBubblePos] = useState(null); // { top, left, place } — final, edge-clamped, flipped-if-needed
+  const bubbleRef = useRef(null);
   const s = step >= 0 ? COACH_STEPS[step] : null;
 
-  useEffect(() => { setRect(null); }, [step]); /* clear before the next target is measured */
+  useEffect(() => { setRect(null); setBubblePos(null); }, [step]); /* clear before the next target is measured */
 
   useEffect(() => {
     if (!s) return; /* welcome step — nothing to point at yet */
@@ -41,6 +46,37 @@ export function CoachMarks({ step, setStep, tab, goTab, onDone }) {
     window.addEventListener("resize", measure);
     return () => { clearTimeout(t); window.removeEventListener("resize", measure); };
   }, [step, s, tab, goTab]);
+
+  /* once the target rect is known, the bubble renders once (hidden) so its real
+     height can be measured, then this picks a side that actually fits — flipping
+     off the requested one if there isn't room — and clamps to the viewport with
+     a safe margin either way. Runs again on resize/rotation. */
+  useEffect(() => {
+    if (!rect || !s) return;
+    const compute = () => {
+      const bubbleEl = bubbleRef.current;
+      const bubbleH = bubbleEl ? bubbleEl.getBoundingClientRect().height : 150;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const pad = 8;
+      const hole = { top: rect.top - pad, bottom: rect.bottom + pad };
+      const spaceAbove = hole.top;
+      const spaceBelow = vh - hole.bottom;
+      const needed = bubbleH + 12 + SAFE_MARGIN;
+
+      let place = s.place;
+      if (place === "top" && spaceAbove < needed && spaceBelow > spaceAbove) place = "bottom";
+      else if (place === "bottom" && spaceBelow < needed && spaceAbove > spaceBelow) place = "top";
+
+      let top = place === "top" ? hole.top - 12 - bubbleH : hole.bottom + 12;
+      top = Math.min(Math.max(top, SAFE_MARGIN), Math.max(SAFE_MARGIN, vh - bubbleH - SAFE_MARGIN));
+
+      const left = Math.min(Math.max(rect.left + rect.width / 2 - BUBBLE_W / 2, 16), vw - BUBBLE_W - 16);
+      setBubblePos({ top, left, place });
+    };
+    const raf = requestAnimationFrame(compute);
+    window.addEventListener("resize", compute);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", compute); };
+  }, [rect, s]);
 
   if (step === -1) {
     return (
@@ -66,17 +102,15 @@ export function CoachMarks({ step, setStep, tab, goTab, onDone }) {
 
   if (!rect) return null; /* nothing to point at yet — no flash of a broken overlay */
 
-  const pad = 8;
   const vw = window.innerWidth, vh = window.innerHeight;
+  const pad = 8;
   const hole = { top: rect.top - pad, left: rect.left - pad, right: rect.right + pad, bottom: rect.bottom + pad };
   const dim = "rgba(24,21,18,0.55)";
   const shade = (style) => <div style={{ position: "fixed", background: dim, transition: "all .25s ease", ...style }} />;
 
-  const bubbleW = 280;
-  const bubbleTop = s.place === "top" ? hole.top - 12 : hole.bottom + 12;
-  const bubbleLeft = Math.min(Math.max(rect.left + rect.width / 2 - bubbleW / 2, 16), vw - bubbleW - 16);
-  const arrowLeft = rect.left + rect.width / 2 - bubbleLeft;
-
+  const visible = !!bubblePos;
+  const place = bubblePos?.place || s.place;
+  const arrowLeft = bubblePos ? rect.left + rect.width / 2 - bubblePos.left : 0;
   const last = step === COACH_STEPS.length - 1;
 
   return (
@@ -90,13 +124,22 @@ export function CoachMarks({ step, setStep, tab, goTab, onDone }) {
       {/* click-catcher so nothing underneath is nudged mid-tour */}
       <div style={{ position: "fixed", top: hole.top, left: hole.left, width: hole.right - hole.left, height: hole.bottom - hole.top }} />
 
-      {/* tooltip bubble */}
-      <div style={{ position: "fixed", top: s.place === "top" ? undefined : bubbleTop, bottom: s.place === "top" ? vh - bubbleTop : undefined, left: bubbleLeft, width: bubbleW, animation: "rise .28s ease" }}>
-        {s.place === "bottom" && (
+      {/* tooltip bubble — rendered (off-screen-safe) as soon as the target is known so its
+          height can be measured; kept invisible until bubblePos has a final, clamped spot */}
+      <div ref={bubbleRef} style={{
+        position: "fixed",
+        top: bubblePos ? bubblePos.top : 0,
+        left: bubblePos ? bubblePos.left : rect.left,
+        width: BUBBLE_W,
+        visibility: visible ? "visible" : "hidden",
+        pointerEvents: visible ? "auto" : "none",
+        animation: visible ? "rise .28s ease" : undefined,
+      }}>
+        {place === "bottom" && (
           <div style={{ position: "absolute", top: -7, left: arrowLeft - 7, width: 14, height: 14, background: T.card, transform: "rotate(45deg)", borderRadius: 3, boxShadow: T.shadowSm }} />
         )}
         <Card style={{ padding: "16px 18px", position: "relative" }}>
-          {s.place === "top" && (
+          {place === "top" && (
             <div style={{ position: "absolute", bottom: -7, left: arrowLeft - 7, width: 14, height: 14, background: T.card, transform: "rotate(45deg)", borderRadius: 3 }} />
           )}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
