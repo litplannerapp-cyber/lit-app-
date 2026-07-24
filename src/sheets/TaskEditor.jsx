@@ -112,11 +112,14 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
         </div>
       )}
 
-      <button onClick={save} style={{ width: "100%", marginTop: 22, padding: "16px 0", borderRadius: 17, background: T.coralGrad, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 10px 24px rgba(255,107,94,.3)" }}>
+      {/* onPointerDown + preventDefault, not onClick: iOS Safari's keyboard-dismiss
+          reflow can eat the click that would otherwise fire after a still-focused
+          text field blurs — same fix as the Inbox composer's send button */}
+      <button onPointerDown={(e) => { e.preventDefault(); save(); }} style={{ width: "100%", marginTop: 22, padding: "16px 0", borderRadius: 17, background: T.coralGrad, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 10px 24px rgba(255,107,94,.3)" }}>
         {editing ? "Save changes" : "Add to the day"}
       </button>
       {!editing && (
-        <button onClick={() => text.trim() && onToInbox(text.trim())} style={{ display: "block", width: "100%", marginTop: 12, fontSize: 13, color: T.ink2, fontWeight: 600, cursor: "pointer", textAlign: "center" }}>
+        <button onPointerDown={(e) => { e.preventDefault(); text.trim() && onToInbox(text.trim()); }} style={{ display: "block", width: "100%", marginTop: 12, fontSize: 13, color: T.ink2, fontWeight: 600, cursor: "pointer", textAlign: "center" }}>
           No date yet? Keep it in the Inbox
         </button>
       )}
