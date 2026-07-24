@@ -290,7 +290,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
       </div>
 
       {/* add task — the day's primary action, before the peripheral glances */}
-      <button data-coach="addtask" onClick={() => setEditor({})} style={{ width: "100%", marginTop: 26, padding: "16px 0", borderRadius: 18, background: T.coralGrad, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 10px 24px rgba(255,107,94,.32)" }}>
+      <button data-coach="addtask" onClick={() => setEditor({ initial: { dateKey: selectedDay } })} style={{ width: "100%", marginTop: 26, padding: "16px 0", borderRadius: 18, background: T.coralGrad, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 10px 24px rgba(255,107,94,.32)" }}>
         Add task
       </button>
 
