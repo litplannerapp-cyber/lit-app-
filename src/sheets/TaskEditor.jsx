@@ -39,7 +39,7 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
   return (
     <Sheet onClose={onClose} title={editing ? "Edit task" : "New task"}>
       {/* single-line input on purpose: iOS keyboard shows "done", not "new line" */}
-      <input autoFocus value={text} onChange={(e) => setText(e.target.value)} enterKeyHint="done"
+      <input value={text} onChange={(e) => setText(e.target.value)} enterKeyHint="done"
         onKeyDown={(e) => e.key === "Enter" && save()}
         placeholder="What needs doing?"
         style={{ width: "100%", padding: "15px 16px", borderRadius: 15, border: "none", outline: "none", background: T.bg, fontSize: 15.5, fontWeight: 500 }} />
@@ -50,9 +50,6 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
         <input type="date" value={dateKey} onChange={(e) => e.target.value && setDateKey(e.target.value)}
           style={{ padding: "7px 12px", borderRadius: 100, border: "none", outline: "none", background: dateKey !== todayKey && dateKey !== tomorrowKey ? T.coralSoft : T.bg, fontSize: 12.5, color: T.ink2, WebkitAppearance: "none", appearance: "none" }} />
       </div>
-
-      <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional)" rows={2}
-        style={{ width: "100%", marginTop: 14, padding: "13px 16px", borderRadius: 15, border: "none", outline: "none", resize: "none", background: T.bg, fontSize: 13.5, lineHeight: 1.5 }} />
 
       <button onClick={() => setMore(!more)} style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 14, fontSize: 13, fontWeight: 600, color: T.ink2, cursor: "pointer" }}>
         More options <span style={{ transform: more ? "rotate(90deg)" : "none", transition: "transform .2s", display: "inline-flex" }}>{Ic.chevR(T.ink2)}</span>
@@ -78,6 +75,10 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} aria-label="End time"
               style={{ flex: 1, padding: "10px 14px", borderRadius: 13, border: "none", outline: "none", background: T.bg, fontSize: 13.5 }} />
           </div>
+
+          <Eyebrow style={{ margin: "16px 0 8px" }}>Notes</Eyebrow>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional)" rows={2}
+            style={{ width: "100%", padding: "13px 16px", borderRadius: 15, border: "none", outline: "none", resize: "none", background: T.bg, fontSize: 13.5, lineHeight: 1.5 }} />
 
           <Eyebrow style={{ margin: "16px 0 8px" }}>Group</Eyebrow>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
