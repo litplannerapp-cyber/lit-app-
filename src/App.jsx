@@ -198,6 +198,10 @@ export default function LitApp() {
     setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items } : c)));
     db.dbUpdateCapture(cid, { items }).catch(console.error);
   };
+  const updateCapture = (id, changes) => {
+    setCaptures((cs) => cs.map((c) => (c.id === id ? { ...c, ...changes } : c)));
+    db.dbUpdateCapture(id, changes).catch(console.error);
+  };
   const captureToTask = (c) => {
     const temp = { id: uid(), text: c.title || c.text, dateKey: todayKey, done: false, top3: false };
     setTasks((ts) => [...ts, temp]);
@@ -439,7 +443,7 @@ export default function LitApp() {
         {/* Inbox bottom sheet */}
         {inboxOpen && (
           <InboxSheet
-            captures={captures} addCapture={addCapture} releaseCapture={releaseCapture} toggleListItem={toggleListItem}
+            captures={captures} addCapture={addCapture} releaseCapture={releaseCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
             captureToTask={captureToTask} captureToVision={captureToVision}
             onSchedule={(c) => { setInboxOpen(false); setEditor({ initial: { text: c.title || c.text }, fromCaptureId: c.id }); }}
             onClose={() => setInboxOpen(false)} showToast={showToast}

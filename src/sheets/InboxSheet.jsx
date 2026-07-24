@@ -7,7 +7,7 @@ import { GROCERY_WORDS } from "../constants";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { CaptureRow } from "./CaptureRow";
 
-export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, captureToTask, captureToVision, onSchedule, onClose, showToast }) {
+export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, updateCapture, captureToTask, captureToVision, onSchedule, onClose, showToast }) {
   useBodyScrollLock(true);
   const [type, setType] = useState(null); // null | task | list | image
   const [free, setFree] = useState("");
@@ -151,7 +151,7 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
             {visible.map((c) => (
               <CaptureRow key={c.id} c={c} expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
                 onTask={() => captureToTask(c)} onVision={() => captureToVision(c)} onSchedule={() => onSchedule(c)} onRelease={() => releaseCapture(c.id)}
-                onToggleItem={(ix) => toggleListItem(c.id, ix)} />
+                onToggleItem={(ix) => toggleListItem(c.id, ix)} onEdit={(changes) => updateCapture(c.id, changes)} />
             ))}
             {visible.length === 0 && <p style={{ fontSize: 13, color: T.ink3, textAlign: "center", padding: "20px 0" }}>No captures match.</p>}
           </div>
