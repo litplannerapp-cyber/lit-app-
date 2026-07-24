@@ -48,7 +48,7 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
         {datePill("Today", todayKey)}
         {datePill("Tomorrow", tomorrowKey)}
         <input type="date" value={dateKey} onChange={(e) => e.target.value && setDateKey(e.target.value)}
-          style={{ padding: "7px 12px", borderRadius: 100, border: "none", outline: "none", background: dateKey !== todayKey && dateKey !== tomorrowKey ? T.coralSoft : T.bg, fontSize: 12.5, color: T.ink2 }} />
+          style={{ padding: "7px 12px", borderRadius: 100, border: "none", outline: "none", background: dateKey !== todayKey && dateKey !== tomorrowKey ? T.coralSoft : T.bg, fontSize: 12.5, color: T.ink2, WebkitAppearance: "none", appearance: "none" }} />
       </div>
 
       <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional)" rows={2}

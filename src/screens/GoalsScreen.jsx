@@ -58,7 +58,7 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreate
           <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Goal title" enterKeyHint="next"
             style={{ width: "100%", border: "none", outline: "none", fontSize: 15.5, fontWeight: 600, background: "transparent", marginBottom: 10 }} />
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "none", outline: "none", background: T.bg, fontSize: 13.5, marginBottom: 10 }} />
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "none", outline: "none", background: T.bg, fontSize: 13.5, marginBottom: 10, WebkitAppearance: "none", appearance: "none" }} />
           <textarea value={msDraft} onChange={(e) => setMsDraft(e.target.value)} rows={3} placeholder={"Milestones, one per line"}
             style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "none", outline: "none", resize: "none", background: T.bg, fontSize: 13.5, lineHeight: 1.6 }} />
           <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
