@@ -140,6 +140,7 @@ export async function dbInsertVisionItem(userId, item, boardId, position) {
   return visionItemFromRow(data);
 }
 export const dbMoveVisionItem = (id, boardId) => Promise.resolve(supabase.from("vision_items").update({ board_id: boardId ?? null }).eq("id", id));
+export const dbUpdateVisionItem = (id, patch) => Promise.resolve(supabase.from("vision_items").update(patch).eq("id", id));
 export const dbUpdateVisionItemPositions = (updates) => Promise.all(updates.map(({ id, position }) => supabase.from("vision_items").update({ position }).eq("id", id)));
 export const dbDeleteVisionItem = (id) => Promise.resolve(supabase.from("vision_items").delete().eq("id", id));
 

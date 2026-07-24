@@ -297,6 +297,10 @@ export default function LitApp() {
     else setLooseItems((ls) => [item, ...ls]);
     db.dbMoveVisionItem(itemId, targetBoardId).catch(console.error);
   };
+  const editVisionItem = (id, changes) => {
+    setBoards((bs) => bs.map((b) => ({ ...b, items: b.items.map((i) => (i.id === id ? { ...i, ...changes } : i)) })));
+    db.dbUpdateVisionItem(id, changes).catch(console.error);
+  };
   const addImageToBoard = (boardId, dataUrl) => {
     const item = { id: uid(), type: "image", content: dataUrl, tags: [] };
     setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
@@ -429,7 +433,7 @@ export default function LitApp() {
             <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
               onAddLooseItem: addLooseItem, onPlaceOnBoard: placeOnBoard, onCreateBoard: createBoard, onUpdateBoard: updateBoard,
               onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems,
-              onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover }} />
+              onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem }} />
           )}
           {tab === "finance" && (
             <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,

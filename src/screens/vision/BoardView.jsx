@@ -5,9 +5,11 @@ import { Eyebrow } from "../../components/Eyebrow";
 import { VisionTile } from "../../components/VisionTile";
 import { useImagePicker } from "../../hooks/useImagePicker";
 
-export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover }) {
+export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover, onEditItem }) {
   const dragIx = useRef(null);
   const [moveItem, setMoveItem] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editDraft, setEditDraft] = useState("");
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
     onAddImage(board.id, dataUrl);
     showToast(`Image added to ${board.name}`);
@@ -17,6 +19,13 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
   const moveTo = (item, targetId) => {
     onMoveItem(item.id, targetId === "loose" ? null : targetId);
     setMoveItem(null);
+  };
+  const editItem = (id, changes) => onEditItem(id, changes);
+  const startEdit = (item) => { setEditDraft(item.content || ""); setEditingItem(item); };
+  const saveEdit = () => {
+    const v = editDraft.trim();
+    if (v) editItem(editingItem.id, { content: v });
+    setEditingItem(null);
   };
 
   return (
@@ -42,6 +51,7 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
               onDelete={() => onDeleteVisionItem(item.id)}
               onPin={() => onPinCover(board.id, item.content)}
               isCover={board.coverUrl === item.content}
+              onEdit={(item.type === "text" || item.type === "link") ? () => startEdit(item) : null}
             />
           </div>
         ))}
@@ -62,6 +72,26 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
               Take it off this board (back to loose)
             </button>
             <button onClick={() => setMoveItem(null)} style={{ marginTop: 14, fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer" }}>Keep it here</button>
+          </Card>
+        </div>
+      )}
+      {editingItem && (
+        <div onClick={() => setEditingItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: "end center" }}>
+          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, borderRadius: "24px 24px 0 0", padding: 22 }}>
+            <Eyebrow style={{ marginBottom: 12 }}>Edit {editingItem.type}</Eyebrow>
+            {editingItem.type === "link" ? (
+              <input autoFocus value={editDraft} onChange={(e) => setEditDraft(e.target.value)} enterKeyHint="done"
+                onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                placeholder="https://…"
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "none", outline: "none", background: T.bg, fontSize: 14, color: T.ink }} />
+            ) : (
+              <textarea autoFocus value={editDraft} onChange={(e) => setEditDraft(e.target.value)} rows={4}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "none", outline: "none", resize: "none", background: T.bg, fontSize: 14, lineHeight: 1.5, color: T.ink }} />
+            )}
+            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+              <button onPointerDown={(e) => { e.preventDefault(); saveEdit(); }} style={{ padding: "10px 18px", borderRadius: 100, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 13.5, cursor: "pointer" }}>Save</button>
+              <button onClick={() => setEditingItem(null)} style={{ padding: "10px 18px", borderRadius: 100, background: T.bg, color: T.ink2, fontWeight: 600, fontSize: 13.5, cursor: "pointer" }}>Cancel</button>
+            </div>
           </Card>
         </div>
       )}

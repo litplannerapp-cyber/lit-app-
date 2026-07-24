@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { T } from "../theme";
+
+const DOUBLE_TAP_MS = 320;
 
 export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule, onRelease, onToggleItem, onEdit }) {
   const [leaving, setLeaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const editableField = c.type === "task" ? "title" : "text";
   const [draft, setDraft] = useState(c[editableField] || "");
+  const lastTapRef = useRef(0);
   const release = () => { setLeaving(true); setTimeout(onRelease, 260); };
   const listItems = (c.items || []).map((i) => (typeof i === "string" ? { text: i, done: false } : i));
   const label = c.type === "list" && c.title
@@ -24,6 +27,21 @@ export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule
     setEditing(false);
   };
 
+  /* single tap expands/collapses (onToggle); a second tap within 320ms on a
+     note/task capture opens edit directly instead — dblclick alone isn't
+     reliable on touch, so this tracks the gap between taps by hand and the
+     onDoubleClick below just covers desktop mice for good measure */
+  const handleHeaderTap = () => {
+    const now = Date.now();
+    if (canEdit && now - lastTapRef.current < DOUBLE_TAP_MS) {
+      lastTapRef.current = 0;
+      startEdit();
+    } else {
+      lastTapRef.current = now;
+      onToggle();
+    }
+  };
+
   return (
     <div style={{ background: T.card, borderRadius: 16, padding: "12px 14px", marginBottom: 8, boxShadow: T.shadowSm, animation: leaving ? "fadeSlideOut .26s ease forwards" : undefined }}>
       {editing ? (
@@ -38,7 +56,7 @@ export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule
         </div>
       ) : (
         <>
-          <button onClick={onToggle} style={{ display: "flex", width: "100%", alignItems: expanded ? "flex-start" : "center", gap: 10, cursor: "pointer", textAlign: "left" }}>
+          <button onClick={handleHeaderTap} onDoubleClick={() => canEdit && startEdit()} style={{ display: "flex", width: "100%", alignItems: expanded ? "flex-start" : "center", gap: 10, cursor: "pointer", textAlign: "left" }}>
             <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: T.coral, background: T.coralSoft, padding: "3px 8px", borderRadius: 100, flexShrink: 0 }}>{c.type}</span>
             <span style={expanded
               ? { flex: 1, fontSize: 13.5, fontWeight: 500, whiteSpace: "pre-wrap", overflowWrap: "break-word" }
@@ -66,7 +84,6 @@ export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule
           )}
           {expanded && (
             <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
-              {canEdit && act("Edit", startEdit)}
               {act("→ Task", onTask, "#fff", T.coralGrad)}
               {canVision && act("→ Vision", onVision, T.mint, T.mintSoft)}
               {act("Schedule", onSchedule, T.sky, T.skySoft)}

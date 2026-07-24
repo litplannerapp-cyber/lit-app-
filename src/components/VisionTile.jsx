@@ -3,7 +3,7 @@ import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { LinkPreview } from "./LinkPreview";
 
-export function VisionTile({ item, subtitle, onDelete, onPin, isCover, draggable, onDragStart, onDragOver, onDrop }) {
+export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, isCover, draggable, onDragStart, onDragOver, onDrop }) {
   const [confirm, setConfirm] = useState(false);
   return (
     <div draggable={draggable} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}
@@ -24,6 +24,11 @@ export function VisionTile({ item, subtitle, onDelete, onPin, isCover, draggable
           {item.type === "image" && onPin && (
             <button onClick={(e) => { e.stopPropagation(); onPin(); }} aria-label="Set as board cover" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
               {Ic.pin(isCover, isCover ? T.coral : T.ink2)}
+            </button>
+          )}
+          {onEdit && (
+            <button onClick={(e) => { e.stopPropagation(); onEdit(); }} aria-label="Edit item" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
+              {Ic.pencil(T.ink2)}
             </button>
           )}
           {confirm ? (

@@ -11,6 +11,24 @@ import { addDays, toDateKey, keyToDate, phraseForToday } from "../utils/date";
 import { byPeriodAndTime, goalPct } from "../utils/task";
 import { financeMonthTotals, monthLabel, toMonthKey } from "../utils/finance";
 
+/* touch drops are imprecise, so hit-testing samples a small ring of points
+   around the finger (center + 8 around it, ~14px out) instead of just the
+   exact pixel — the first hit wins */
+const DROP_SAMPLE_RADIUS = 14;
+const DROP_SAMPLE_OFFSETS = [
+  [0, 0],
+  [DROP_SAMPLE_RADIUS, 0], [-DROP_SAMPLE_RADIUS, 0], [0, DROP_SAMPLE_RADIUS], [0, -DROP_SAMPLE_RADIUS],
+  [DROP_SAMPLE_RADIUS, DROP_SAMPLE_RADIUS], [DROP_SAMPLE_RADIUS, -DROP_SAMPLE_RADIUS], [-DROP_SAMPLE_RADIUS, DROP_SAMPLE_RADIUS], [-DROP_SAMPLE_RADIUS, -DROP_SAMPLE_RADIUS],
+];
+const findDropZone = (x, y) => {
+  for (const [dx, dy] of DROP_SAMPLE_OFFSETS) {
+    const el = document.elementFromPoint(x + dx, y + dy);
+    const zone = el && el.closest ? el.closest("[data-drop]") : null;
+    if (zone) return zone.getAttribute("data-drop");
+  }
+  return null;
+};
+
 export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, captures, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setInboxOpen, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
   const now = new Date();
   const hour = now.getHours();
@@ -83,9 +101,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
     const move = (ev) => {
       if (ev.pointerId !== pointerId || !active) return;
       setDrag((d) => d && { ...d, x: ev.clientX, y: ev.clientY });
-      const under = document.elementFromPoint(ev.clientX, ev.clientY);
-      const zone = under && under.closest ? under.closest("[data-drop]") : null;
-      const z = zone ? zone.getAttribute("data-drop") : null;
+      const z = findDropZone(ev.clientX, ev.clientY);
       zoneRef.current = z; setHoverZone(z);
     };
     const end = (apply) => {
@@ -144,7 +160,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
       </div>
 
       {/* week strip Mon–Sun */}
-      <div data-noswipe style={{ display: "flex", gap: 6, marginTop: 22 }}>
+      <div data-noswipe style={{ display: "flex", gap: 4, marginTop: 22 }}>
         {week.map((d) => {
           const k = toDateKey(d);
           const sel = k === selectedDay;
@@ -152,7 +168,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           return (
             <button key={k} onClick={() => { setSelectedDay(k); setFinanceMonth(toMonthKey(keyToDate(k))); }}
               data-drop={"day:" + k}
-              style={{ flex: 1, padding: "10px 0 9px", borderRadius: 16, cursor: "pointer", textAlign: "center",
+              style={{ flex: 1, padding: "12px 0 11px", borderRadius: 16, cursor: "pointer", textAlign: "center",
                 background: sel ? T.coralGrad : hoverZone === "day:" + k ? T.coralSoft : "transparent",
                 outline: hoverZone === "day:" + k ? `2px solid ${T.coral}` : "none",
                 boxShadow: sel ? "0 6px 16px rgba(255,107,94,.32)" : "none",
