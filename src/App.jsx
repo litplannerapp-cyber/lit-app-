@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { T, applyTheme } from "./theme";
 import { GlobalStyle } from "./components/GlobalStyle";
 import { Dock } from "./components/Dock";
+import { TopBar } from "./components/TopBar";
 import { HaloMark } from "./icons/Icons";
 import { TodayScreen } from "./screens/TodayScreen";
 import { VisionScreen } from "./screens/VisionScreen";
@@ -20,6 +21,7 @@ import { byPeriodAndTime } from "./utils/task";
 import * as db from "./lib/db";
 
 const ONBOARDED_KEY = "lit_onboarded";
+const THEME_KEY = "lit_theme";
 
 function LoadingScreen() {
   return (
@@ -33,7 +35,8 @@ export default function LitApp() {
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
 
   const todayKey = toDateKey();
-  const [theme, setTheme] = useState("light"); // "light" | "dark" | "system"
+  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light"); // "light" | "dark" | "system"
+  useEffect(() => { localStorage.setItem(THEME_KEY, theme); }, [theme]);
   const [sysDark, setSysDark] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)").matches : false));
   useEffect(() => {
     if (!window.matchMedia) return;
@@ -413,13 +416,14 @@ export default function LitApp() {
       <GlobalStyle />
 
       <div style={{ width: "100%", maxWidth: 440, minHeight: "100vh", position: "relative", padding: "0 0 110px" }}>
+        <TopBar dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
         {!onboarded && (
           <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />
         )}
         <div key={tabSlide ? tabSlide.k : tab}
           style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
           {tab === "today" && (
-            <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, captures, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setInboxOpen, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, openProfile: () => setProfileOpen(true), dark, toggleTheme: () => setTheme(dark ? "light" : "dark") }} />
+            <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, captures, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setInboxOpen, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
           )}
           {tab === "vision" && (
             <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
