@@ -43,13 +43,17 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
   const financeReady = finance.income != null;
   const financeLeft = financeReady ? financeMonthTotals(finance, financeMonth).left : 0;
 
-  const onDropDay = (e, dateKey) => { const id = e.dataTransfer.getData("taskId"); if (id) moveTaskToDay(id, dateKey); };
-  const onDropTop3 = (e) => { const id = e.dataTransfer.getData("taskId"); if (id) setTop3(id, true); };
-  const onDropRest = (e) => { const id = e.dataTransfer.getData("taskId"); if (id) setTop3(id, false); };
-
   /* --- press & drag: hold a card (touch) or just drag it (mouse), drop on a
      weekday to move the date, on "Your 3" to make it a priority, or on
-     "Rest of the day" to demote. Ghost follows the finger. --- */
+     "Rest of the day" to demote. Ghost follows the finger.
+
+     Pointer capture is set on the grip the moment the gesture starts so
+     move/up/cancel keep arriving here no matter what the finger passes over,
+     and every one of those listeners is filtered to this gesture's exact
+     pointerId so a second, accidental touch can't cross wires with it. A
+     safety timeout guarantees the ghost is released even if a pointerup is
+     somehow never delivered — this was freezing the whole card mid-drag on
+     some mobile browsers. --- */
   const [drag, setDrag] = useState(null);           // {id, text, x, y}
   const [hoverZone, setHoverZone] = useState(null); // "top3" | "rest" | "day:YYYY-MM-DD"
   const zoneRef = useRef(null);
@@ -57,9 +61,12 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
 
   const startDrag = (t) => (e) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
+    const pointerId = e.pointerId;
+    const grip = e.currentTarget;
+    try { grip.setPointerCapture(pointerId); } catch { /* unsupported — window listeners still cover the gesture */ }
     const startX = e.clientX, startY = e.clientY;
     let active = false;
-    const timer = null;
+    let safetyTimer = null;
 
     const activate = () => {
       if (active) return;
@@ -67,13 +74,14 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden"; /* freeze page scroll (body AND html) */
       setDrag({ id: t.id, text: t.text, x: startX, y: startY });
+      safetyTimer = setTimeout(() => end(false), 8000); /* never let a missed pointerup leave the ghost stuck */
     };
     activate(); /* the grip is touch-action:none, so the gesture is ours from the first pixel */
 
     const touchBlock = (ev) => { if (active && ev.cancelable) ev.preventDefault(); };
 
     const move = (ev) => {
-      if (!active) return;
+      if (ev.pointerId !== pointerId || !active) return;
       setDrag((d) => d && { ...d, x: ev.clientX, y: ev.clientY });
       const under = document.elementFromPoint(ev.clientX, ev.clientY);
       const zone = under && under.closest ? under.closest("[data-drop]") : null;
@@ -81,11 +89,12 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
       zoneRef.current = z; setHoverZone(z);
     };
     const end = (apply) => {
-      clearTimeout(timer);
+      clearTimeout(safetyTimer);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", cancel);
       window.removeEventListener("touchmove", touchBlock);
+      try { grip.releasePointerCapture(pointerId); } catch { /* already released or unsupported */ }
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
       if (active && apply) {
@@ -98,8 +107,8 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
       }
       setDrag(null); setHoverZone(null); zoneRef.current = null;
     };
-    const up = () => end(true);
-    const cancel = () => end(false);
+    const up = (ev) => { if (ev.pointerId === pointerId) end(true); };
+    const cancel = (ev) => { if (ev.pointerId === pointerId) end(false); };
     window.addEventListener("pointermove", move, { passive: false });
     window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", cancel);
@@ -163,7 +172,6 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           return (
             <button key={k} onClick={() => { setSelectedDay(k); setFinanceMonth(toMonthKey(keyToDate(k))); }}
               data-drop={"day:" + k}
-              onDragOver={(e) => e.preventDefault()} onDrop={(e) => onDropDay(e, k)}
               style={{ flex: 1, padding: "10px 0 9px", borderRadius: 16, cursor: "pointer", textAlign: "center",
                 background: sel ? T.coralGrad : hoverZone === "day:" + k ? T.coralSoft : "transparent",
                 outline: hoverZone === "day:" + k ? `2px solid ${T.coral}` : "none",
@@ -244,7 +252,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           <TaskCard key={t.id} t={t} big toggleDone={toggleDone} deleteTask={deleteTask} setTop3={setTop3} setEditor={setEditor} openDetail={openDetailGuarded} onPressDrag={startDrag(t)} dragging={drag?.id === t.id} />
         ))}
         {top3.length === 0 && rest.length > 0 && (
-          <div data-drop="top3" onDragOver={(e) => e.preventDefault()} onDrop={onDropTop3}
+          <div data-drop="top3"
             style={{ border: `1.6px dashed ${hoverZone === "top3" ? T.coral : T.ink3}`, background: hoverZone === "top3" ? T.coralSoft : "transparent", borderRadius: T.r, padding: "26px 20px", textAlign: "center", color: T.ink2, fontSize: 13.5, transition: "all .15s" }}>
             Drag a task here — or tap the star on any task below
           </div>
@@ -256,13 +264,12 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           </Card>
         )}
         {top3.length > 0 && top3.length < 3 && (
-          <div onDragOver={(e) => e.preventDefault()} onDrop={onDropTop3} style={{ height: 10 }} />
+          <div style={{ height: 10 }} />
         )}
       </div>
 
       {/* Rest of the day */}
-      <div style={{ marginTop: 30, borderTop: `1px solid ${T.hairline}`, paddingTop: 18 }}
-        onDragOver={(e) => e.preventDefault()} onDrop={onDropRest}>
+      <div style={{ marginTop: 30, borderTop: `1px solid ${T.hairline}`, paddingTop: 18 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
           <Eyebrow>Rest of the day</Eyebrow>
           <span style={{ fontSize: 12, color: T.ink3 }}>{rest.length > 0 ? `${rest.length} waiting, no pressure` : "nothing waiting"}</span>

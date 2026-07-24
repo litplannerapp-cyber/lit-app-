@@ -96,8 +96,12 @@ export async function ensureProfile(userId, defaultName) {
   if (error) throw error;
   return data;
 }
-export const saveProfileName = (userId, name) => supabase.from("profiles").update({ name }).eq("user_id", userId);
-export const saveOnboarded = (userId, onboarded) => supabase.from("profiles").update({ onboarded }).eq("user_id", userId);
+/* Postgrest's query builder only implements .then(), not .catch()/.finally() —
+   calling .catch() straight on one throws synchronously ("not a function") and
+   can abort whatever cleanup runs after it at the call site. Promise.resolve()
+   assimilates it into a real Promise so every caller's `.catch(...)` is safe. */
+export const saveProfileName = (userId, name) => Promise.resolve(supabase.from("profiles").update({ name }).eq("user_id", userId));
+export const saveOnboarded = (userId, onboarded) => Promise.resolve(supabase.from("profiles").update({ onboarded }).eq("user_id", userId));
 
 /* ---------- tasks ---------- */
 
@@ -106,9 +110,9 @@ export async function dbInsertTask(userId, task) {
   if (error) throw error;
   return taskFromRow(data);
 }
-export const dbUpdateTask = (id, patch) => supabase.from("tasks").update(patch).eq("id", id);
-export const dbReplaceTask = (id, task, userId) => supabase.from("tasks").update(taskToRow(task, userId)).eq("id", id);
-export const dbDeleteTask = (id) => supabase.from("tasks").delete().eq("id", id);
+export const dbUpdateTask = (id, patch) => Promise.resolve(supabase.from("tasks").update(patch).eq("id", id));
+export const dbReplaceTask = (id, task, userId) => Promise.resolve(supabase.from("tasks").update(taskToRow(task, userId)).eq("id", id));
+export const dbDeleteTask = (id) => Promise.resolve(supabase.from("tasks").delete().eq("id", id));
 
 /* ---------- captures ---------- */
 
@@ -117,8 +121,8 @@ export async function dbInsertCapture(userId, capture) {
   if (error) throw error;
   return captureFromRow(data);
 }
-export const dbUpdateCapture = (id, patch) => supabase.from("captures").update(patch).eq("id", id);
-export const dbDeleteCapture = (id) => supabase.from("captures").delete().eq("id", id);
+export const dbUpdateCapture = (id, patch) => Promise.resolve(supabase.from("captures").update(patch).eq("id", id));
+export const dbDeleteCapture = (id) => Promise.resolve(supabase.from("captures").delete().eq("id", id));
 
 /* ---------- boards & vision items ---------- */
 
@@ -127,17 +131,17 @@ export async function dbInsertBoard(userId, board) {
   if (error) throw error;
   return { id: data.id, name: data.name, color: data.color, coverUrl: data.cover_url, items: [] };
 }
-export const dbUpdateBoard = (id, patch) => supabase.from("boards").update(patch).eq("id", id);
-export const dbDeleteBoard = (id) => supabase.from("boards").delete().eq("id", id);
+export const dbUpdateBoard = (id, patch) => Promise.resolve(supabase.from("boards").update(patch).eq("id", id));
+export const dbDeleteBoard = (id) => Promise.resolve(supabase.from("boards").delete().eq("id", id));
 
 export async function dbInsertVisionItem(userId, item, boardId, position) {
   const { data, error } = await supabase.from("vision_items").insert(visionItemToRow(item, userId, boardId, position)).select().single();
   if (error) throw error;
   return visionItemFromRow(data);
 }
-export const dbMoveVisionItem = (id, boardId) => supabase.from("vision_items").update({ board_id: boardId ?? null }).eq("id", id);
+export const dbMoveVisionItem = (id, boardId) => Promise.resolve(supabase.from("vision_items").update({ board_id: boardId ?? null }).eq("id", id));
 export const dbUpdateVisionItemPositions = (updates) => Promise.all(updates.map(({ id, position }) => supabase.from("vision_items").update({ position }).eq("id", id)));
-export const dbDeleteVisionItem = (id) => supabase.from("vision_items").delete().eq("id", id);
+export const dbDeleteVisionItem = (id) => Promise.resolve(supabase.from("vision_items").delete().eq("id", id));
 
 /* ---------- goals & milestones ---------- */
 
@@ -155,11 +159,11 @@ export async function dbInsertMilestone(userId, goalId, text) {
   if (error) throw error;
   return { id: data.id, text: data.text, done: data.done };
 }
-export const dbUpdateMilestone = (id, patch) => supabase.from("milestones").update(patch).eq("id", id);
+export const dbUpdateMilestone = (id, patch) => Promise.resolve(supabase.from("milestones").update(patch).eq("id", id));
 
 /* ---------- finance ---------- */
 
-export const dbSetIncome = (userId, income) => supabase.from("finance_profile").upsert({ user_id: userId, income }, { onConflict: "user_id" });
+export const dbSetIncome = (userId, income) => Promise.resolve(supabase.from("finance_profile").upsert({ user_id: userId, income }, { onConflict: "user_id" }));
 
 export async function dbInsertBill(userId, bill) {
   const row = {
@@ -171,7 +175,7 @@ export async function dbInsertBill(userId, bill) {
   if (error) throw error;
   return billFromRow(data);
 }
-export const dbUpdateBillPaid = (id, recurring, patch) => supabase.from("finance_bills").update(patch).eq("id", id);
+export const dbUpdateBillPaid = (id, recurring, patch) => Promise.resolve(supabase.from("finance_bills").update(patch).eq("id", id));
 
 export async function dbInsertExtra(userId, extra) {
   const { data, error } = await supabase.from("finance_extras").insert({
@@ -190,8 +194,8 @@ export async function dbInsertExpense(userId, expense) {
   if (error) throw error;
   return expenseFromRow(data);
 }
-export const dbUpdateExpense = (id, patch) => supabase.from("finance_expenses").update(patch).eq("id", id);
+export const dbUpdateExpense = (id, patch) => Promise.resolve(supabase.from("finance_expenses").update(patch).eq("id", id));
 
 /* ---------- streak ---------- */
 
-export const dbInsertClearedDay = (userId, dateKey) => supabase.from("cleared_days").insert({ user_id: userId, date_key: dateKey });
+export const dbInsertClearedDay = (userId, dateKey) => Promise.resolve(supabase.from("cleared_days").insert({ user_id: userId, date_key: dateKey }));

@@ -120,12 +120,26 @@ export default function LitApp() {
 
   /* ----- task ops ----- */
   const saveTask = (data, existingId) => {
+    /* "Mark as priority" in the form is a real promotion to the day's Top 3,
+       not just a cosmetic dot — same 3-slot rule and silent refusal as the
+       star button on a task card. Unchecking it never demotes on its own;
+       that stays the star/drag's job. */
+    let top3;
+    if (data.priority) {
+      const occupied = tasks.filter((t) => t.dateKey === data.dateKey && t.top3 && t.id !== existingId).length;
+      top3 = occupied < 3;
+    } else if (existingId) {
+      top3 = tasks.find((t) => t.id === existingId)?.top3 || false;
+    } else {
+      top3 = false;
+    }
+
     if (existingId) {
-      const merged = { ...tasks.find((t) => t.id === existingId), ...data };
+      const merged = { ...tasks.find((t) => t.id === existingId), ...data, top3 };
       setTasks((ts) => ts.map((t) => (t.id === existingId ? merged : t)));
       db.dbReplaceTask(existingId, merged, user.id).catch(console.error);
     } else {
-      const temp = { id: uid(), done: false, top3: false, ...data };
+      const temp = { id: uid(), done: false, ...data, top3 };
       setTasks((ts) => [...ts, temp]);
       db.dbInsertTask(user.id, temp).then((real) => {
         setTasks((ts) => ts.map((t) => (t.id === temp.id ? real : t)));
