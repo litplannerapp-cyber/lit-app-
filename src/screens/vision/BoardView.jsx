@@ -5,17 +5,32 @@ import { Eyebrow } from "../../components/Eyebrow";
 import { VisionTile } from "../../components/VisionTile";
 import { useImagePicker } from "../../hooks/useImagePicker";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { uid } from "../../utils/date";
 
-export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover, onEditItem }) {
+export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover, onEditItem, onAddItem }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const dragIx = useRef(null);
   const [moveItem, setMoveItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [editDraft, setEditDraft] = useState("");
+  const [quick, setQuick] = useState("");
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
     onAddImage(board.id, dataUrl);
     showToast(`Image added to ${board.name}`);
   });
+
+  /* add a quote or link directly into this board — same auto-detect as the
+     top-level Vision quick-capture, but it lands here instead of loose */
+  const addQuickToBoard = () => {
+    const v = quick.trim(); if (!v) return;
+    const tags = (v.match(/#[\w-]+/g) || []).map((t) => t.slice(1));
+    const content = v.replace(/#[\w-]+/g, "").trim();
+    const isLink = /^https?:\/\/\S+$/i.test(v);
+    const item = { id: uid(), type: isLink ? "link" : "text", content: isLink ? v.split(" ")[0] : content, tags };
+    onAddItem(board.id, item);
+    setQuick("");
+    showToast(isLink ? "Link added" : "Added to board");
+  };
 
   const reorder = (from, to) => onReorderItems(board.id, from, to);
   const moveTo = (item, targetId) => {
@@ -42,7 +57,20 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
           Upload image
         </button>
       </div>
-      <h1 className="fr" style={{ fontSize: 30, fontWeight: 500, margin: "0 0 18px" }}>{board.name}</h1>
+      <h1 className="fr" style={{ fontSize: 30, fontWeight: 500, margin: "0 0 14px" }}>{board.name}</h1>
+
+      {/* text/link quick-add — scoped to this board, not the loose tray */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <input value={quick} onChange={(e) => setQuick(e.target.value)} enterKeyHint="done"
+          onKeyDown={(e) => e.key === "Enter" && addQuickToBoard()}
+          placeholder="Add a quote or paste a link…"
+          style={{ flex: 1, minWidth: 0, padding: "13px 16px", borderRadius: 15, border: "none", outline: "none", background: T.bg, fontSize: 14 }} />
+        <button onPointerDown={(e) => { e.preventDefault(); addQuickToBoard(); }}
+          style={{ padding: "0 16px", borderRadius: 15, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", flexShrink: 0 }}>
+          Add
+        </button>
+      </div>
+
       <div style={{ columnCount: 2, columnGap: 12 }}>
         {board.items.map((item, ix) => (
           <div key={item.id} onClick={() => item.type !== "link" && setMoveItem(item)}>

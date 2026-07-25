@@ -311,6 +311,12 @@ export default function LitApp() {
       setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: b.items.map((i) => (i.id === item.id ? real : i)) } : b)));
     }).catch(console.error);
   };
+  const addItemToBoard = (boardId, item) => {
+    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
+    db.dbInsertVisionItem(user.id, item, boardId, Date.now()).then((real) => {
+      setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: b.items.map((i) => (i.id === item.id ? real : i)) } : b)));
+    }).catch(console.error);
+  };
 
   /* ----- goals ops ----- */
   const toggleMilestone = (goalId, mid) => {
@@ -428,7 +434,7 @@ export default function LitApp() {
         <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
           onAddLooseItem: addLooseItem, onPlaceOnBoard: placeOnBoard, onCreateBoard: createBoard, onUpdateBoard: updateBoard,
           onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems,
-          onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem }} />
+          onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem, onAddItemToBoard: addItemToBoard }} />
       )}
       {tab === "finance" && (
         <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,

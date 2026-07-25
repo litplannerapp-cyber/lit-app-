@@ -16,7 +16,7 @@ import { BoardEditSheet } from "./vision/BoardEditSheet";
    or tap it (mobile) to place it on a board. Boards are editable. */
 export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, showToast,
   onAddLooseItem, onPlaceOnBoard, onCreateBoard, onUpdateBoard, onDeleteBoard, onDeleteVisionItem,
-  onReorderBoardItems, onMoveVisionItem, onAddImageToBoard, onPinCover, onEditVisionItem }) {
+  onReorderBoardItems, onMoveVisionItem, onAddImageToBoard, onPinCover, onEditVisionItem, onAddItemToBoard }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const [quick, setQuick] = useState("");
   const [newBoard, setNewBoard] = useState(false);
@@ -58,7 +58,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
     const board = boards.find((b) => b.id === boardOpen);
     if (board) return <BoardView board={board} boards={boards} onBack={() => setBoardOpen(null)} showToast={showToast}
       onDeleteVisionItem={onDeleteVisionItem} onReorderItems={onReorderBoardItems} onMoveItem={onMoveVisionItem}
-      onAddImage={onAddImageToBoard} onPinCover={onPinCover} onEditItem={onEditVisionItem} />;
+      onAddImage={onAddImageToBoard} onPinCover={onPinCover} onEditItem={onEditVisionItem} onAddItem={onAddItemToBoard} />;
   }
 
   const filteredItems = tagFilter
