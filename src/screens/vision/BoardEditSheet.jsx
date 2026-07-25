@@ -3,15 +3,17 @@ import { T } from "../../theme";
 import { Card } from "../../components/Card";
 import { Eyebrow } from "../../components/Eyebrow";
 import { PALETTE } from "../../constants";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export function BoardEditSheet({ board, onSave, onDelete, onClose }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const [name, setName] = useState(board?.name || "");
   const [color, setColor] = useState(board?.color || PALETTE[0]);
   const [confirmDel, setConfirmDel] = useState(false);
   if (!board) return null;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.34)", zIndex: 95, display: "grid", placeItems: "end center" }}>
-      <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, borderRadius: "24px 24px 0 0", padding: 22 }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.34)", zIndex: 95, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
+      <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
         <Eyebrow style={{ marginBottom: 12 }}>Edit board</Eyebrow>
         <input value={name} onChange={(e) => setName(e.target.value)} enterKeyHint="done"
           onKeyDown={(e) => e.key === "Enter" && name.trim() && onSave(name.trim(), color)}

@@ -6,6 +6,7 @@ import { Eyebrow } from "../components/Eyebrow";
 import { VisionTile } from "../components/VisionTile";
 import { LinkPreview } from "../components/LinkPreview";
 import { useImagePicker } from "../hooks/useImagePicker";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import { uid } from "../utils/date";
 import { PALETTE } from "../constants";
 import { BoardView } from "./vision/BoardView";
@@ -16,6 +17,7 @@ import { BoardEditSheet } from "./vision/BoardEditSheet";
 export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, showToast,
   onAddLooseItem, onPlaceOnBoard, onCreateBoard, onUpdateBoard, onDeleteBoard, onDeleteVisionItem,
   onReorderBoardItems, onMoveVisionItem, onAddImageToBoard, onPinCover, onEditVisionItem }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const [quick, setQuick] = useState("");
   const [newBoard, setNewBoard] = useState(false);
   const [newName, setNewName] = useState("");
@@ -67,7 +69,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
     : null;
 
   return (
-    <div style={{ padding: "26px 22px 0" }} className="rise">
+    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
       {pickerInput}
       <Eyebrow>Why you're doing all of this</Eyebrow>
       <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 20px" }}>Vision</h1>
@@ -169,8 +171,8 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
 
       {/* tap-to-place sheet (mobile-friendly alternative to drag) */}
       {placing && (
-        <div onClick={() => setPlacing(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: "end center" }}>
-          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, borderRadius: "24px 24px 0 0", padding: 22 }}>
+        <div onClick={() => setPlacing(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
+          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
             <Eyebrow style={{ marginBottom: 12 }}>Place on a board</Eyebrow>
             {boards.map((b) => (
               <button key={b.id} onClick={() => placeOnBoard(placing.id, b.id)} style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 4px", fontSize: 15, fontWeight: 500, cursor: "pointer", borderBottom: `1px solid ${T.hairline}` }}>

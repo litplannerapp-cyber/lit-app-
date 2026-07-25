@@ -3,6 +3,8 @@ import { T, applyTheme } from "./theme";
 import { GlobalStyle } from "./components/GlobalStyle";
 import { Dock } from "./components/Dock";
 import { TopBar } from "./components/TopBar";
+import { Sidebar } from "./components/Sidebar";
+import { useMediaQuery } from "./hooks/useMediaQuery";
 import { HaloMark } from "./icons/Icons";
 import { TodayScreen } from "./screens/TodayScreen";
 import { VisionScreen } from "./screens/VisionScreen";
@@ -47,6 +49,7 @@ export default function LitApp() {
   }, []);
   const dark = theme === "dark" || (theme === "system" && sysDark);
   applyTheme(dark); /* must run before anything below renders */
+  const isDesktop = useMediaQuery("(min-width: 900px)");
 
   const [dataLoaded, setDataLoaded] = useState(false);
   const [profileName, setProfileName] = useState("");
@@ -415,40 +418,56 @@ export default function LitApp() {
   if (!dataLoaded) return <LoadingScreen />;
 
   /* ============================== render ============================== */
+  const mainContent = (
+    <div key={tabSlide ? tabSlide.k : tab}
+      style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
+      {tab === "today" && (
+        <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
+      )}
+      {tab === "vision" && (
+        <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
+          onAddLooseItem: addLooseItem, onPlaceOnBoard: placeOnBoard, onCreateBoard: createBoard, onUpdateBoard: updateBoard,
+          onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems,
+          onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem }} />
+      )}
+      {tab === "finance" && (
+        <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,
+          onSetIncome: setIncome, onTogglePaid: togglePaid, onAddExtra: addExtra, onAddBill: addBill,
+          onAddExpense: addExpense, onCarryExpenses: carryExpenses }} />
+      )}
+      {tab === "goals" && (
+        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onCreateGoal: createGoal }} />
+      )}
+    </div>
+  );
+
   return (
     <div style={{ minHeight: "100vh", background: T.pageBg, display: "flex", justifyContent: "center", fontFamily: "'Inter','SF Pro Text',system-ui,sans-serif", color: T.ink, transition: "background .3s ease" }}>
       <GlobalStyle />
 
-      <div style={{ width: "100%", maxWidth: 440, minHeight: "100vh", position: "relative", padding: "0 0 110px" }}>
-        <TopBar dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
-        {!onboarded && (
-          <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />
-        )}
-        <div key={tabSlide ? tabSlide.k : tab}
-          style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
-          {tab === "today" && (
-            <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
-          )}
-          {tab === "vision" && (
-            <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
-              onAddLooseItem: addLooseItem, onPlaceOnBoard: placeOnBoard, onCreateBoard: createBoard, onUpdateBoard: updateBoard,
-              onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems,
-              onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem }} />
-          )}
-          {tab === "finance" && (
-            <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,
-              onSetIncome: setIncome, onTogglePaid: togglePaid, onAddExtra: addExtra, onAddBill: addBill,
-              onAddExpense: addExpense, onCarryExpenses: carryExpenses }} />
-          )}
-          {tab === "goals" && (
-            <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onCreateGoal: createGoal }} />
-          )}
+      {isDesktop ? (
+        <div style={{ display: "flex", width: "100%", maxWidth: 1160, minHeight: "100vh" }}>
+          <Sidebar tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} captureCount={captures.length}
+            dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
+          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+            <div style={{ maxWidth: 640, margin: "0 auto", padding: "56px 48px 80px" }}>
+              {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
+              {mainContent}
+            </div>
+          </div>
         </div>
+      ) : (
+        <div style={{ width: "100%", maxWidth: 440, minHeight: "100vh", position: "relative", padding: "0 0 110px" }}>
+          <TopBar dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
+          {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
+          {mainContent}
+          <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} unreadCount={captures.length} />
+        </div>
+      )}
 
-        {/* dock */}
-        <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} unreadCount={captures.length} />
-
-        {/* Inbox bottom sheet */}
+      {/* sheets, modals, toast — identical regardless of layout; Sheet itself
+          adapts from bottom-sheet (mobile) to centered modal (desktop) */}
+      <>
         {inboxOpen && (
           <InboxSheet
             captures={captures} addCapture={addCapture} releaseCapture={releaseCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
@@ -496,7 +515,7 @@ export default function LitApp() {
             {toast}
           </div>
         )}
-      </div>
+      </>
     </div>
   );
 }

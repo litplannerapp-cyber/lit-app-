@@ -29,8 +29,13 @@ export function GlobalStyle() {
       @keyframes slideFromLeft { from { opacity: 0; transform: translateX(-56px); } to { opacity: 1; transform: none; } }
       @keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.14); } 100% { transform: scale(1); } }
       @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+      @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
       .shimmer { background: linear-gradient(90deg, ${T.bg} 25%, ${T.card} 50%, ${T.bg} 75%); background-size: 200% 100%; animation: shimmer 1.4s ease infinite; }
       .rise { animation: rise .4s ease both; }
+      @media (hover: hover) and (pointer: fine) {
+        .hoverable:hover { background: ${T.bg}; }
+        .navitem:hover { opacity: 1 !important; }
+      }
       @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     `}</style>
   );

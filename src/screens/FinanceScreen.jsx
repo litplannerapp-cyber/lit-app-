@@ -5,6 +5,7 @@ import { Eyebrow } from "../components/Eyebrow";
 import { Section } from "../components/Section";
 import { Row } from "../components/Row";
 import { useHSwipe } from "../hooks/useHSwipe";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import { BILL_CATS } from "../constants";
 import { toMonthKey, shiftMonth, monthLabel, financeMonthTotals, suggestBillCategory } from "../utils/finance";
 
@@ -16,6 +17,7 @@ const RepeatIcon = ({ c, s = 15 }) => (
 );
 
 export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, onAddExtra, onAddBill, onAddExpense, onCarryExpenses }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const realMk = toMonthKey();
   const [incomeDraft, setIncomeDraft] = useState("");
   const [extraName, setExtraName] = useState(""); const [extraAmt, setExtraAmt] = useState("");
@@ -33,7 +35,7 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   /* opt-in: not configured → only the invitation, nothing else */
   if (finance.income == null) {
     return (
-      <div style={{ padding: "26px 22px 0" }} className="rise">
+      <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
         <Eyebrow>An honest number about your month</Eyebrow>
         <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 24px" }}>Finance</h1>
         <Card data-coach="finance" style={{ padding: 26, textAlign: "center" }}>
@@ -88,7 +90,7 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   const suggested = billName.trim() ? suggestBillCategory(billName) : null;
 
   return (
-    <div style={{ padding: "26px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={monthSwipe.onPointerDown}>
+    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={monthSwipe.onPointerDown}>
       <Eyebrow>An honest number about your month</Eyebrow>
       <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 14px" }}>Finance</h1>
 

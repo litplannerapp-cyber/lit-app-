@@ -6,8 +6,10 @@ import { MintBar } from "../components/MintBar";
 import { InlineAdd } from "../components/InlineAdd";
 import { keyToDate } from "../utils/date";
 import { goalPct } from "../utils/task";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreateGoal }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState(""); const [date, setDate] = useState(""); const [msDraft, setMsDraft] = useState("");
 
@@ -18,7 +20,7 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreate
   };
 
   return (
-    <div style={{ padding: "26px 22px 0" }} className="rise">
+    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
       <Eyebrow>Big things, broken into steps</Eyebrow>
       <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 20px" }}>Goals</h1>
 

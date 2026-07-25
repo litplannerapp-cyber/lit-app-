@@ -4,8 +4,10 @@ import { Card } from "../../components/Card";
 import { Eyebrow } from "../../components/Eyebrow";
 import { VisionTile } from "../../components/VisionTile";
 import { useImagePicker } from "../../hooks/useImagePicker";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover, onEditItem }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const dragIx = useRef(null);
   const [moveItem, setMoveItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
@@ -29,7 +31,7 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
   };
 
   return (
-    <div style={{ padding: "26px 22px 0" }} className="rise">
+    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
       {pickerInput}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <button onClick={onBack} style={{ fontSize: 13.5, fontWeight: 600, color: T.ink2, cursor: "pointer" }}>← Boards</button>
@@ -60,8 +62,8 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
         <p className="fr" style={{ fontStyle: "italic", color: T.ink2, textAlign: "center", padding: "40px 0" }}>An empty board is a quiet invitation.</p>
       )}
       {moveItem && (
-        <div onClick={() => setMoveItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: "end center" }}>
-          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, borderRadius: "24px 24px 0 0", padding: 22 }}>
+        <div onClick={() => setMoveItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
+          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
             <Eyebrow style={{ marginBottom: 12 }}>Move to</Eyebrow>
             {boards.filter((b) => b.id !== board.id).map((b) => (
               <button key={b.id} onClick={() => moveTo(moveItem, b.id)} style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 4px", fontSize: 15, fontWeight: 500, cursor: "pointer", borderBottom: `1px solid ${T.hairline}` }}>
@@ -76,8 +78,8 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
         </div>
       )}
       {editingItem && (
-        <div onClick={() => setEditingItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: "end center" }}>
-          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 440, borderRadius: "24px 24px 0 0", padding: 22 }}>
+        <div onClick={() => setEditingItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
+          <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
             <Eyebrow style={{ marginBottom: 12 }}>Edit {editingItem.type}</Eyebrow>
             {editingItem.type === "link" ? (
               <input autoFocus value={editDraft} onChange={(e) => setEditDraft(e.target.value)} enterKeyHint="done"

@@ -7,6 +7,7 @@ import { Eyebrow } from "../components/Eyebrow";
 import { MintBar } from "../components/MintBar";
 import { TaskCard } from "../components/TaskCard";
 import { useHSwipe } from "../hooks/useHSwipe";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import { addDays, toDateKey, keyToDate, phraseForToday } from "../utils/date";
 import { byPeriodAndTime, goalPct } from "../utils/task";
 import { financeMonthTotals, monthLabel, toMonthKey } from "../utils/finance";
@@ -30,6 +31,7 @@ const findDropZone = (x, y) => {
 };
 
 export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -144,7 +146,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
   });
 
   return (
-    <div style={{ padding: "26px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={daySwipe.onPointerDown}>
+    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={daySwipe.onPointerDown}>
       {/* header */}
       <Eyebrow>{longDate}</Eyebrow>
       <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 0", letterSpacing: "-0.01em" }}>
