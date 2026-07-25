@@ -427,7 +427,7 @@ export default function LitApp() {
         <div key={tabSlide ? tabSlide.k : tab}
           style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
           {tab === "today" && (
-            <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, captures, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setInboxOpen, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
+            <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
           )}
           {tab === "vision" && (
             <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
@@ -446,7 +446,7 @@ export default function LitApp() {
         </div>
 
         {/* dock */}
-        <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} />
+        <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} unreadCount={captures.length} />
 
         {/* Inbox bottom sheet */}
         {inboxOpen && (

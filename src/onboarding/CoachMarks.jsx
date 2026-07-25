@@ -9,7 +9,7 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
    dims everything but the target, skippable from any step. */
 
 const COACH_STEPS = [
-  { tab: "today", target: "inbox", title: "Capture anything here", body: "Tasks, lists, images, voice notes. Sort them into your day whenever you're ready — never before.", place: "bottom" },
+  { tab: "today", target: "inbox", title: "Capture anything here", body: "Tasks, lists, images, voice notes. Sort them into your day whenever you're ready — never before.", place: "top" },
   { tab: "today", target: "ring", title: "Only your top three", body: "The ring tracks up to three priorities, never your whole list. That's the whole point.", place: "bottom" },
   { tab: "today", target: "addtask", title: "Add a task any time", body: "New tasks land in Rest of the day. Promote one with the star when it becomes a priority.", place: "top" },
   { tab: "vision", target: "vision-quick", title: "Drop things here", body: "A quote, a link, an image — it stays loose until you place it on a board. No decision required up front.", place: "bottom" },

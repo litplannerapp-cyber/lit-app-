@@ -29,7 +29,7 @@ const findDropZone = (x, y) => {
   return null;
 };
 
-export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, captures, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setInboxOpen, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
+export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -147,17 +147,9 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
     <div style={{ padding: "26px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={daySwipe.onPointerDown}>
       {/* header */}
       <Eyebrow>{longDate}</Eyebrow>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 6 }}>
-        <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: 0, letterSpacing: "-0.01em" }}>
-          {greeting}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
-        </h1>
-        <button data-coach="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" style={{ position: "relative", width: 44, height: 44, borderRadius: 15, background: T.card, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0, marginLeft: 12 }}>
-          {Ic.tray()}
-          {captures.length > 0 && (
-            <span style={{ position: "absolute", top: -5, right: -5, minWidth: 19, height: 19, borderRadius: 10, background: T.coralGrad, color: "#fff", fontSize: 11, fontWeight: 700, display: "grid", placeItems: "center", padding: "0 5px" }}>{captures.length}</span>
-          )}
-        </button>
-      </div>
+      <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 0", letterSpacing: "-0.01em" }}>
+        {greeting}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
+      </h1>
 
       {/* week strip Mon–Sun */}
       <div data-noswipe style={{ display: "flex", gap: 4, marginTop: 22 }}>

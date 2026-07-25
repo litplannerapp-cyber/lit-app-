@@ -4,7 +4,7 @@ import { Ic } from "../icons/Icons";
 
 /* scrubbing: drag a finger along the dock and the app slides to whichever
    tab is under it — same sliding motion as tapping */
-export function Dock({ tab, setTab, openInbox }) {
+export function Dock({ tab, setTab, openInbox, unreadCount = 0 }) {
   const tabRef = useRef(tab); tabRef.current = tab;
   const scrub = (x, y) => {
     const el = document.elementFromPoint(x, y);
@@ -59,9 +59,12 @@ export function Dock({ tab, setTab, openInbox }) {
       <div data-coach="dock" onPointerDown={onPointerDown} style={{ display: "flex", alignItems: "center", background: T.dockBg, backdropFilter: "blur(22px) saturate(1.5)", borderRadius: 26, boxShadow: T.shadow, border: `1px solid ${T.stroke}`, padding: "8px 10px", touchAction: "none" }}>
         {item("today", "Today", iconToday)}
         {item("vision", "Vision", iconVision)}
-        <button onClick={openInbox} aria-label="Open Inbox"
-          style={{ width: 54, height: 54, borderRadius: 20, background: T.coralGrad, display: "grid", placeItems: "center", cursor: "pointer", margin: "0 8px", boxShadow: "0 8px 22px rgba(255,107,94,.4)", flexShrink: 0, transform: "translateY(-14px)" }}>
+        <button data-coach="inbox" onClick={openInbox} aria-label="Open Inbox"
+          style={{ position: "relative", width: 54, height: 54, borderRadius: 20, background: T.coralGrad, display: "grid", placeItems: "center", cursor: "pointer", margin: "0 8px", boxShadow: "0 8px 22px rgba(255,107,94,.4)", flexShrink: 0, transform: "translateY(-14px)" }}>
           {Ic.tray("#fff")}
+          {unreadCount > 0 && (
+            <span style={{ position: "absolute", top: -12, right: -4, minWidth: 19, height: 19, borderRadius: 10, background: T.ink, color: "#fff", fontSize: 11, fontWeight: 700, display: "grid", placeItems: "center", padding: "0 5px", border: `2px solid ${T.dockBg}` }}>{unreadCount}</span>
+          )}
         </button>
         {item("finance", "Finance", iconFinance)}
         {item("goals", "Goals", iconGoals)}
