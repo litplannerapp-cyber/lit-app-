@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { HALO_ARCS } from "../constants";
@@ -51,6 +51,23 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
     : doneTop3 < top3.length
       ? { title: "Momentum", sub: `${top3.length - doneTop3} of your three left. You're moving.` }
       : { title: "Day clear", sub: "Your three are done. Whatever you do next is a bonus." };
+  const dayComplete = top3.length === 3 && doneTop3 === 3;
+
+  /* the halo's "lit" moment — Apple's own research on Activity Rings calls
+     this the Gestalt closure effect: an open shape creates a small mental
+     itch, and closing it is where the payoff lives. We echo that payoff
+     literally, in our own language — light turning on, not confetti. */
+  const [justLit, setJustLit] = useState(false);
+  const prevComplete = useRef(false);
+  useEffect(() => {
+    if (dayComplete && !prevComplete.current) {
+      setJustLit(true);
+      const t = setTimeout(() => setJustLit(false), 1500);
+      prevComplete.current = true;
+      return () => clearTimeout(t);
+    }
+    if (!dayComplete) prevComplete.current = false;
+  }, [dayComplete]);
 
   const grouped = useMemo(() => {
     const g = {};
@@ -189,13 +206,34 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
       </div>
 
       {/* hero — clarity ring */}
-      <Card data-coach="ring" style={{ marginTop: 18, padding: "22px 22px", display: "flex", alignItems: "center", gap: 20 }}>
-        <svg width="104" height="104" viewBox="0 0 104 104" style={{ flexShrink: 0, display: "block" }}>
+      <Card data-coach="ring" style={{ marginTop: 18, padding: "22px 22px", display: "flex", alignItems: "center", gap: 20, position: "relative", overflow: "visible" }}>
+        {/* ambient glow while the day is fully lit — quiet, not blinking;
+            just a soft warmth sitting behind the ring, like a lamp left on */}
+        {dayComplete && (
+          <div aria-hidden style={{
+            position: "absolute", left: 22, top: 22, width: 104, height: 104, borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,179,92,0.35) 0%, rgba(255,107,94,0.18) 45%, transparent 72%)",
+            filter: "blur(6px)", pointerEvents: "none", animation: "ambientGlow 3.2s ease-in-out infinite",
+          }} />
+        )}
+        <svg width="104" height="104" viewBox="0 0 104 104" style={{ flexShrink: 0, display: "block", position: "relative",
+          animation: justLit ? "ringSettle 1.5s cubic-bezier(.25,1,.35,1)" : undefined }}>
           <defs>
             <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="20" y1="10" x2="85" y2="92">
               <stop offset="0%" stopColor="#FFB35C" /><stop offset="55%" stopColor="#FF6B5E" /><stop offset="100%" stopColor="#F4508C" />
             </linearGradient>
+            <radialGradient id="litFlash" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFF4E0" stopOpacity="0.95" />
+              <stop offset="45%" stopColor="#FFB35C" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#FF6B5E" stopOpacity="0" />
+            </radialGradient>
           </defs>
+          {/* the "lit" moment: light flaring outward once, the instant the
+              third priority is checked off — not confetti, just light
+              turning on, in the app's own vocabulary */}
+          {justLit && (
+            <circle cx="52" cy="52" r="30" fill="url(#litFlash)" style={{ animation: "litFlare 1.5s cubic-bezier(.16,1,.3,1)", transformOrigin: "52px 52px" }} />
+          )}
           {/* the ring's shape is the brand mark itself — 3 arcs, one per priority.
               each arc lights up (dashoffset sweep + a soft halo stroke underneath)
               the moment that priority is checked off; unchecking reverses it.
@@ -222,7 +260,10 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           </g>
         </svg>
         <div>
-          <h2 className="fr" style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>{heroState.title}</h2>
+          <h2 className="fr" style={{ fontSize: 22, fontWeight: 600, margin: 0,
+            ...(dayComplete ? { backgroundImage: "linear-gradient(100deg,#FFB35C,#FF6B5E)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" } : {}) }}>
+            {heroState.title}
+          </h2>
           <p style={{ fontSize: 13.5, color: T.ink2, margin: "6px 0 0", lineHeight: 1.5 }}>{heroState.sub}</p>
           {doneTop3 === top3.length && top3.length > 0 && streak > 0 && (
             <p style={{ fontSize: 12, color: T.ink3, margin: "8px 0 0" }}>{streak} day{streak > 1 ? "s" : ""} of steady rhythm</p>

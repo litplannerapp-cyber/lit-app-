@@ -29,6 +29,25 @@ export function GlobalStyle() {
       @keyframes slideFromRight { from { opacity: 0; transform: translateX(56px); } to { opacity: 1; transform: none; } }
       @keyframes slideFromLeft { from { opacity: 0; transform: translateX(-56px); } to { opacity: 1; transform: none; } }
       @keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.14); } 100% { transform: scale(1); } }
+      /* the halo "lighting up" — a light flaring out once, a gentle settle
+         on the ring itself, and a quiet ambient warmth that lingers while
+         the day stays complete. Never loops forever at full intensity —
+         calm, not a notification badge. */
+      @keyframes litFlare {
+        0% { opacity: 0; transform: scale(.4); }
+        35% { opacity: 1; transform: scale(1.35); }
+        100% { opacity: 0; transform: scale(2.2); }
+      }
+      @keyframes ringSettle {
+        0% { transform: scale(1); }
+        30% { transform: scale(1.08); }
+        55% { transform: scale(0.98); }
+        100% { transform: scale(1); }
+      }
+      @keyframes ambientGlow {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+      }
       @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
       @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
       .shimmer { background: linear-gradient(90deg, ${T.bg} 25%, ${T.card} 50%, ${T.bg} 75%); background-size: 200% 100%; animation: shimmer 1.4s ease infinite; }
