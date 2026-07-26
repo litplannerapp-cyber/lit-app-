@@ -18,6 +18,8 @@ import { TaskDetailSheet } from "./sheets/TaskDetailSheet";
 import { CoachMarks } from "./onboarding/CoachMarks";
 import { useAuth } from "./hooks/useAuth";
 import { useNotifications } from "./hooks/useNotifications";
+import { useAppBadge } from "./hooks/useAppBadge";
+import { NotificationBadge } from "./components/NotificationBadge";
 import { toDateKey, uid } from "./utils/date";
 import { toMonthKey } from "./utils/finance";
 import { byPeriodAndTime } from "./utils/task";
@@ -126,6 +128,7 @@ export default function LitApp() {
   const streak = clearedDays.length;
 
   useNotifications(tasks);
+  useAppBadge(captures.length);
 
   /* ----- task ops ----- */
   const saveTask = (data, existingId) => {
@@ -466,9 +469,7 @@ export default function LitApp() {
           <button data-coach="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
             style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
             {Ic.tray(T.ink2)}
-            {captures.length > 0 && (
-              <span style={{ position: "absolute", top: -6, right: -6, minWidth: 18, height: 18, borderRadius: 9, background: T.coralGrad, color: "#fff", fontSize: 10.5, fontWeight: 700, display: "grid", placeItems: "center", padding: "0 4px", boxShadow: T.shadowSm }}>{captures.length}</span>
-            )}
+            <NotificationBadge count={captures.length} size={19} />
           </button>
 
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>

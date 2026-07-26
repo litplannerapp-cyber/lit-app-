@@ -20,7 +20,9 @@ const fireAt = (dateKey, time) => {
   return new Date(y, m - 1, d, hh, mm, 0, 0);
 };
 
-async function requestPermission() {
+/* shared with useAppBadge: on iOS the badge is part of the notification
+   permission, not a separate one, so both hooks request through here. */
+export async function requestNotificationPermission() {
   if (isNative) {
     const { LocalNotifications } = await import("@capacitor/local-notifications");
     const { display } = await LocalNotifications.checkPermissions();
@@ -29,6 +31,12 @@ async function requestPermission() {
     await Notification.requestPermission();
   }
 }
+
+/* the Inbox's current unread count, mirrored here so every notification we
+   schedule carries the right app-icon badge number even if it fires while
+   the app is closed and nothing else is around to set it live. */
+let currentBadgeCount = 0;
+export function setBadgeCountForNotifications(count) { currentBadgeCount = count; }
 
 async function showWebNotification(title, body) {
   if (!("Notification" in window) || Notification.permission !== "granted") return;
@@ -79,8 +87,8 @@ function scheduleGenericReminders() {
   if (isNative) {
     import("@capacitor/local-notifications").then(({ LocalNotifications }) => LocalNotifications.schedule({
       notifications: [
-        { id: GENERIC_MORNING_ID, title: "Good morning", body: "Plan your day with Lit.", schedule: { on: { hour: 8, minute: 0 }, repeats: true, allowWhileIdle: true } },
-        { id: GENERIC_EVENING_ID, title: "Evening check-in", body: "How did today go?", schedule: { on: { hour: 19, minute: 0 }, repeats: true, allowWhileIdle: true } },
+        { id: GENERIC_MORNING_ID, title: "Good morning", body: "Plan your day with Lit.", badge: currentBadgeCount, schedule: { on: { hour: 8, minute: 0 }, repeats: true, allowWhileIdle: true } },
+        { id: GENERIC_EVENING_ID, title: "Evening check-in", body: "How did today go?", badge: currentBadgeCount, schedule: { on: { hour: 19, minute: 0 }, repeats: true, allowWhileIdle: true } },
       ],
     })).catch(console.error);
   } else {
@@ -93,7 +101,7 @@ async function scheduleTaskReminder(id, when, title) {
   if (isNative) {
     const { LocalNotifications } = await import("@capacitor/local-notifications");
     await LocalNotifications.cancel({ notifications: [{ id }] });
-    await LocalNotifications.schedule({ notifications: [{ id, title, body: "Reminder", schedule: { at: when } }] });
+    await LocalNotifications.schedule({ notifications: [{ id, title, body: "Reminder", badge: currentBadgeCount, schedule: { at: when } }] });
   } else {
     scheduleWeb(id, when, title, "Reminder");
   }
@@ -114,7 +122,7 @@ export function useNotifications(tasks) {
   const scheduledRef = useRef(new Map()); // task.id -> fire time (ms), to detect no-op re-renders
 
   useEffect(() => {
-    requestPermission().catch(console.error);
+    requestNotificationPermission().catch(console.error);
     scheduleGenericReminders();
   }, []);
 
