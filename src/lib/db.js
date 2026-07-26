@@ -5,12 +5,12 @@ import { supabase } from "./supabaseClient";
 const taskFromRow = (r) => ({
   id: r.id, text: r.text, notes: r.notes || "", dateKey: r.date_key, done: r.done, top3: r.top3,
   time: r.time || "", endTime: r.end_time || "", period: r.period || null, priority: r.priority,
-  group: r.group_name ? { name: r.group_name, color: r.group_color } : null,
+  group: r.group_name ? { name: r.group_name, color: r.group_color } : null, reminder: !!r.reminder,
 });
 const taskToRow = (t, userId) => ({
   user_id: userId, text: t.text, notes: t.notes || "", date_key: t.dateKey, done: !!t.done, top3: !!t.top3,
   time: t.time || null, end_time: t.endTime || null, period: t.period || null, priority: !!t.priority,
-  group_name: t.group?.name ?? null, group_color: t.group?.color ?? null,
+  group_name: t.group?.name ?? null, group_color: t.group?.color ?? null, reminder: !!t.reminder,
 });
 
 const captureFromRow = (r) => ({

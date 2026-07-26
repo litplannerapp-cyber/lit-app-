@@ -20,12 +20,14 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
   const [groupColor, setGroupColor] = useState(initial?.group?.color || null);
   const [groupName, setGroupName] = useState(initial?.group?.name || "");
   const [priority, setPriority] = useState(!!initial?.priority);
+  const [reminder, setReminder] = useState(!!initial?.reminder);
   const tomorrowKey = toDateKey(addDays(new Date(), 1));
 
   const save = () => {
     const v = text.trim(); if (!v) return;
     onSave({
       text: v, notes: notes.trim(), dateKey, time, endTime, period, priority,
+      reminder: !!time && reminder,
       group: groupColor ? { name: groupName.trim() || "Group", color: groupColor } : null,
     });
   };
@@ -75,6 +77,16 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} aria-label="End time"
               style={{ flex: 1, padding: "10px 14px", borderRadius: 13, border: "none", outline: "none", background: T.bg, fontSize: 13.5 }} />
           </div>
+
+          {time && (
+            <button onClick={() => setReminder(!reminder)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginTop: 12, padding: "11px 14px", borderRadius: 13, background: T.bg, cursor: "pointer" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: T.ink2 }}>Remind me at {time}</span>
+              <span style={{ position: "relative", width: 34, height: 20, borderRadius: 10, background: reminder ? T.coralGrad : T.stroke, transition: "background .2s", flexShrink: 0 }}>
+                <span style={{ position: "absolute", top: 3, left: reminder ? 19 : 3, width: 14, height: 14, borderRadius: 7, background: "#fff", transition: "left .2s" }} />
+              </span>
+            </button>
+          )}
 
           <Eyebrow style={{ margin: "16px 0 8px" }}>Notes</Eyebrow>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional)" rows={2}

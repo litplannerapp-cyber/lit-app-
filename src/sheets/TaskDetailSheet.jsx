@@ -39,6 +39,7 @@ export function TaskDetailSheet({ task: t, onEdit, onToggleDone, onClose }) {
         {line("Date", dateLabel)}
         {line("Time", t.time ? `${t.time}${t.endTime ? `–${t.endTime}` : ""}` : null)}
         {line("When", t.period ? t.period[0].toUpperCase() + t.period.slice(1) : null)}
+        {line("Reminder", t.reminder ? `On · ${t.time}` : null)}
       </div>
 
       {t.notes && (

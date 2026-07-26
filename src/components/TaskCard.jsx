@@ -42,6 +42,11 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={T.coral} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
             {t.time}{t.time && t.endTime && `–${t.endTime}`}
             {t.period && <span style={{ textTransform: "capitalize", color: T.ink3, fontWeight: 500 }}>{t.time ? "· " : ""}{t.period}</span>}
+            {t.reminder && (
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.ink3} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Reminder set">
+                <path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 12 6 8Z" /><path d="M10 19a2 2 0 0 0 4 0" />
+              </svg>
+            )}
           </div>
         )}
       </div>

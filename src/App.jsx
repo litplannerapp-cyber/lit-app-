@@ -17,6 +17,7 @@ import { SettingsSheet } from "./sheets/SettingsSheet";
 import { TaskDetailSheet } from "./sheets/TaskDetailSheet";
 import { CoachMarks } from "./onboarding/CoachMarks";
 import { useAuth } from "./hooks/useAuth";
+import { useNotifications } from "./hooks/useNotifications";
 import { toDateKey, uid } from "./utils/date";
 import { toMonthKey } from "./utils/finance";
 import { byPeriodAndTime } from "./utils/task";
@@ -123,6 +124,8 @@ export default function LitApp() {
     }
   }, [doneTop3, top3.length, selectedDay, todayKey, clearedDays, dataLoaded, user]);
   const streak = clearedDays.length;
+
+  useNotifications(tasks);
 
   /* ----- task ops ----- */
   const saveTask = (data, existingId) => {
