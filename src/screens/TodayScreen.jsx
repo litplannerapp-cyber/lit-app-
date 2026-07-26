@@ -6,6 +6,7 @@ import { Card } from "../components/Card";
 import { Eyebrow } from "../components/Eyebrow";
 import { MintBar } from "../components/MintBar";
 import { TaskCard } from "../components/TaskCard";
+import { MiniCalendar } from "../components/MiniCalendar";
 import { useHSwipe } from "../hooks/useHSwipe";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { addDays, toDateKey, keyToDate, phraseForToday } from "../utils/date";
@@ -38,13 +39,16 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
   const longDate = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   const phrase = phraseForToday();
 
-  /* fixed Monday→Sunday strip */
-  const monday = useMemo(() => {
-    const d = new Date(now);
-    const wd = (d.getDay() + 6) % 7; // Mon=0
-    return addDays(d, -wd);
-  }, []); // eslint-disable-line
-  const week = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+  /* the week strip is navigable now — it used to be locked to the current
+     week forever (computed once with useMemo), which meant there was no way
+     to reach a date outside it. weekMonday is state instead; swiping past an
+     edge rolls into the next/prev week rather than just stopping. */
+  const [weekMonday, setWeekMonday] = useState(() => {
+    const wd = (now.getDay() + 6) % 7; // Mon=0
+    return addDays(now, -wd);
+  });
+  const week = Array.from({ length: 7 }, (_, i) => addDays(weekMonday, i));
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const heroState = doneTop3 === 0
     ? { title: "A clear runway", sub: top3.length ? `${top3.length} thing${top3.length > 1 ? "s" : ""} that matter today. Start with the smallest.` : "Choose up to three things that matter today." }
@@ -151,16 +155,31 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
   };
   const openDetailGuarded = (id) => { if (!justDragged.current) openDetail(id); };
 
-  /* swipe left = next day, swipe right = previous day (clamped to this week's strip) */
+  /* swipe left = next day, swipe right = previous day — rolls into the next
+     or previous week when it runs past the strip's edge, instead of just
+     stopping (that "stop" was the bug: no way to reach a date outside the
+     current week at all). */
   const [daySlide, setDaySlide] = useState(null); // {dir, k}
   const daySwipe = useHSwipe((dir) => {
     const idx = week.findIndex((d) => toDateKey(d) === selectedDay);
     const next = idx + dir;
-    if (next < 0 || next > 6) return; /* Mon–Sun strip is fixed — quiet stop at the edges */
-    const k = toDateKey(week[next]);
+    let targetDate;
+    if (next < 0) { setWeekMonday((m) => addDays(m, -7)); targetDate = addDays(week[0], -1); }
+    else if (next > 6) { setWeekMonday((m) => addDays(m, 7)); targetDate = addDays(week[6], 1); }
+    else targetDate = week[next];
+    const k = toDateKey(targetDate);
     setSelectedDay(k); setFinanceMonth(toMonthKey(keyToDate(k)));
     setDaySlide({ dir, k: Date.now() });
   });
+
+  /* jump to any date directly — the other half of the fix */
+  const jumpToDate = (d) => {
+    const wd = (d.getDay() + 6) % 7;
+    setWeekMonday(addDays(d, -wd));
+    const k = toDateKey(d);
+    setSelectedDay(k); setFinanceMonth(toMonthKey(keyToDate(k)));
+    setCalendarOpen(false);
+  };
 
   return (
     <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={daySwipe.onPointerDown}>
@@ -170,29 +189,54 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
         {greeting}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
       </h1>
 
-      {/* week strip Mon–Sun */}
-      <div data-noswipe style={{ display: "flex", gap: 4, marginTop: 22 }}>
-        {week.map((d) => {
-          const k = toDateKey(d);
-          const sel = k === selectedDay;
-          const hasTask = tasks.some((t) => t.dateKey === k);
-          return (
-            <button key={k} onClick={() => { setSelectedDay(k); setFinanceMonth(toMonthKey(keyToDate(k))); }}
-              data-drop={"day:" + k}
-              style={{ flex: 1, padding: "12px 0 11px", borderRadius: 16, cursor: "pointer", textAlign: "center",
-                background: sel ? T.coralGrad : hoverZone === "day:" + k ? T.coralSoft : "transparent",
-                outline: hoverZone === "day:" + k ? `2px solid ${T.coral}` : "none",
-                boxShadow: sel ? "0 6px 16px rgba(255,107,94,.32)" : "none",
-                color: sel ? "#fff" : T.ink2, transition: "background .25s ease, box-shadow .25s ease" }}>
-              <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em", opacity: sel ? 0.9 : 0.8 }}>
-                {d.toLocaleDateString("en-GB", { weekday: "short" }).slice(0, 3).toUpperCase()}
-              </div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 2, color: sel ? "#fff" : T.ink }}>{d.getDate()}</div>
-              <div style={{ width: 4, height: 4, borderRadius: 2, margin: "4px auto 0", background: hasTask ? (sel ? "rgba(255,255,255,.85)" : T.coral) : "transparent" }} />
-            </button>
-          );
-        })}
+      {/* week strip Mon–Sun — now navigable: arrows for mouse/desktop, swipe
+          for touch (rolls into the next/prev week past the edge), and a
+          calendar button to jump straight to any date */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 22 }}>
+        <button onClick={() => setWeekMonday((m) => addDays(m, -7))} aria-label="Previous week" className="hoverable"
+          style={{ width: 28, height: 28, borderRadius: 9, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink3, flexShrink: 0 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 6l-6 6 6 6" /></svg>
+        </button>
+
+        <div data-noswipe style={{ display: "flex", gap: 4, flex: 1 }}>
+          {week.map((d) => {
+            const k = toDateKey(d);
+            const sel = k === selectedDay;
+            const hasTask = tasks.some((t) => t.dateKey === k);
+            return (
+              <button key={k} onClick={() => { setSelectedDay(k); setFinanceMonth(toMonthKey(keyToDate(k))); }}
+                data-drop={"day:" + k}
+                style={{ flex: 1, padding: "12px 0 11px", borderRadius: 16, cursor: "pointer", textAlign: "center",
+                  background: sel ? T.coralGrad : hoverZone === "day:" + k ? T.coralSoft : "transparent",
+                  outline: hoverZone === "day:" + k ? `2px solid ${T.coral}` : "none",
+                  boxShadow: sel ? "0 6px 16px rgba(255,107,94,.32)" : "none",
+                  color: sel ? "#fff" : T.ink2, transition: "background .25s ease, box-shadow .25s ease" }}>
+                <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em", opacity: sel ? 0.9 : 0.8 }}>
+                  {d.toLocaleDateString("en-GB", { weekday: "short" }).slice(0, 3).toUpperCase()}
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 2, color: sel ? "#fff" : T.ink }}>{d.getDate()}</div>
+                <div style={{ width: 4, height: 4, borderRadius: 2, margin: "4px auto 0", background: hasTask ? (sel ? "rgba(255,255,255,.85)" : T.coral) : "transparent" }} />
+              </button>
+            );
+          })}
+        </div>
+
+        <button onClick={() => setWeekMonday((m) => addDays(m, 7))} aria-label="Next week" className="hoverable"
+          style={{ width: 28, height: 28, borderRadius: 9, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink3, flexShrink: 0 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+
+        <button onClick={() => setCalendarOpen(true)} aria-label="Pick a date" className="hoverable"
+          style={{ width: 34, height: 34, borderRadius: 11, background: T.card, border: `1px solid ${T.stroke}`, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink2, flexShrink: 0, marginLeft: 2 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 10h18" />
+          </svg>
+        </button>
       </div>
+
+      {calendarOpen && (
+        <MiniCalendar selectedDay={selectedDay} onPick={jumpToDate} onClose={() => setCalendarOpen(false)} />
+      )}
 
       <div key={daySlide ? daySlide.k : "day"} style={{
         transform: daySwipe.dragging ? `translateX(${daySwipe.x}px)` : undefined,
