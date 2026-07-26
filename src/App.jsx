@@ -448,7 +448,7 @@ export default function LitApp() {
           onAddExpense: addExpense, onCarryExpenses: carryExpenses }} />
       )}
       {tab === "goals" && (
-        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onCreateGoal: createGoal }} />
+        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onCreateGoal: createGoal, setEditor }} />
       )}
     </div>
   );
