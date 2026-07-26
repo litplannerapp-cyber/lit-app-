@@ -55,6 +55,15 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreate
         );
       })}
 
+      {goals.length === 0 && !adding && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 0 28px", opacity: 0.8 }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={T.mint} strokeWidth="1.6" style={{ marginBottom: 14 }}>
+            <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.4" fill={T.mint} />
+          </svg>
+          <p className="fr" style={{ fontStyle: "italic", fontSize: 15, color: T.ink2, margin: 0, textAlign: "center" }}>Nothing here yet. What's one big thing you're moving toward?</p>
+        </div>
+      )}
+
       {adding ? (
         <Card style={{ padding: 20 }}>
           <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Goal title" enterKeyHint="next"
@@ -69,7 +78,7 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreate
           </div>
         </Card>
       ) : (
-        <button data-coach="goals" onClick={() => setAdding(true)} style={{ width: "100%", padding: "16px 0", borderRadius: 18, border: `1.6px dashed ${T.ink3}`, color: T.ink2, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+        <button data-coach="goals" onClick={() => setAdding(true)} className="pressable" style={{ width: "100%", padding: "16px 0", borderRadius: 18, border: `1.6px dashed ${T.ink3}`, color: T.ink2, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
           + New goal
         </button>
       )}

@@ -5,7 +5,7 @@ import { Dock } from "./components/Dock";
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { useMediaQuery } from "./hooks/useMediaQuery";
-import { HaloMark } from "./icons/Icons";
+import { Ic, HaloMark } from "./icons/Icons";
 import { TodayScreen } from "./screens/TodayScreen";
 import { VisionScreen } from "./screens/VisionScreen";
 import { FinanceScreen } from "./screens/FinanceScreen";
@@ -448,15 +448,28 @@ export default function LitApp() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: T.pageBg, display: "flex", justifyContent: "center", fontFamily: "'Inter','SF Pro Text',system-ui,sans-serif", color: T.ink, transition: "background .3s ease" }}>
+    <div style={{ width: "100%", minHeight: "100vh", background: T.pageBg, display: "flex", justifyContent: "center", fontFamily: "'Inter','SF Pro Text',system-ui,sans-serif", color: T.ink, transition: "background .3s ease" }}>
       <GlobalStyle />
 
       {isDesktop ? (
         <div style={{ display: "flex", width: "100%", maxWidth: 1160, minHeight: "100vh" }}>
-          <Sidebar tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} captureCount={captures.length}
+          <Sidebar tab={tab} setTab={goTab}
             dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
+
+          {/* Capture: a small, quiet icon in the corner — not a glowing pill
+              fighting the sidebar for attention. Fixed to the viewport corner,
+              sitting in the content column's own top padding, so it never
+              collides with a screen's own header row (e.g. Vision's board view). */}
+          <button data-coach="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
+            style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
+            {Ic.tray(T.ink2)}
+            {captures.length > 0 && (
+              <span style={{ position: "absolute", top: -6, right: -6, minWidth: 18, height: 18, borderRadius: 9, background: T.coralGrad, color: "#fff", fontSize: 10.5, fontWeight: 700, display: "grid", placeItems: "center", padding: "0 4px", boxShadow: T.shadowSm }}>{captures.length}</span>
+            )}
+          </button>
+
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            <div style={{ maxWidth: 640, margin: "0 auto", padding: "56px 48px 80px" }}>
+            <div style={{ maxWidth: 720, margin: "0 auto", padding: "56px 48px 80px" }}>
               {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
               {mainContent}
             </div>

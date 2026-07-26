@@ -6,6 +6,7 @@ export function GlobalStyle() {
       @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
       html { scroll-behavior: smooth; }
+      html, body { margin: 0; padding: 0; background: ${T.pageBg}; }
       body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
       input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
       button { transition: transform .16s cubic-bezier(.34,1.4,.5,1), opacity .18s ease, background .2s ease, box-shadow .2s ease, color .2s ease; }
