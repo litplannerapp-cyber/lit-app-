@@ -53,8 +53,8 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
   const heroState = doneTop3 === 0
     ? { title: "A clear runway", sub: top3.length ? `${top3.length} thing${top3.length > 1 ? "s" : ""} that matter today. Start with the smallest.` : "Choose up to three things that matter today." }
     : doneTop3 < top3.length
-      ? { title: "Momentum", sub: `${top3.length - doneTop3} of your three left. You're moving.` }
-      : { title: "Day clear", sub: "Your three are done. Whatever you do next is a bonus." };
+      ? { title: "Momentum", sub: `${top3.length - doneTop3} of your ${top3.length} left. You're moving.` }
+      : { title: "Day clear", sub: `Your ${top3.length} ${top3.length === 1 ? "is" : "are"} done. Whatever you do next is a bonus.` };
   const dayComplete = top3.length === 3 && doneTop3 === 3;
 
   /* the halo's "lit" moment — Apple's own research on Activity Rings calls
