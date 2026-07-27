@@ -5,7 +5,7 @@ import { Dock } from "./components/Dock";
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { useMediaQuery } from "./hooks/useMediaQuery";
-import { Ic, HaloMark } from "./icons/Icons";
+import { Ic } from "./icons/Icons";
 import { TodayScreen } from "./screens/TodayScreen";
 import { VisionScreen } from "./screens/VisionScreen";
 import { FinanceScreen } from "./screens/FinanceScreen";
@@ -20,6 +20,7 @@ import { useAuth } from "./hooks/useAuth";
 import { useNotifications } from "./hooks/useNotifications";
 import { useAppBadge } from "./hooks/useAppBadge";
 import { NotificationBadge } from "./components/NotificationBadge";
+import { Spinner } from "./components/Spinner";
 import { toDateKey, uid } from "./utils/date";
 import { toMonthKey } from "./utils/finance";
 import { byPeriodAndTime } from "./utils/task";
@@ -28,10 +29,12 @@ import * as db from "./lib/db";
 const ONBOARDED_KEY = "lit_onboarded";
 const THEME_KEY = "lit_theme";
 
+/* a real loading indicator, not the brand mark — the halo alone reads as a
+   spinner before it reads as a logo, which is exactly the mixup to avoid */
 function LoadingScreen() {
   return (
     <div style={{ minHeight: "100vh", background: T.pageBg, display: "grid", placeItems: "center" }}>
-      <div className="rise"><HaloMark size={64} /></div>
+      <div className="rise"><Spinner size={28} /></div>
     </div>
   );
 }
