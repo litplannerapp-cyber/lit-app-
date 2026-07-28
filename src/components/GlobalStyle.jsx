@@ -49,6 +49,7 @@ export function GlobalStyle() {
         50% { opacity: 1; }
       }
       @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
       .shimmer { background: linear-gradient(90deg, ${T.bg} 25%, ${T.card} 50%, ${T.bg} 75%); background-size: 200% 100%; animation: shimmer 1.4s ease infinite; }
       .rise { animation: rise .4s ease both; }
