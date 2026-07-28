@@ -12,7 +12,7 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
   const editing = !!initial?.id;
   const [text, setText] = useState(initial?.text || "");
   const [notes, setNotes] = useState(initial?.notes || "");
-  const [dateKey, setDateKey] = useState(initial?.dateKey || todayKey);
+  const [dateKey, setDateKey] = useState(initial?.dateKey || todayKey); // null = no date → goes to Inbox
   const [more, setMore] = useState(false);
   const [time, setTime] = useState(initial?.time || "");
   const [endTime, setEndTime] = useState(initial?.endTime || "");
@@ -25,6 +25,10 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
 
   const save = () => {
     const v = text.trim(); if (!v) return;
+    /* no date selected → this isn't a scheduled task anymore, it's a capture.
+       Same rule as the "No date yet?" link below, just reached by deselecting
+       instead of tapping a separate button. */
+    if (!dateKey) { onToInbox(v); return; }
     onSave({
       text: v, notes: notes.trim(), dateKey, time, endTime, period, priority,
       reminder: !!time && reminder,
@@ -32,8 +36,10 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
     });
   };
 
+  /* tapping the already-active pill deselects it — date becomes "none",
+     which (per the rule above) sends the task to the Inbox on save */
   const datePill = (label, key) => (
-    <button onClick={() => setDateKey(key)} style={{ padding: "8px 16px", borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: "pointer", background: dateKey === key ? T.coralGrad : T.bg, color: dateKey === key ? "#fff" : T.ink2 }}>
+    <button onClick={() => setDateKey(dateKey === key ? null : key)} style={{ padding: "8px 16px", borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: "pointer", background: dateKey === key ? T.coralGrad : T.bg, color: dateKey === key ? "#fff" : T.ink2 }}>
       {label}
     </button>
   );
@@ -49,9 +55,15 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
       <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
         {datePill("Today", todayKey)}
         {datePill("Tomorrow", tomorrowKey)}
-        <input type="date" value={dateKey} onChange={(e) => e.target.value && setDateKey(e.target.value)}
-          style={{ padding: "7px 12px", borderRadius: 100, border: "none", outline: "none", background: dateKey !== todayKey && dateKey !== tomorrowKey ? T.coralSoft : T.bg, fontSize: 12.5, color: T.ink2, WebkitAppearance: "none", appearance: "none" }} />
+        <input type="date" value={dateKey || ""} onChange={(e) => setDateKey(e.target.value || null)}
+          style={{ padding: "7px 12px", borderRadius: 100, border: "none", outline: "none", background: dateKey && dateKey !== todayKey && dateKey !== tomorrowKey ? T.coralSoft : T.bg, fontSize: 12.5, color: T.ink2, WebkitAppearance: "none", appearance: "none" }} />
       </div>
+
+      {!dateKey && (
+        <p style={{ fontSize: 12, color: T.coral, marginTop: 10, fontWeight: 600 }} className="rise">
+          No date selected — this will be saved to the Inbox instead.
+        </p>
+      )}
 
       <button onClick={() => setMore(!more)} style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 14, fontSize: 13, fontWeight: 600, color: T.ink2, cursor: "pointer" }}>
         More options <span style={{ transform: more ? "rotate(90deg)" : "none", transition: "transform .2s", display: "inline-flex" }}>{Ic.chevR(T.ink2)}</span>
@@ -128,9 +140,9 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onClose }) {
           reflow can eat the click that would otherwise fire after a still-focused
           text field blurs — same fix as the Inbox composer's send button */}
       <button onPointerDown={(e) => { e.preventDefault(); save(); }} style={{ width: "100%", marginTop: 22, padding: "16px 0", borderRadius: 17, background: T.coralGrad, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 10px 24px rgba(255,107,94,.3)" }}>
-        {editing ? "Save changes" : "Add to the day"}
+        {!dateKey ? "Move to Inbox" : editing ? "Save changes" : "Add to the day"}
       </button>
-      {!editing && (
+      {!editing && dateKey && (
         <button onPointerDown={(e) => { e.preventDefault(); text.trim() && onToInbox(text.trim()); }} style={{ display: "block", width: "100%", marginTop: 12, fontSize: 13, color: T.ink2, fontWeight: 600, cursor: "pointer", textAlign: "center" }}>
           No date yet? Keep it in the Inbox
         </button>

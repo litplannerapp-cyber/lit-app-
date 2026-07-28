@@ -60,7 +60,7 @@ export function Dock({ tab, setTab, openInbox, unreadCount = 0 }) {
       <div data-coach="dock" onPointerDown={onPointerDown} style={{ display: "flex", alignItems: "center", background: T.dockBg, backdropFilter: "blur(22px) saturate(1.5)", borderRadius: 26, boxShadow: T.shadow, border: `1px solid ${T.stroke}`, padding: "8px 10px", touchAction: "none" }}>
         {item("today", "Today", iconToday)}
         {item("vision", "Vision", iconVision)}
-        <button data-coach="inbox" onClick={openInbox} aria-label="Open Inbox"
+        <button data-coach="inbox" data-drop="inbox" onClick={openInbox} aria-label="Open Inbox"
           style={{ position: "relative", width: 54, height: 54, borderRadius: 20, background: T.coralGrad, display: "grid", placeItems: "center", cursor: "pointer", margin: "0 8px", boxShadow: "0 8px 22px rgba(255,107,94,.4)", flexShrink: 0, transform: "translateY(-14px)" }}>
           {Ic.tray("#fff")}
           <NotificationBadge count={unreadCount} size={21} />

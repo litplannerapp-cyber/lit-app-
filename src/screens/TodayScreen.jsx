@@ -31,7 +31,7 @@ const findDropZone = (x, y) => {
   return null;
 };
 
-export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
+export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const now = new Date();
   const hour = now.getHours();
@@ -141,6 +141,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
         if (z && z.startsWith("day:")) moveTaskToDay(t.id, z.slice(4));
         else if (z === "top3") setTop3(t.id, true);   /* 4th attempt still refused in silence */
         else if (z === "rest") setTop3(t.id, false);
+        else if (z === "inbox") taskToInbox(t.id);    /* drop on the Inbox trigger — no date anymore, becomes a capture */
         justDragged.current = true;
         setTimeout(() => { justDragged.current = false; }, 120);
       }

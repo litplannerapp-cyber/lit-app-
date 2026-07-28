@@ -186,6 +186,17 @@ export default function LitApp() {
     setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, dateKey, top3: nextTop3 } : t)));
     db.dbUpdateTask(id, { date_key: dateKey, top3: nextTop3 }).catch(console.error);
   };
+  /* dragging a task onto the Inbox trigger: same idea as clearing the date
+     in the editor, reached by drag instead — the task loses its date and
+     becomes a plain capture. Reuses addCapture/deleteTask so the Supabase
+     sync (insert capture, delete task) stays in one place. */
+  const taskToInbox = (id) => {
+    const t = tasks.find((x) => x.id === id);
+    if (!t) return;
+    addCapture({ type: "note", text: t.text, tags: [] });
+    deleteTask(id);
+    showToast("Moved to Inbox");
+  };
 
   /* ----- capture ops ----- */
   const addCapture = (c) => {
@@ -434,7 +445,7 @@ export default function LitApp() {
     <div key={tabSlide ? tabSlide.k : tab}
       style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
       {tab === "today" && (
-        <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
+        <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
       )}
       {tab === "vision" && (
         <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
@@ -466,7 +477,7 @@ export default function LitApp() {
               fighting the sidebar for attention. Fixed to the viewport corner,
               sitting in the content column's own top padding, so it never
               collides with a screen's own header row (e.g. Vision's board view). */}
-          <button data-coach="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
+          <button data-coach="inbox" data-drop="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
             style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
             {Ic.tray(T.ink2)}
             <NotificationBadge count={captures.length} size={19} />
@@ -508,7 +519,15 @@ export default function LitApp() {
               saveTask(data, editor.initial?.id);
               if (editor.fromCaptureId) releaseCapture(editor.fromCaptureId);
             }}
-            onToInbox={(text) => { addCapture({ type: "note", text, tags: [] }); setEditor(null); }}
+            onToInbox={(text) => {
+              addCapture({ type: "note", text, tags: [] });
+              /* editing an EXISTING task and clearing its date: the task
+                 becomes a capture, so the original scheduled task must go —
+                 otherwise it would exist twice (as a task and as a capture) */
+              if (editor.initial?.id) deleteTask(editor.initial.id);
+              setEditor(null);
+              showToast("Moved to Inbox");
+            }}
             onClose={() => setEditor(null)}
           />
         )}
