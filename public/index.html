@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Lit Planner — A daily planner that caps you at three priorities.</title>
+<meta name="description" content="Lit Planner is a daily planner app. Capture everything in one Inbox, choose three priorities for today, and watch a ring fill in as you go. Free to start.">
+<link rel="canonical" href="https://litplanner.app/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://litplanner.app/">
+<meta property="og:title" content="Lit Planner — A daily planner that caps you at three priorities.">
+<meta property="og:description" content="Capture everything. Choose three priorities. Watch the ring fill in. Free to start.">
+<meta property="og:image" content="https://litplanner.app/og-image.png">
+<meta property="og:locale" content="en_IE">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lit Planner — A daily planner that caps you at three priorities.">
+<meta name="twitter:description" content="Capture everything. Choose three priorities. Watch the ring fill in. Free to start.">
+<meta name="twitter:image" content="https://litplanner.app/og-image.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Lit Planner",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "iOS, Web",
+  "offers": [
+    { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free" },
+    { "@type": "Offer", "price": "4.99", "priceCurrency": "USD", "name": "Lit Plus (monthly)" }
+  ],
+  "description": "A daily planner app that caps you at three priorities a day, on purpose."
+}
+</script>
+
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --coral: #FF6B5E; --amber: #FFB35C; --magenta: #F4508C;
+    --grad: linear-gradient(135deg, var(--amber) 0%, var(--coral) 55%, var(--magenta) 100%);
+    --mint: #5EC9A7; --sky: #7FB5E0; --peach: #FFC29E;
+    --bg: #F6F1EA; --card: #FDFAF5; --ink: #2E2A26; --ink2: #6b6459; --ink3: #A79E92;
+    --stroke: rgba(46,42,38,.08);
+    --shadow-sm: 0 4px 14px rgba(46,42,38,.06);
+    --shadow-lg: 0 30px 70px rgba(46,42,38,.10);
+    --r: 26px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .fr { font-family: 'Fraunces', Georgia, serif; }
+  a { color: inherit; }
+  img, svg { display: block; max-width: 100%; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 640px) { .wrap { padding: 0 22px; } }
+
+  header { position: sticky; top: 0; z-index: 50; background: rgba(246,241,234,.82); backdrop-filter: blur(14px) saturate(1.4); border-bottom: 1px solid var(--stroke); }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo span { font-size: 19px; font-weight: 700; }
+  .navlinks { display: flex; align-items: center; gap: 30px; }
+  .navlinks a { font-size: 14px; font-weight: 600; text-decoration: none; color: var(--ink2); }
+  .navlinks a:hover { color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 100px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; transition: transform .18s cubic-bezier(.34,1.4,.5,1), box-shadow .2s ease; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--grad); color: #fff; padding: 13px 26px; font-size: 14.5px; box-shadow: 0 12px 28px rgba(255,107,94,.32); }
+  .btn-primary:hover { box-shadow: 0 16px 34px rgba(255,107,94,.4); }
+  .btn-ghost { background: var(--card); color: var(--ink); padding: 12px 22px; font-size: 13.5px; border: 1px solid var(--stroke); }
+  @media (max-width: 720px) { .navlinks a:not(.btn) { display: none; } }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 76px 0 30px; text-align: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--coral); background: rgba(255,107,94,.1); padding: 7px 16px; border-radius: 100px; }
+  .hero h1 { font-size: clamp(34px, 5.6vw, 58px); font-weight: 600; font-style: italic; line-height: 1.12; letter-spacing: -0.01em; max-width: 760px; margin: 22px auto 0; }
+  .hero .sub { font-size: 17px; color: var(--ink2); max-width: 480px; margin: 20px auto 0; }
+  .hero .ctas { display: flex; gap: 14px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+  .microcopy { font-size: 12.5px; color: var(--ink3); margin-top: 16px; }
+
+  /* ---------- the real screenshot mockup — this is the hero visual, big and central ---------- */
+  .phone-stage { position: relative; max-width: 380px; margin: 56px auto 0; }
+  .phone-glow { position: absolute; inset: -70px; background: radial-gradient(circle at 50% 25%, rgba(255,179,92,.35), transparent 62%); filter: blur(34px); z-index: -1; }
+  .phone { background: #17140f; border-radius: 46px; padding: 14px; box-shadow: var(--shadow-lg); }
+  .phone-screen { background: var(--bg); border-radius: 34px; overflow: hidden; position: relative; }
+  .status-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px 0; font-size: 13px; font-weight: 700; }
+  .app-top { padding: 6px 22px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+  .app-eyebrow { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); font-weight: 700; }
+  .app-greet { font-size: 24px; font-weight: 500; font-style: italic; margin-top: 4px; }
+  .avatar { width: 26px; height: 26px; border-radius: 9px; background: var(--grad); flex-shrink: 0; }
+  .week { display: flex; gap: 4px; padding: 16px 22px 0; }
+  .week > div { flex: 1; text-align: center; padding: 7px 0 6px; border-radius: 11px; }
+  .week .sel { background: var(--grad); box-shadow: 0 6px 14px rgba(255,107,94,.3); }
+  .week .d { font-size: 8.5px; font-weight: 700; color: var(--ink3); letter-spacing: .05em; }
+  .week .sel .d { color: rgba(255,255,255,.85); }
+  .week .n { font-size: 12.5px; font-weight: 700; margin-top: 2px; }
+  .week .sel .n { color: #fff; }
+  .phrase { padding: 14px 22px 0; font-size: 11.5px; font-style: italic; color: var(--ink2); display: flex; align-items: center; gap: 6px; }
+  .hero-card { margin: 14px 22px 0; background: var(--card); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-sm); position: relative; }
+  .hero-card svg { flex-shrink: 0; }
+  .hero-card h4 { font-size: 15px; font-weight: 600; font-style: italic; margin: 0; }
+  .hero-card p { font-size: 10.5px; color: var(--ink2); margin-top: 2px; }
+  .today-label { padding: 16px 22px 4px; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); }
+  .task { margin: 0 22px 8px; background: var(--card); border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 9px; box-shadow: var(--shadow-sm); border-left: 3px solid var(--coral); }
+  .task .cb { width: 16px; height: 16px; border-radius: 6px; flex-shrink: 0; }
+  .task .cb.on { background: var(--grad); }
+  .task .cb.off { border: 1.4px solid var(--ink3); }
+  .task .tt { font-size: 11.5px; font-weight: 600; flex: 1; }
+  .task.done .tt { color: var(--ink3); text-decoration: line-through; }
+  .task .star { color: var(--coral); font-size: 12px; }
+  .add-btn { margin: 14px 22px; padding: 11px 0; text-align: center; border-radius: 14px; background: var(--grad); color: #fff; font-size: 12.5px; font-weight: 700; box-shadow: 0 8px 18px rgba(255,107,94,.3); }
+  .dock { margin: 6px 10px 14px; background: rgba(253,250,245,.9); border-radius: 20px; padding: 8px 6px; display: flex; align-items: center; justify-content: space-around; }
+  .dock .di { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .dock .di svg { opacity: .5; }
+  .dock .di.active svg { opacity: 1; }
+  .dock .di span { font-size: 7.5px; font-weight: 700; color: var(--ink3); }
+  .dock .di.active span { color: var(--coral); }
+  .dock .fab { width: 40px; height: 40px; border-radius: 14px; background: var(--grad); display: grid; place-items: center; margin-top: -18px; box-shadow: 0 8px 16px rgba(255,107,94,.35); }
+  .try-tag { position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 11px; font-weight: 700; padding: 7px 16px; border-radius: 100px; white-space: nowrap; box-shadow: var(--shadow-sm); }
+
+  section { padding: 76px 0; }
+  .section-head { text-align: center; max-width: 580px; margin: 0 auto 44px; }
+  .section-head h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 600; font-style: italic; letter-spacing: -0.01em; margin-top: 12px; }
+  .section-head p { font-size: 15px; color: var(--ink2); margin-top: 12px; }
+
+  /* ---------- how it works: the flow ---------- */
+  .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+  @media (max-width: 820px) { .flow { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; } }
+  .flow-step { background: var(--card); border-radius: var(--r); padding: 26px 24px 30px; border: 1px solid var(--stroke); box-shadow: var(--shadow-sm); position: relative; }
+  .flow-step .stepnum { width: 30px; height: 30px; border-radius: 10px; background: var(--grad); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; margin-bottom: 14px; }
+  .flow-step h3 { font-size: 16px; font-weight: 700; }
+  .flow-step p { font-size: 13px; color: var(--ink2); margin-top: 6px; line-height: 1.55; }
+  .flow-mini { margin-top: 16px; background: var(--bg); border-radius: 14px; padding: 12px 14px; }
+  .flow-arrow { display: none; }
+  @media (min-width: 821px) {
+    .flow-arrow { display: flex; position: absolute; right: -26px; top: 50%; transform: translateY(-50%); z-index: 2; color: var(--ink3); }
+  }
+
+  .positioning { text-align: center; max-width: 640px; margin: 0 auto; padding: 8px 32px 0; }
+  .positioning p { font-size: 16px; font-style: italic; font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink2); line-height: 1.5; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 880px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--stroke); border-radius: var(--r); padding: 26px 24px; box-shadow: var(--shadow-sm); transition: transform .2s ease, box-shadow .2s ease; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(255,107,94,.09), transparent 70%); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .card:hover::before { opacity: 1; }
+  .card .icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 14px; }
+  .card h3 { font-size: 15.5px; font-weight: 700; }
+  .card p { font-size: 13px; color: var(--ink2); margin-top: 5px; line-height: 1.5; }
+  .card .thumb { margin-top: 14px; height: 90px; border-radius: 12px; background-size: cover; background-position: center; }
+
+  .trust { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+  .trust-item { display: flex; align-items: center; gap: 10px; }
+  .trust-item svg { flex-shrink: 0; }
+  .trust-item span { font-size: 13.5px; font-weight: 600; color: var(--ink2); }
+
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 680px; margin: 0 auto; }
+  @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
+  .price-card { background: var(--card); border-radius: var(--r); padding: 30px 28px; border: 1px solid var(--stroke); }
+  .price-card.featured { background: var(--ink); color: #F2EDE6; }
+  .price-card .plan { font-size: 12.5px; font-weight: 700; color: var(--coral); letter-spacing: .04em; }
+  .price-card.featured .plan { color: var(--amber); }
+  .price-card .amount { font-family: 'Fraunces', serif; font-style: italic; font-size: 38px; font-weight: 600; margin: 8px 0 2px; }
+  .price-card .period { font-size: 12.5px; color: var(--ink2); }
+  .price-card.featured .period { color: #B3AA9E; }
+  .price-card ul { list-style: none; margin-top: 18px; display: flex; flex-direction: column; gap: 9px; }
+  .price-card li { font-size: 13px; display: flex; align-items: flex-start; gap: 8px; }
+  .price-card li svg { flex-shrink: 0; margin-top: 3px; }
+  .toggle-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; }
+  .toggle-row span { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .toggle-row span.active-label { color: var(--ink); }
+  .toggle { width: 44px; height: 25px; border-radius: 13px; background: var(--ink3); position: relative; cursor: pointer; border: none; flex-shrink: 0; }
+  .toggle.on { background: var(--grad); }
+  .toggle .knob { position: absolute; top: 3px; left: 3px; width: 19px; height: 19px; border-radius: 10px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); transition: left .2s cubic-bezier(.4,0,.2,1); }
+  .toggle.on .knob { left: 22px; }
+  .save-badge { font-size: 10.5px; font-weight: 700; color: var(--mint); background: rgba(94,201,167,.14); padding: 3px 8px; border-radius: 100px; }
+  .amount .cycle { font-family: 'Inter', sans-serif; font-style: normal; font-size: 14px; font-weight: 600; color: var(--ink2); }
+  .price-card.featured .amount .cycle { color: #B3AA9E; }
+
+  .faq-item { border-bottom: 1px solid var(--stroke); max-width: 680px; margin: 0 auto; }
+  .faq-item button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: none; border: none; padding: 20px 0; cursor: pointer; text-align: left; font-family: inherit; }
+  .faq-item h4 { font-size: 14.5px; font-weight: 700; }
+  .faq-item .chev { flex-shrink: 0; transition: transform .3s cubic-bezier(.4,0,.2,1); color: var(--ink3); }
+  .faq-item[data-open="true"] .chev { transform: rotate(180deg); color: var(--coral); }
+  .faq-item .answer { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
+  .faq-item[data-open="true"] .answer { max-height: 200px; }
+  .faq-item .answer p { font-size: 13.5px; color: var(--ink2); padding-bottom: 20px; }
+
+  .final-cta { text-align: center; background: var(--grad); border-radius: 40px; margin: 0 32px; padding: 64px 32px; color: #fff; }
+  .final-cta h2 { font-size: clamp(26px, 3.6vw, 38px); font-style: italic; font-weight: 600; }
+  .final-cta p { margin-top: 12px; opacity: .92; font-size: 15px; }
+  .final-cta .btn-primary { background: var(--ink); color: #fff; margin-top: 26px; box-shadow: 0 16px 34px rgba(0,0,0,.3); }
+
+  footer { padding: 50px 0 36px; }
+  .footer-grid { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; padding-top: 28px; border-top: 1px solid var(--stroke); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--ink2); text-decoration: none; }
+  .footer-links a:hover { color: var(--ink); }
+  .copyright { font-size: 13px; color: var(--ink3); }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1); }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .grid.reveal:not(.is-visible) .card { opacity: 0; transform: translateY(18px); }
+  .grid.reveal .card { transition: opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1); }
+  .grid.reveal.is-visible .card:nth-child(1) { transition-delay: .05s; }
+  .grid.reveal.is-visible .card:nth-child(2) { transition-delay: .1s; }
+  .grid.reveal.is-visible .card:nth-child(3) { transition-delay: .15s; }
+  .flow.reveal:not(.is-visible) .flow-step { opacity: 0; transform: translateY(18px); }
+  .flow.reveal .flow-step { transition: opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1); }
+  .flow.reveal.is-visible .flow-step:nth-child(1) { transition-delay: .05s; }
+  .flow.reveal.is-visible .flow-step:nth-child(2) { transition-delay: .15s; }
+  .flow.reveal.is-visible .flow-step:nth-child(3) { transition-delay: .25s; }
+
+  .navlinks a.active { color: var(--coral); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } .reveal { opacity: 1 !important; transform: none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo">
+      <svg width="26" height="26" viewBox="0 0 104 104">
+        <defs><linearGradient id="g0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs>
+        <path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#g0)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#g0)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#g0)" stroke-width="12" stroke-linecap="round"/>
+      </svg>
+      <span class="fr">Lit Planner</span>
+    </a>
+    <div class="navlinks">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="/app" class="btn btn-primary" style="color:#fff;">Get started free</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Daily planner app</span>
+      <h1 class="fr">Plan your day.<br>Feel calmer doing it.</h1>
+      <p class="sub">Three priorities. One ring. Everything else waits in the Inbox until you're ready for it.</p>
+      <div class="ctas">
+        <a href="/app" class="btn btn-primary" style="color:#fff;">Get started — it's free</a>
+        <a href="#how" class="btn btn-ghost">See how it works</a>
+      </div>
+      <p class="microcopy">Free for the essentials. No credit card.</p>
+
+      <div class="phone-stage">
+        <div class="phone-glow"></div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="status-row"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+            <div class="app-top">
+              <div>
+                <div class="app-eyebrow">Monday 27 July</div>
+                <div class="app-greet fr">Good morning</div>
+              </div>
+              <div class="avatar"></div>
+            </div>
+            <div class="week">
+              <div><div class="d">MON</div><div class="n">27</div></div>
+              <div class="sel"><div class="d">TUE</div><div class="n">28</div></div>
+              <div><div class="d">WED</div><div class="n">29</div></div>
+              <div><div class="d">THU</div><div class="n">30</div></div>
+              <div><div class="d">FRI</div><div class="n">31</div></div>
+            </div>
+            <div class="phrase">&#128394;&#65039; Today is wide enough for what matters.</div>
+
+            <div class="hero-card">
+              <svg width="52" height="52" viewBox="0 0 104 104">
+                <defs><linearGradient id="hg" gradientUnits="userSpaceOnUse" x1="20" y1="10" x2="85" y2="92"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs>
+                <path class="dtrack" d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="#EDE3D3" stroke-width="9" stroke-linecap="round"/>
+                <path class="dtrack" d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="#EDE3D3" stroke-width="9" stroke-linecap="round"/>
+                <path class="dtrack" d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="#EDE3D3" stroke-width="9" stroke-linecap="round"/>
+                <path id="hArc0" data-len="49.99" d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#hg)" stroke-width="9" stroke-linecap="round"/>
+                <path id="hArc1" data-len="77.33" d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#hg)" stroke-width="9" stroke-linecap="round"/>
+                <path id="hArc2" data-len="128.86" d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#hg)" stroke-width="9" stroke-linecap="round"/>
+              </svg>
+              <div><h4 id="hTitle">Momentum</h4><p id="hSub">2 of your 3 left. You're moving.</p></div>
+            </div>
+
+            <div class="today-label">Your 3 today</div>
+            <button class="task done" data-task="0" data-done="true"><span class="cb on"></span><span class="tt">30-min walk by the canal</span><span class="star">&#9733;</span></button>
+            <button class="task" data-task="1" data-done="false"><span class="cb off"></span><span class="tt">Reply to Ana about the contract</span><span class="star">&#9733;</span></button>
+            <button class="task" data-task="2" data-done="false"><span class="cb off"></span><span class="tt">Sketch the onboarding flow</span><span class="star">&#9733;</span></button>
+
+            <div class="add-btn">+ Add task</div>
+
+            <div class="dock">
+              <div class="di active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Today</span></div>
+              <div class="di"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E2A26" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><span>Vision</span></div>
+              <div class="fab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M4 13V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/></svg></div>
+              <div class="di"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E2A26" stroke-width="2"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Finance</span></div>
+              <div class="di"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E2A26" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg><span>Goals</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="try-tag">&#8593; tap a task, it's live</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">A normal day, start to finish</span>
+        <h2 class="fr">Capture. Choose. Done.</h2>
+        <p>The whole app is built around one loop, repeated every day.</p>
+      </div>
+      <div class="flow reveal">
+        <div class="flow-step">
+          <div class="stepnum">1</div>
+          <h3>Capture without deciding</h3>
+          <p>Everything goes into one Inbox first — a task, a list, a photo. Sort it later, never right now.</p>
+          <div class="flow-mini fr" style="font-style:italic; font-size:13px; color:var(--ink2);">"Call the dentist" &rarr; saved, undecided</div>
+        </div>
+        <div class="flow-step">
+          <div class="stepnum">2</div>
+          <h3>Choose your three</h3>
+          <p>Every morning, pick up to three things that matter today. That's the whole plan.</p>
+          <div class="flow-mini" style="display:flex; gap:6px;">
+            <span style="width:8px;height:8px;border-radius:4px;background:var(--coral);margin-top:5px;"></span>
+            <span style="font-size:13px; font-weight:600;">Reply to Ana about the contract</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="stepnum">3</div>
+          <h3>Watch the ring fill in</h3>
+          <p>Check things off, the ring lights up. Whatever's left over waits — no guilt, no red badge.</p>
+          <div class="flow-mini" style="text-align:center; font-size:20px; font-weight:700; color:var(--mint);" class="fr">3/3 &#10003;</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHORT MANIFESTO ============ -->
+  <section style="padding: 20px 0 56px;">
+    <div class="positioning reveal">
+      <p>Most planners want you to do more. Lit just wants your day to feel clear.</p>
+    </div>
+  </section>
+
+  <!-- ============ WHEN YOU WANT MORE ============ -->
+  <section id="more">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">When you want more than today</span>
+        <h2 class="fr">Optional, never required</h2>
+      </div>
+      <div class="grid reveal">
+        <div class="card">
+          <div class="icon" style="background:rgba(255,194,158,.25);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8935F" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+          </div>
+          <h3>Vision</h3>
+          <p>A board for the photos and quotes that remind you why.</p>
+          <div class="thumb" style="background-image:url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRkZEOUE4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjRkY5QjdBIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0Y0NTA4QyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic3VuIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRkY0RTAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjRkZEOUE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJtdG4xIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3QTNCNEUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNUEyNzQwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJtdG4yIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNBODUyNjgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjN0EzQjRFIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0idXJsKCNza3kpIi8+CiAgPGNpcmNsZSBjeD0iMjkwIiBjeT0iMTIwIiByPSI1OCIgZmlsbD0idXJsKCNzdW4pIiBvcGFjaXR5PSIwLjkiLz4KICA8IS0tIGRpc3RhbnQgbW91bnRhaW4gcmFuZ2UgLS0+CiAgPHBhdGggZD0iTTAsMjYwIEw2MCwxOTAgTDExMCwyNDAgTDE3MCwxNjAgTDIzMCwyNTAgTDI4MCwyMDAgTDM0MCwyNTUgTDQwMCwyMjAgTDQwMCw0MDAgTDAsNDAwIFoiIGZpbGw9InVybCgjbXRuMikiIG9wYWNpdHk9IjAuODUiLz4KICA8cGF0aCBkPSJNMCwzMTAgTDgwLDI0MCBMMTUwLDI5MCBMMjEwLDIyMCBMMjcwLDMwMCBMMzMwLDI2MCBMNDAwLDMwMCBMNDAwLDQwMCBMMCw0MDAgWiIgZmlsbD0idXJsKCNtdG4xKSIvPgogIDwhLS0gcGxhbmUgdHJhaWwgLS0+CiAgPHBhdGggZD0iTTQwLDgwIFExNDAsNDAgMjQwLDk1IiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZERjgiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtZGFzaGFycmF5PSIyIDEwIiBvcGFjaXR5PSIwLjg1Ii8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjMyLDg4KSByb3RhdGUoMjUpIj4KICAgIDxwYXRoIGQ9Ik0wLDAgTDE2LDMgTDQsNyBMMCwxNCBMLTMsNyBMLTE0LDQgWiIgZmlsbD0iI0ZGRkRGOCIvPgogIDwvZz4KPC9zdmc+Cg==');"></div>
+        </div>
+        <div class="card">
+          <div class="icon" style="background:rgba(94,201,167,.16);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EC9A7" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>
+          </div>
+          <h3>Finance</h3>
+          <p>One honest number about your month. Off until you turn it on.</p>
+        </div>
+        <div class="card">
+          <div class="icon" style="background:rgba(94,201,167,.16);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EC9A7" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="#5EC9A7"/></svg>
+          </div>
+          <h3>Goals</h3>
+          <p>Big ambitions, broken into milestones you can check off.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST ============ -->
+  <section style="padding: 20px 0 76px;">
+    <div class="wrap">
+      <div class="trust reveal">
+        <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EC9A7" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg><span>Your data is never sold</span></div>
+        <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7FB5E0" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Works offline</span></div>
+        <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFB35C" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Free to start</span></div>
+        <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F4508C" stroke-width="2"><path d="M18 8A6 6 0 1 0 6 8c0 4 2 6 2 6h8s2-2 2-6z"/><path d="M9 14v2a3 3 0 0 0 6 0v-2"/></svg><span>No ads, ever</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Simple pricing</span>
+        <h2 class="fr">Free proves it works.</h2>
+      </div>
+      <div class="toggle-row">
+        <span id="labelMonthly" class="active-label">Monthly</span>
+        <button class="toggle" id="billingToggle" aria-label="Toggle annual billing"><span class="knob"></span></button>
+        <span id="labelAnnual">Annual <span class="save-badge">Save 33%</span></span>
+      </div>
+      <div class="pricing-grid reveal">
+        <div class="price-card">
+          <div class="plan">FREE</div>
+          <div class="amount fr">&euro;0</div>
+          <div class="period">forever</div>
+          <ul>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5EC9A7" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>Today, Top 3, and the streak</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5EC9A7" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>Unlimited Inbox capture</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5EC9A7" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>One Vision board</li>
+          </ul>
+        </div>
+        <div class="price-card featured">
+          <div class="plan">LIT PLUS</div>
+          <div class="amount fr"><span id="priceAmount">&euro;4.99</span><span class="cycle" id="priceCycle">/mo</span></div>
+          <div class="period" id="priceNote">billed monthly</div>
+          <ul>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB35C" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>Everything, unlimited</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB35C" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>Sync across every device</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB35C" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg>Cloud backup</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Questions</span>
+        <h2 class="fr">Good to know</h2>
+      </div>
+      <div class="faq-item" data-open="true">
+        <button><h4>Is Lit a calendar, a to-do list, or something else?</h4><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="answer"><p>It's a daily planner: tasks with dates and times, a capture inbox, and an optional board for goals and money. One app, not five.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button><h4>Why only three priorities?</h4><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="answer"><p>A list of thirty things makes you anxious, not productive. Three is small enough to finish and honest enough to force a real choice.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button><h4>What happens if I miss a day?</h4><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="answer"><p>Your streak pauses, it never resets to zero. Lit picks up right where you left off.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button><h4>Is my financial data private?</h4><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="answer"><p>Finance is opt-in and off by default. We don't sell data or use it to train AI.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button><h4>Can I cancel anytime?</h4><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="answer"><p>Anytime, in a couple of taps. No calls, no retention forms.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section>
+    <div class="final-cta reveal">
+      <h2 class="fr">Your three things. Today.</h2>
+      <p>Whatever you do beyond that is a bonus.</p>
+      <a href="/app" class="btn btn-primary" style="color:#fff;">Get started — it's free</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 104 104">
+        <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs>
+        <path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
+      </svg>
+      <span class="copyright">&copy; 2026 Lit Planner</span>
+    </div>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="mailto:hello@litplanner.app">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var revealEls = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else { revealEls.forEach(function (el) { el.classList.add("is-visible"); }); }
+
+  var arcs = [document.getElementById("hArc0"), document.getElementById("hArc1"), document.getElementById("hArc2")];
+  var rows = document.querySelectorAll(".task[data-task]");
+  var titleEl = document.getElementById("hTitle");
+  var subEl = document.getElementById("hSub");
+
+  function paintArc(i, done) {
+    var arc = arcs[i]; if (!arc) return;
+    var len = parseFloat(arc.getAttribute("data-len"));
+    arc.style.strokeDasharray = len;
+    arc.style.strokeDashoffset = done ? 0 : len;
+    arc.style.transition = "stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)";
+  }
+  function updateHero() {
+    var doneCount = 0;
+    rows.forEach(function (r, i) {
+      var isDone = r.getAttribute("data-done") === "true";
+      r.classList.toggle("done", isDone);
+      var cb = r.querySelector(".cb");
+      cb.classList.toggle("on", isDone); cb.classList.toggle("off", !isDone);
+      if (isDone) doneCount++;
+      paintArc(i, isDone);
+    });
+    var total = rows.length;
+    if (doneCount === 0) { titleEl.textContent = "A clear runway"; subEl.textContent = total + " things that matter today."; }
+    else if (doneCount < total) { titleEl.textContent = "Momentum"; subEl.textContent = (total - doneCount) + " of your " + total + " left. You're moving."; }
+    else { titleEl.textContent = "Day clear"; subEl.textContent = "Your " + total + " are done. Bonus round."; }
+  }
+  rows.forEach(function (row) {
+    row.addEventListener("click", function () {
+      var done = row.getAttribute("data-done") === "true";
+      row.setAttribute("data-done", done ? "false" : "true");
+      updateHero();
+    });
+  });
+  updateHero();
+
+  document.querySelectorAll(".card").forEach(function (card) {
+    card.addEventListener("pointermove", function (e) {
+      var r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+      card.style.setProperty("--my", (e.clientY - r.top) + "px");
+    });
+  });
+
+  var toggle = document.getElementById("billingToggle");
+  var amountEl = document.getElementById("priceAmount");
+  var cycleEl = document.getElementById("priceCycle");
+  var noteEl = document.getElementById("priceNote");
+  var lm = document.getElementById("labelMonthly"), la = document.getElementById("labelAnnual");
+  var annual = false;
+  function paintPricing() {
+    toggle.classList.toggle("on", annual);
+    if (annual) { amountEl.textContent = "\u20AC39.99"; cycleEl.textContent = "/yr"; noteEl.textContent = "billed annually \u2014 \u20AC3.33/mo"; lm.classList.remove("active-label"); la.classList.add("active-label"); }
+    else { amountEl.textContent = "\u20AC4.99"; cycleEl.textContent = "/mo"; noteEl.textContent = "billed monthly"; la.classList.remove("active-label"); lm.classList.add("active-label"); }
+  }
+  if (toggle) { toggle.addEventListener("click", function () { annual = !annual; paintPricing(); }); paintPricing(); }
+
+  document.querySelectorAll(".faq-item button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var item = btn.closest(".faq-item");
+      var isOpen = item.getAttribute("data-open") === "true";
+      item.setAttribute("data-open", isOpen ? "false" : "true");
+    });
+  });
+
+  var sections = ["how", "more", "pricing", "faq"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+  var navLinks = document.querySelectorAll(".navlinks a[href^='#']");
+  if (sections.length && "IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var link = document.querySelector('.navlinks a[href="#' + entry.target.id + '"]');
+        if (!link) return;
+        if (entry.isIntersecting) { navLinks.forEach(function (l) { l.classList.remove("active"); }); link.classList.add("active"); }
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    sections.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -12,7 +12,9 @@ export function useAuth() {
 
   const signInWithGoogle = () => supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: window.location.origin },
+    // the app now lives at /app (root is the marketing landing page) —
+    // send people back to the app, not the landing page, after sign-in
+    options: { redirectTo: `${window.location.origin}/app` },
   });
   const signOut = () => supabase.auth.signOut();
 
