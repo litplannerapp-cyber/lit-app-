@@ -353,6 +353,10 @@ export default function LitApp() {
       setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.map((m) => (m.id === temp.id ? real : m)) } : g)));
     }).catch(console.error);
   };
+  const editMilestone = (goalId, mid, text) => {
+    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.map((m) => (m.id === mid ? { ...m, text } : m)) } : g)));
+    db.dbUpdateMilestone(mid, { text }).catch(console.error);
+  };
   const createGoal = ({ title, targetDate, milestones }) => {
     const temp = { id: uid(), title, targetDate, milestones: milestones.map((text) => ({ id: uid(), text, done: false })) };
     setGoals((gs) => [...gs, temp]);
@@ -462,7 +466,7 @@ export default function LitApp() {
           onAddExpense: addExpense, onCarryExpenses: carryExpenses }} />
       )}
       {tab === "goals" && (
-        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onCreateGoal: createGoal, setEditor }} />
+        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onCreateGoal: createGoal, setEditor }} />
       )}
     </div>
   );

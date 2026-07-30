@@ -4,11 +4,12 @@ import { Card } from "../components/Card";
 import { Eyebrow } from "../components/Eyebrow";
 import { MintBar } from "../components/MintBar";
 import { InlineAdd } from "../components/InlineAdd";
+import { MilestoneRow } from "./MilestoneRow";
 import { keyToDate } from "../utils/date";
 import { goalPct } from "../utils/task";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 
-export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreateGoal, setEditor }) {
+export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMilestone, onCreateGoal, setEditor }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState(""); const [date, setDate] = useState(""); const [msDraft, setMsDraft] = useState("");
@@ -37,29 +38,12 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onCreate
               <div className="fr tnum" style={{ fontSize: 30, fontWeight: 600, color: T.mint }}>{pct}%</div>
             </div>
             <div style={{ margin: "14px 0 16px" }}><MintBar pct={pct} /></div>
-            {g.milestones.map((m, ix) => {
-              const isNext = ix === nextIx;
-              return (
-                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <button onClick={() => onToggleMilestone(g.id, m.id)}
-                    style={{ display: "flex", flex: 1, minWidth: 0, alignItems: "center", gap: 11, padding: "9px 2px", cursor: "pointer", textAlign: "left" }}>
-                    <span style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, border: m.done ? "none" : `1.6px solid ${isNext ? T.mint : T.ink3}`, background: m.done ? T.mint : "transparent", display: "grid", placeItems: "center", transition: "all .25s" }}>
-                      {m.done && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
-                    </span>
-                    <span style={{ flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: isNext ? 650 : 480, color: m.done ? T.ink3 : T.ink, textDecoration: m.done ? "line-through" : "none", overflowWrap: "break-word" }}>{m.text}</span>
-                    {isNext && <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.1em", color: T.mint, background: T.mintSoft, padding: "3px 8px", borderRadius: 100, flexShrink: 0 }}>NEXT</span>}
-                  </button>
-                  {!m.done && (
-                    <button onClick={() => setEditor({ initial: { text: m.text } })} aria-label="Turn into a task" className="hoverable"
-                      style={{ width: 28, height: 28, borderRadius: 9, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink3, flexShrink: 0 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+            {g.milestones.map((m, ix) => (
+              <MilestoneRow key={m.id} m={m} isNext={ix === nextIx}
+                onToggle={() => onToggleMilestone(g.id, m.id)}
+                onEdit={(text) => onEditMilestone(g.id, m.id, text)}
+                onTurnIntoTask={() => setEditor({ initial: { text: m.text } })} />
+            ))}
             <InlineAdd placeholder="Add a milestone" onAdd={(v) => onAddMilestone(g.id, v)} />
           </Card>
         );
