@@ -40,7 +40,7 @@ function LoadingScreen() {
 }
 
 export default function LitApp() {
-  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading: authLoading, sendOtp, verifyOtp, signOut } = useAuth();
 
   const todayKey = toDateKey();
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light"); // "light" | "dark" | "system"
@@ -454,7 +454,7 @@ export default function LitApp() {
 
   /* ============================== auth gate ============================== */
   if (authLoading) return <LoadingScreen />;
-  if (!user) return <SignInScreen onSignIn={signInWithGoogle} />;
+  if (!user) return <SignInScreen onSendCode={sendOtp} onVerifyCode={verifyOtp} />;
   if (!dataLoaded) return <LoadingScreen />;
 
   /* ============================== render ============================== */
