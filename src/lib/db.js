@@ -42,7 +42,7 @@ export async function fetchAll(userId) {
     supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
     supabase.from("tasks").select("*").eq("user_id", userId).order("created_at"),
     supabase.from("captures").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-    supabase.from("boards").select("*").eq("user_id", userId).order("created_at"),
+    supabase.from("boards").select("*").eq("user_id", userId).order("position"),
     supabase.from("vision_items").select("*").eq("user_id", userId).order("position", { ascending: false }),
     supabase.from("goals").select("*").eq("user_id", userId).order("created_at"),
     supabase.from("milestones").select("*").eq("user_id", userId).order("created_at"),
@@ -127,12 +127,13 @@ export const dbDeleteCapture = (id) => Promise.resolve(supabase.from("captures")
 /* ---------- boards & vision items ---------- */
 
 export async function dbInsertBoard(userId, board) {
-  const { data, error } = await supabase.from("boards").insert({ user_id: userId, name: board.name, color: board.color, cover_url: board.coverUrl ?? null }).select().single();
+  const { data, error } = await supabase.from("boards").insert({ user_id: userId, name: board.name, color: board.color, cover_url: board.coverUrl ?? null, position: board.position ?? Date.now() }).select().single();
   if (error) throw error;
   return { id: data.id, name: data.name, color: data.color, coverUrl: data.cover_url, items: [] };
 }
 export const dbUpdateBoard = (id, patch) => Promise.resolve(supabase.from("boards").update(patch).eq("id", id));
 export const dbDeleteBoard = (id) => Promise.resolve(supabase.from("boards").delete().eq("id", id));
+export const dbUpdateBoardPositions = (updates) => Promise.all(updates.map(({ id, position }) => supabase.from("boards").update({ position }).eq("id", id)));
 
 export async function dbInsertVisionItem(userId, item, boardId, position) {
   const { data, error } = await supabase.from("vision_items").insert(visionItemToRow(item, userId, boardId, position)).select().single();
