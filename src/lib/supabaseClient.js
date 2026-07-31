@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { capacitorAuthStorage } from "./capacitorStorage";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -14,4 +15,16 @@ if (new URL(url).pathname !== "/") {
   throw new Error(`VITE_SUPABASE_URL must be your bare project URL with no path (e.g. https://xxxx.supabase.co) — got "${url}". Remove any trailing /rest/v1 or similar.`);
 }
 
-export const supabase = createClient(url, anonKey);
+/* storage: capacitorAuthStorage — session persistence goes through
+   Capacitor's Preferences plugin (native on-device storage on iOS, plain
+   localStorage under the hood on web) instead of the browser Storage API
+   directly, so the session survives the WebView's own storage being
+   cleared. persistSession/autoRefreshToken were already the SDK defaults;
+   spelled out explicitly here now that a custom storage is in play. */
+export const supabase = createClient(url, anonKey, {
+  auth: {
+    storage: capacitorAuthStorage,
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});

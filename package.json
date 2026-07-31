@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:native": "vite build --config vite.native.config.js && cp dist-native/app/index.html dist-native/index.html && rm -rf dist-native/app",
     "lint": "oxlint",
     "preview": "vite preview"
   },
@@ -14,6 +15,7 @@
     "@capacitor/core": "^8.4.2",
     "@capacitor/ios": "^8.4.2",
     "@capacitor/local-notifications": "^8.2.1",
+    "@capacitor/preferences": "^8.0.1",
     "@capawesome/capacitor-badge": "^8.0.2",
     "@capgo/capacitor-native-biometric": "^8.6.2",
     "@supabase/supabase-js": "^2.110.8",

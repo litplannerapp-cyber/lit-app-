@@ -1,5 +1,5 @@
 {
   "appId": "app.litplanner.lit",
   "appName": "Lit: Calm Daily Planner",
-  "webDir": "dist"
+  "webDir": "dist-native"
 }
