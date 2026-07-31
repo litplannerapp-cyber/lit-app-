@@ -266,11 +266,21 @@ export default function LitApp() {
     db.dbMoveVisionItem(itemId, boardId).catch(console.error);
   };
   const createBoard = (name, color) => {
-    const temp = { id: uid(), name, color, coverUrl: null, items: [] };
+    const temp = { id: uid(), name, color, coverUrl: null, items: [], position: Date.now() };
     setBoards((bs) => [...bs, temp]);
     db.dbInsertBoard(user.id, temp).then((real) => {
       setBoards((bs) => bs.map((b) => (b.id === temp.id ? { ...real, items: b.items } : b)));
     }).catch(console.error);
+  };
+  const reorderBoards = (from, to) => {
+    setBoards((bs) => {
+      const arr = [...bs];
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      const base = Date.now();
+      db.dbUpdateBoardPositions(arr.map((b, i) => ({ id: b.id, position: base + i }))).catch(console.error);
+      return arr;
+    });
   };
   const updateBoard = (id, patch) => {
     setBoards((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)));
@@ -457,7 +467,7 @@ export default function LitApp() {
       {tab === "vision" && (
         <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
           onAddLooseItem: addLooseItem, onPlaceOnBoard: placeOnBoard, onCreateBoard: createBoard, onUpdateBoard: updateBoard,
-          onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems,
+          onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems, onReorderBoards: reorderBoards,
           onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem, onAddItemToBoard: addItemToBoard }} />
       )}
       {tab === "finance" && (

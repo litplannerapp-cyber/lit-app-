@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Card } from "../components/Card";
@@ -16,7 +16,7 @@ import { BoardEditSheet } from "./vision/BoardEditSheet";
    or tap it (mobile) to place it on a board. Boards are editable. */
 export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, showToast,
   onAddLooseItem, onPlaceOnBoard, onCreateBoard, onUpdateBoard, onDeleteBoard, onDeleteVisionItem,
-  onReorderBoardItems, onMoveVisionItem, onAddImageToBoard, onPinCover, onEditVisionItem, onAddItemToBoard }) {
+  onReorderBoardItems, onReorderBoards, onMoveVisionItem, onAddImageToBoard, onPinCover, onEditVisionItem, onAddItemToBoard }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const [quick, setQuick] = useState("");
   const [newBoard, setNewBoard] = useState(false);
@@ -24,6 +24,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
   const [tagFilter, setTagFilter] = useState(null);
   const [placing, setPlacing] = useState(null); // loose item being placed (tap flow)
   const [editingBoard, setEditingBoard] = useState(null); // board id in edit sheet
+  const boardDragIx = useRef(null); /* reordering the boards themselves (not items within one) */
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
     onAddLooseItem({ id: uid(), type: "image", content: dataUrl, tags: [] });
     showToast("Image added — place it on a board");
@@ -130,14 +131,22 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
             </div>
           )}
 
-          {/* boards grid — drop targets */}
+          {/* boards grid — drop targets, and reorderable (drag, or the
+              up/down arrows for a version that works on any device) */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 20 }}>
-            {boards.map((b) => {
+            {boards.map((b, ix) => {
               const cover = b.coverUrl || b.items.find((i) => i.type === "image")?.content;
               return (
                 <div key={b.id} style={{ position: "relative" }}
+                  draggable
+                  onDragStart={() => (boardDragIx.current = ix)}
                   onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => { const id = e.dataTransfer.getData("looseId"); if (id) placeOnBoard(id, b.id); }}>
+                  onDrop={(e) => {
+                    const looseId = e.dataTransfer.getData("looseId");
+                    if (looseId) { placeOnBoard(looseId, b.id); return; }
+                    if (boardDragIx.current != null && boardDragIx.current !== ix) onReorderBoards(boardDragIx.current, ix);
+                    boardDragIx.current = null;
+                  }}>
                   <button onClick={() => setBoardOpen(b.id)} style={{ width: "100%", aspectRatio: "1", borderRadius: T.r, overflow: "hidden", position: "relative", cursor: "pointer", boxShadow: T.shadowSm, background: cover ? "none" : `${b.color}33`, textAlign: "left", display: "block" }}>
                     {cover && <img src={cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
                     <div style={{ position: "absolute", inset: 0, background: cover ? "linear-gradient(180deg,transparent 40%,rgba(0,0,0,.45))" : "none" }} />
@@ -150,6 +159,19 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
                     style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", cursor: "pointer", boxShadow: T.shadowSm }}>
                     {Ic.pencil(T.ink2)}
                   </button>
+                  {/* up/down reorder — works everywhere, including touch,
+                      where native drag doesn't. Disabled at the ends so it
+                      never wraps around silently. */}
+                  <div style={{ position: "absolute", top: 10, left: 10, display: "flex", flexDirection: "column", gap: 3, background: "rgba(253,250,245,.92)", borderRadius: 10, boxShadow: T.shadowSm, padding: 2 }}>
+                    <button onClick={(e) => { e.stopPropagation(); if (ix > 0) onReorderBoards(ix, ix - 1); }} disabled={ix === 0} aria-label={`Move ${b.name} up`}
+                      style={{ width: 24, height: 20, display: "grid", placeItems: "center", cursor: ix === 0 ? "default" : "pointer", opacity: ix === 0 ? 0.3 : 1 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.ink2} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15l6-6 6 6" /></svg>
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); if (ix < boards.length - 1) onReorderBoards(ix, ix + 1); }} disabled={ix === boards.length - 1} aria-label={`Move ${b.name} down`}
+                      style={{ width: 24, height: 20, display: "grid", placeItems: "center", cursor: ix === boards.length - 1 ? "default" : "pointer", opacity: ix === boards.length - 1 ? 0.3 : 1 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.ink2} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                    </button>
+                  </div>
                 </div>
               );
             })}
