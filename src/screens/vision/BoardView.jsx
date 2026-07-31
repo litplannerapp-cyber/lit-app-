@@ -82,6 +82,8 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
               onPin={() => onPinCover(board.id, item.content)}
               isCover={board.coverUrl === item.content}
               onEdit={(item.type === "text" || item.type === "link") ? () => startEdit(item) : null}
+              onEditTags={(changes) => onEditItem(item.id, changes)}
+              boardColor={board.color}
             />
           </div>
         ))}
