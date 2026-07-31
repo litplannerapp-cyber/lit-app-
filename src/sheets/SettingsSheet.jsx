@@ -7,8 +7,9 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 /* Hierarchy: Settings home (profile card → Account subview · Appearance · sign out).
    Appearance is its own first-class group with Light / Dark / System — not a
-   toggle lost inside an account form. Google-only accounts have no password to
-   change and no free-text email (both are owned by the Google identity). */
+   toggle lost inside an account form. Email + code accounts have no password
+   to change; email itself is also read-only here since changing it needs its
+   own re-verification flow, not yet implemented. */
 export function SettingsSheet({ profile, onSaveName, onSignOut, theme, setTheme, onClose, showToast }) {
   useBodyScrollLock(true);
   const [view, setView] = useState("home"); // "home" | "account"
@@ -32,7 +33,7 @@ export function SettingsSheet({ profile, onSaveName, onSignOut, theme, setTheme,
           style={{ width: "100%", padding: "13px 16px", borderRadius: 14, border: "none", outline: "none", background: T.bg, fontSize: 14, marginBottom: 10 }} />
         <input value={profile.email} disabled placeholder="Email"
           style={{ width: "100%", padding: "13px 16px", borderRadius: 14, border: "none", outline: "none", background: T.bg, fontSize: 14, marginBottom: 10, color: T.ink3 }} />
-        <p style={{ fontSize: 11.5, color: T.ink3, margin: "0 0 16px" }}>Your email comes from your Google account and can't be changed here.</p>
+        <p style={{ fontSize: 11.5, color: T.ink3, margin: "0 0 16px" }}>This is the email you sign in with — changing it isn't supported yet.</p>
         <button onClick={saveAccount} style={{ width: "100%", padding: "14px 0", borderRadius: 15, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
           Save changes
         </button>
@@ -49,9 +50,6 @@ export function SettingsSheet({ profile, onSaveName, onSignOut, theme, setTheme,
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ display: "block", fontSize: 15.5, fontWeight: 700 }}>{profile.name}</span>
           <span style={{ display: "block", fontSize: 12.5, color: T.ink3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile.email}</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3, fontSize: 11, color: T.mint, fontWeight: 600 }}>
-            <span style={{ width: 6, height: 6, borderRadius: 3, background: T.mint }} /> Signed in with Google
-          </span>
         </span>
         {Ic.chevR(T.ink3)}
       </button>

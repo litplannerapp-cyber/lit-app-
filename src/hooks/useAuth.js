@@ -10,13 +10,20 @@ export function useAuth() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = () => supabase.auth.signInWithOAuth({
-    provider: "google",
-    // the app now lives at /app (root is the marketing landing page) —
-    // send people back to the app, not the landing page, after sign-in
-    options: { redirectTo: `${window.location.origin}/app` },
-  });
+  /* Lit's own account system — email + a 6-digit code, not a third-party
+     login. Deliberate: Apple's App Store guideline 4.8 only requires
+     "Sign in with Apple" when an app uses a third-party/social login
+     (Google, Facebook, etc.) for its primary account; an app using
+     exclusively its own sign-in system is exempt. */
+  const sendOtp = async (email) => {
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) throw error;
+  };
+  const verifyOtp = async (email, code) => {
+    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+    if (error) throw error;
+  };
   const signOut = () => supabase.auth.signOut();
 
-  return { session, user: session?.user ?? null, loading: session === undefined, signInWithGoogle, signOut };
+  return { session, user: session?.user ?? null, loading: session === undefined, sendOtp, verifyOtp, signOut };
 }
