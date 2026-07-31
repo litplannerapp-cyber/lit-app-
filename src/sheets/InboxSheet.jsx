@@ -6,6 +6,7 @@ import { Sheet } from "../components/Sheet";
 import { GROCERY_WORDS } from "../constants";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { CaptureRow } from "./CaptureRow";
+import { ListEditorSheet } from "./ListEditorSheet";
 
 export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, updateCapture, captureToTask, captureToVision, onSchedule, onClose, showToast }) {
   useBodyScrollLock(true);
@@ -18,6 +19,7 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
   const [typeFilter, setTypeFilter] = useState(null);
   const [tagFilter, setTagFilter] = useState(null);
   const [expanded, setExpanded] = useState(null);
+  const [editingListId, setEditingListId] = useState(null);
   const itemsRef = useRef();
 
   const parseTags = (s) => (s.match(/#[\w-]+/g) || []).map((t) => t.slice(1));
@@ -151,11 +153,20 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
             {visible.map((c) => (
               <CaptureRow key={c.id} c={c} expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
                 onTask={() => captureToTask(c)} onVision={() => captureToVision(c)} onSchedule={() => onSchedule(c)} onRelease={() => releaseCapture(c.id)}
-                onToggleItem={(ix) => toggleListItem(c.id, ix)} onEdit={(changes) => updateCapture(c.id, changes)} />
+                onToggleItem={(ix) => toggleListItem(c.id, ix)} onEdit={(changes) => updateCapture(c.id, changes)}
+                onEditList={() => setEditingListId(c.id)} />
             ))}
             {visible.length === 0 && <p style={{ fontSize: 13, color: T.ink3, textAlign: "center", padding: "20px 0" }}>No captures match.</p>}
           </div>
         </div>
+      )}
+
+      {editingListId && captures.find((c) => c.id === editingListId) && (
+        <ListEditorSheet
+          capture={captures.find((c) => c.id === editingListId)}
+          onSave={(changes) => { updateCapture(editingListId, changes); setEditingListId(null); }}
+          onClose={() => setEditingListId(null)}
+        />
       )}
     </Sheet>
   );
