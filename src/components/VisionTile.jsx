@@ -3,8 +3,24 @@ import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { LinkPreview } from "./LinkPreview";
 
-export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, isCover, draggable, onDragStart, onDragOver, onDrop }) {
+export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, isCover, draggable, onDragStart, onDragOver, onDrop, boardColor }) {
   const [confirm, setConfirm] = useState(false);
+  const [addingTag, setAddingTag] = useState(false);
+  const [tagDraft, setTagDraft] = useState("");
+  /* the board's own color, so tags read as "part of this board" — falls
+     back to mint for loose items not on any board yet */
+  const tagColor = boardColor || T.mint;
+
+  /* tags work the same way for every item type — image, link, or text —
+     unlike content editing, which only makes sense for text/link */
+  const addTag = (e) => {
+    e.stopPropagation();
+    const t = tagDraft.trim().replace(/^#/, "").replace(/\s+/g, "-");
+    if (t && onEditTags) onEditTags({ tags: [...new Set([...(item.tags || []), t])] });
+    setTagDraft(""); setAddingTag(false);
+  };
+  const removeTag = (e, t) => { e.stopPropagation(); if (onEditTags) onEditTags({ tags: (item.tags || []).filter((x) => x !== t) }); };
+
   return (
     <div draggable={draggable} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}
       style={{ breakInside: "avoid", marginBottom: 12, borderRadius: 18, overflow: "hidden", background: T.card, boxShadow: T.shadowSm, position: "relative" }}>
@@ -14,11 +30,27 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, isCover, d
       )}
       {item.type === "link" && <LinkPreview url={item.content} />}
       {subtitle && <div style={{ fontSize: 10.5, color: T.ink3, padding: "0 14px 10px" }}>{subtitle}</div>}
-      {(item.tags || []).length > 0 && (
-        <div style={{ display: "flex", gap: 5, padding: "0 14px 12px", flexWrap: "wrap" }}>
-          {item.tags.map((t) => <span key={t} style={{ fontSize: 10.5, color: T.mint, fontWeight: 600 }}>#{t}</span>)}
-        </div>
-      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "0 14px 12px", flexWrap: "wrap" }} onClick={(e) => e.stopPropagation()}>
+        {(item.tags || []).map((t) => (
+          <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10.5, color: tagColor, fontWeight: 600, background: `${tagColor}1a`, padding: "3px 7px 3px 9px", borderRadius: 100 }}>
+            #{t}
+            <button onClick={(e) => removeTag(e, t)} aria-label={`Remove tag ${t}`} style={{ display: "grid", placeItems: "center", cursor: "pointer", opacity: 0.6 }}>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </span>
+        ))}
+        {onEditTags && (addingTag ? (
+          <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} enterKeyHint="done"
+            onKeyDown={(e) => { if (e.key === "Enter") addTag(e); if (e.key === "Escape") setAddingTag(false); }}
+            onBlur={() => { if (!tagDraft.trim()) setAddingTag(false); }}
+            placeholder="tag" style={{ width: 64, padding: "3px 8px", borderRadius: 100, border: "none", outline: "none", background: T.bg, fontSize: 10.5, color: T.ink }} />
+        ) : (
+          <button onClick={(e) => { e.stopPropagation(); setAddingTag(true); }} aria-label="Add tag"
+            style={{ fontSize: 10.5, color: T.ink3, fontWeight: 600, padding: "3px 8px", borderRadius: 100, background: T.bg, cursor: "pointer" }}>
+            + #tag
+          </button>
+        ))}
+      </div>
       {onDelete && (
         <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 5 }}>
           {item.type === "image" && onPin && (
