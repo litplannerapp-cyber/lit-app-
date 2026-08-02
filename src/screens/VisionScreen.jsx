@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Card } from "../components/Card";
@@ -24,7 +24,8 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
   const [tagFilter, setTagFilter] = useState(null);
   const [placing, setPlacing] = useState(null); // loose item being placed (tap flow)
   const [editingBoard, setEditingBoard] = useState(null); // board id in edit sheet
-  const boardDragIx = useRef(null); /* reordering the boards themselves (not items within one) */
+  const [dragBoard, setDragBoard] = useState(null); // {ix, x, y} while a board is being held-and-dragged
+  const [hoverBoardIx, setHoverBoardIx] = useState(null);
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
     onAddLooseItem({ id: uid(), type: "image", content: dataUrl, tags: [] });
     showToast("Image added — place it on a board");
@@ -53,6 +54,77 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
     const v = newName.trim(); if (!v) return;
     onCreateBoard(v, PALETTE[boards.length % PALETTE.length]);
     setNewName(""); setNewBoard(false);
+  };
+
+  /* Reordering boards is a deliberate hold — 3 full seconds on the grip
+     before the drag activates — not an instant grab. That's wide margin
+     against ever mistaking "I meant to open this board" for "I meant to
+     move it": moving before the hold completes, or lifting early, just
+     cancels, no reorder happens. Once activated, the same pointer-events
+     technique as the Today screen's task drag takes over (works on touch,
+     where native HTML5 drag-and-drop doesn't). */
+  const HOLD_MS = 3000;
+  const MOVE_CANCEL_PX = 12;
+  const startBoardHold = (ix) => (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const pointerId = e.pointerId;
+    const gripEl = e.currentTarget;
+    const startX = e.clientX, startY = e.clientY;
+
+    const cancelHold = () => {
+      clearTimeout(holdTimer);
+      window.removeEventListener("pointermove", preMove);
+      window.removeEventListener("pointerup", preEnd);
+      window.removeEventListener("pointercancel", preEnd);
+    };
+    const preMove = (ev) => {
+      if (ev.pointerId !== pointerId) return;
+      if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > MOVE_CANCEL_PX) cancelHold();
+    };
+    const preEnd = (ev) => { if (ev.pointerId === pointerId) cancelHold(); };
+    window.addEventListener("pointermove", preMove);
+    window.addEventListener("pointerup", preEnd);
+    window.addEventListener("pointercancel", preEnd);
+
+    const holdTimer = setTimeout(() => {
+      cancelHold();
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      try { gripEl.setPointerCapture(pointerId); } catch {}
+      setDragBoard({ ix, x: startX, y: startY });
+      /* belt-and-braces, same as the task drag: force-end if pointerup is
+         ever lost so the UI can't get stuck mid-gesture */
+      const failSafe = setTimeout(() => end(), 8000);
+
+      const move = (ev) => {
+        if (ev.pointerId !== pointerId) return;
+        setDragBoard((d) => d && { ...d, x: ev.clientX, y: ev.clientY });
+        const under = document.elementFromPoint(ev.clientX, ev.clientY);
+        const card = under && under.closest ? under.closest("[data-board-ix]") : null;
+        setHoverBoardIx(card ? Number(card.getAttribute("data-board-ix")) : null);
+      };
+      const touchBlock = (ev) => { if (ev.cancelable) ev.preventDefault(); };
+      const end = () => {
+        clearTimeout(failSafe);
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+        window.removeEventListener("pointercancel", up);
+        window.removeEventListener("touchmove", touchBlock);
+        try { gripEl.releasePointerCapture(pointerId); } catch {}
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+        setHoverBoardIx((hoverIx) => {
+          if (hoverIx != null && hoverIx !== ix) onReorderBoards(ix, hoverIx);
+          return null;
+        });
+        setDragBoard(null);
+      };
+      const up = (ev) => { if (ev.pointerId === pointerId) end(); };
+      window.addEventListener("pointermove", move, { passive: false });
+      window.addEventListener("pointerup", up);
+      window.addEventListener("pointercancel", up);
+      window.addEventListener("touchmove", touchBlock, { passive: false });
+    }, HOLD_MS);
   };
 
   if (boardOpen) {
@@ -131,23 +203,20 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
             </div>
           )}
 
-          {/* boards grid — drop targets, and reorderable by drag alone —
-              same interaction language as everywhere else in the app
-              (tasks, items within a board). The grip icon is the same
-              visual cue already used on task cards. */}
+          {/* boards grid — drop targets for loose items, and reorderable by
+              a 3-second hold-then-drag on the grip (see startBoardHold) */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 20 }}>
             {boards.map((b, ix) => {
               const cover = b.coverUrl || b.items.find((i) => i.type === "image")?.content;
+              const isDragging = dragBoard?.ix === ix;
+              const isHoverTarget = dragBoard != null && dragBoard.ix !== ix && hoverBoardIx === ix;
               return (
-                <div key={b.id} style={{ position: "relative" }}
-                  draggable
-                  onDragStart={() => (boardDragIx.current = ix)}
+                <div key={b.id} data-board-ix={ix} style={{ position: "relative", opacity: isDragging ? 0.4 : 1,
+                  outline: isHoverTarget ? `2px solid ${T.coral}` : "none", outlineOffset: 2, borderRadius: T.r, transition: "opacity .15s, outline .15s" }}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     const looseId = e.dataTransfer.getData("looseId");
-                    if (looseId) { placeOnBoard(looseId, b.id); return; }
-                    if (boardDragIx.current != null && boardDragIx.current !== ix) onReorderBoards(boardDragIx.current, ix);
-                    boardDragIx.current = null;
+                    if (looseId) placeOnBoard(looseId, b.id);
                   }}>
                   <button onClick={() => setBoardOpen(b.id)} style={{ width: "100%", aspectRatio: "1", borderRadius: T.r, overflow: "hidden", position: "relative", cursor: "pointer", boxShadow: T.shadowSm, background: cover ? "none" : `${b.color}33`, textAlign: "left", display: "block" }}>
                     {cover && <img src={cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
@@ -161,10 +230,10 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
                     style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", cursor: "pointer", boxShadow: T.shadowSm }}>
                     {Ic.pencil(T.ink2)}
                   </button>
-                  {/* drag handle — same grip glyph as a task card, purely a
-                      visual cue that the card is draggable; the actual
-                      reorder still happens via the div's own onDrop above */}
-                  <div aria-hidden style={{ position: "absolute", top: 10, left: 10, width: 28, height: 28, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", boxShadow: T.shadowSm, cursor: "grab", color: cover ? T.ink2 : T.ink3 }}>
+                  {/* drag handle — same grip glyph as a task card; holding it
+                      for 3s activates the reorder drag (startBoardHold) */}
+                  <div aria-label={`Hold to move ${b.name}`} onPointerDown={startBoardHold(ix)}
+                    style={{ position: "absolute", top: 10, left: 10, width: 28, height: 28, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", boxShadow: T.shadowSm, cursor: "grab", color: cover ? T.ink2 : T.ink3, touchAction: "none" }}>
                     <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
                       <circle cx="2.5" cy="2.5" r="1.5" /><circle cx="7.5" cy="2.5" r="1.5" />
                       <circle cx="2.5" cy="8" r="1.5" /><circle cx="7.5" cy="8" r="1.5" />
@@ -221,6 +290,13 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
           }}
           onClose={() => setEditingBoard(null)}
         />
+      )}
+
+      {/* drag ghost — only shows once the 3s hold has actually activated */}
+      {dragBoard && (
+        <div style={{ position: "fixed", left: dragBoard.x, top: dragBoard.y, transform: "translate(-50%, -120%) rotate(-2deg)", zIndex: 300, pointerEvents: "none", background: T.card, boxShadow: "0 18px 40px rgba(46,42,38,.22)", borderRadius: 16, padding: "12px 18px", fontSize: 14, fontWeight: 600, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {boards[dragBoard.ix]?.name}
+        </div>
       )}
     </div>
   );
