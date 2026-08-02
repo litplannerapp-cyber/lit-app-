@@ -131,8 +131,10 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
             </div>
           )}
 
-          {/* boards grid — drop targets, and reorderable (drag, or the
-              up/down arrows for a version that works on any device) */}
+          {/* boards grid — drop targets, and reorderable by drag alone —
+              same interaction language as everywhere else in the app
+              (tasks, items within a board). The grip icon is the same
+              visual cue already used on task cards. */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 20 }}>
             {boards.map((b, ix) => {
               const cover = b.coverUrl || b.items.find((i) => i.type === "image")?.content;
@@ -159,18 +161,15 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
                     style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", cursor: "pointer", boxShadow: T.shadowSm }}>
                     {Ic.pencil(T.ink2)}
                   </button>
-                  {/* up/down reorder — works everywhere, including touch,
-                      where native drag doesn't. Disabled at the ends so it
-                      never wraps around silently. */}
-                  <div style={{ position: "absolute", top: 10, left: 10, display: "flex", flexDirection: "column", gap: 3, background: "rgba(253,250,245,.92)", borderRadius: 10, boxShadow: T.shadowSm, padding: 2 }}>
-                    <button onClick={(e) => { e.stopPropagation(); if (ix > 0) onReorderBoards(ix, ix - 1); }} disabled={ix === 0} aria-label={`Move ${b.name} up`}
-                      style={{ width: 24, height: 20, display: "grid", placeItems: "center", cursor: ix === 0 ? "default" : "pointer", opacity: ix === 0 ? 0.3 : 1 }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.ink2} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15l6-6 6 6" /></svg>
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); if (ix < boards.length - 1) onReorderBoards(ix, ix + 1); }} disabled={ix === boards.length - 1} aria-label={`Move ${b.name} down`}
-                      style={{ width: 24, height: 20, display: "grid", placeItems: "center", cursor: ix === boards.length - 1 ? "default" : "pointer", opacity: ix === boards.length - 1 ? 0.3 : 1 }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.ink2} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-                    </button>
+                  {/* drag handle — same grip glyph as a task card, purely a
+                      visual cue that the card is draggable; the actual
+                      reorder still happens via the div's own onDrop above */}
+                  <div aria-hidden style={{ position: "absolute", top: 10, left: 10, width: 28, height: 28, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", boxShadow: T.shadowSm, cursor: "grab", color: cover ? T.ink2 : T.ink3 }}>
+                    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
+                      <circle cx="2.5" cy="2.5" r="1.5" /><circle cx="7.5" cy="2.5" r="1.5" />
+                      <circle cx="2.5" cy="8" r="1.5" /><circle cx="7.5" cy="8" r="1.5" />
+                      <circle cx="2.5" cy="13.5" r="1.5" /><circle cx="7.5" cy="13.5" r="1.5" />
+                    </svg>
                   </div>
                 </div>
               );
