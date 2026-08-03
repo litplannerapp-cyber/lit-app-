@@ -71,7 +71,7 @@ export function SignInScreen({ onSendCode, onVerifyCode }) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: T.pageBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 32px" }}>
+    <div className="full-screen-center" style={{ background: T.pageBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 32px" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28, width: "100%", maxWidth: 320 }}>
 
         {/* one fused lockup — icon and wordmark tight together, never the
