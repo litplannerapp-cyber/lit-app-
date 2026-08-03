@@ -453,9 +453,14 @@ export default function LitApp() {
   };
 
   /* ============================== auth gate ============================== */
-  if (authLoading) return <LoadingScreen />;
-  if (!user) return <SignInScreen onSendCode={sendOtp} onVerifyCode={verifyOtp} />;
-  if (!dataLoaded) return <LoadingScreen />;
+  /* GlobalStyle has to be mounted here too, not just in the main return below —
+     these are the screens shown BEFORE that return is ever reached, and without
+     it every className this file and its children use (fonts, animations, the
+     fixed-position/height rules these screens rely on to fill the viewport)
+     silently does nothing. That's what broke the sign-in screen last time. */
+  if (authLoading) return <><GlobalStyle /><LoadingScreen /></>;
+  if (!user) return <><GlobalStyle /><SignInScreen onSendCode={sendOtp} onVerifyCode={verifyOtp} /></>;
+  if (!dataLoaded) return <><GlobalStyle /><LoadingScreen /></>;
 
   /* ============================== render ============================== */
   const mainContent = (
