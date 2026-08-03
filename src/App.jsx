@@ -33,7 +33,7 @@ const THEME_KEY = "lit_theme";
    spinner before it reads as a logo, which is exactly the mixup to avoid */
 function LoadingScreen() {
   return (
-    <div style={{ minHeight: "100vh", background: T.pageBg, display: "grid", placeItems: "center" }}>
+    <div className="full-screen-center" style={{ background: T.pageBg, display: "grid", placeItems: "center" }}>
       <div className="rise"><Spinner size={28} /></div>
     </div>
   );

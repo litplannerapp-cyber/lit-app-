@@ -53,6 +53,19 @@ export function GlobalStyle() {
       @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
       .shimmer { background: linear-gradient(90deg, ${T.bg} 25%, ${T.card} 50%, ${T.bg} 75%); background-size: 200% 100%; animation: shimmer 1.4s ease infinite; }
       .rise { animation: rise .4s ease both; }
+      /* mobile Safari's address bar/toolbar expanding and collapsing means
+         100vh doesn't match what's actually visible — content centered
+         with plain vh sits below true-center whenever the toolbars are
+         showing. 100svh (small viewport height) is measured against the
+         viewport with toolbars fully expanded, so centered content never
+         drifts. vh stays first only as a fallback for very old browsers
+         that don't understand svh yet — the cascade lets the browser pick
+         the best one it understands. */
+      .full-screen-center {
+        position: fixed; top: 0; left: 0; right: 0;
+        height: 100vh;
+        height: 100svh;
+      }
       @media (hover: hover) and (pointer: fine) {
         .hoverable:hover { background: ${T.bg}; }
         .navitem:hover { opacity: 1 !important; }

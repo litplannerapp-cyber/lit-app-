@@ -80,7 +80,7 @@ export function CoachMarks({ step, setStep, tab, goTab, onDone }) {
 
   if (step === -1) {
     return (
-      <div style={{ position: "fixed", inset: 0, zIndex: 400, background: T.pageBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "0 36px 120px" }}>
+      <div className="full-screen-center" style={{ zIndex: 400, background: T.pageBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "0 36px 120px" }}>
         <div style={{ animation: "rise .5s ease", display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
           <HaloMark size={84} />
           <div className="fr" style={{ fontSize: 34, fontWeight: 700, marginTop: 18, color: T.ink, lineHeight: 1 }}>Lit</div>
