@@ -73,19 +73,18 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
 
       <div style={{ columnCount: 2, columnGap: 12 }}>
         {board.items.map((item, ix) => (
-          <div key={item.id} onClick={() => item.type !== "link" && setMoveItem(item)}>
-            <VisionTile item={item} draggable
-              onDragStart={() => (dragIx.current = ix)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => { if (dragIx.current != null && dragIx.current !== ix) reorder(dragIx.current, ix); dragIx.current = null; }}
-              onDelete={() => onDeleteVisionItem(item.id)}
-              onPin={() => onPinCover(board.id, item.content)}
-              isCover={board.coverUrl === item.content}
-              onEdit={(item.type === "text" || item.type === "link") ? () => startEdit(item) : null}
-              onEditTags={(changes) => onEditItem(item.id, changes)}
-              boardColor={board.color}
-            />
-          </div>
+          <VisionTile key={item.id} item={item} draggable
+            onDragStart={() => (dragIx.current = ix)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => { if (dragIx.current != null && dragIx.current !== ix) reorder(dragIx.current, ix); dragIx.current = null; }}
+            onDelete={() => onDeleteVisionItem(item.id)}
+            onPin={() => onPinCover(board.id, item.content)}
+            isCover={board.coverUrl === item.content}
+            onEdit={(item.type === "text" || item.type === "link") ? () => startEdit(item) : null}
+            onEditTags={(changes) => onEditItem(item.id, changes)}
+            onTap={() => item.type !== "link" && setMoveItem(item)}
+            boardColor={board.color}
+          />
         ))}
       </div>
       {board.items.length === 0 && (

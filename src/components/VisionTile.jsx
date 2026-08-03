@@ -1,15 +1,39 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { LinkPreview } from "./LinkPreview";
 
-export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, isCover, draggable, onDragStart, onDragOver, onDrop, boardColor }) {
+export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, onTap, isCover, draggable, onDragStart, onDragOver, onDrop, boardColor }) {
   const [confirm, setConfirm] = useState(false);
   const [addingTag, setAddingTag] = useState(false);
   const [tagDraft, setTagDraft] = useState("");
+  const lastTap = useRef(0);
+  const tapTimer = useRef(null);
+  const canEdit = !!(onEdit && (item.type === "text" || item.type === "link"));
   /* the board's own color, so tags read as "part of this board" — falls
      back to mint for loose items not on any board yet */
   const tagColor = boardColor || T.mint;
+
+  /* a single tap on the quote/link still does whatever onTap does (e.g.
+     opening the "move to another board" sheet) — but a SECOND tap within
+     320ms opens editing instead. Since the single-tap action can cover the
+     tile (a modal), that action is delayed by the same window so a real
+     double-tap has a chance to cancel it, rather than the first tap
+     already navigating away before the second tap can land. */
+  const handleContentTap = (e) => {
+    e.stopPropagation();
+    if (!canEdit) { onTap && onTap(); return; }
+    const now = Date.now();
+    if (now - lastTap.current < 320) {
+      e.preventDefault();
+      clearTimeout(tapTimer.current);
+      lastTap.current = 0;
+      onEdit();
+    } else {
+      lastTap.current = now;
+      tapTimer.current = setTimeout(() => { onTap && onTap(); }, 320);
+    }
+  };
 
   /* tags work the same way for every item type — image, link, or text —
      unlike content editing, which only makes sense for text/link */
@@ -23,12 +47,18 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
 
   return (
     <div draggable={draggable} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}
+      onClick={() => onTap && onTap()}
       style={{ breakInside: "avoid", marginBottom: 12, borderRadius: 18, overflow: "hidden", background: T.card, boxShadow: T.shadowSm, position: "relative" }}>
       {item.type === "image" && <img src={item.content} alt="" style={{ width: "100%", display: "block" }} />}
       {item.type === "text" && (
-        <p className="fr" style={{ fontStyle: "italic", fontSize: 15, lineHeight: 1.55, margin: 0, padding: "18px 16px", color: T.ink }}>{item.content}</p>
+        <p className="fr" onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); canEdit && onEdit(); }}
+          style={{ fontStyle: "italic", fontSize: 15, lineHeight: 1.55, margin: 0, padding: "18px 16px", color: T.ink, cursor: canEdit ? "pointer" : "default" }}>{item.content}</p>
       )}
-      {item.type === "link" && <LinkPreview url={item.content} />}
+      {item.type === "link" && (
+        <div onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); e.preventDefault(); canEdit && onEdit(); }}>
+          <LinkPreview url={item.content} />
+        </div>
+      )}
       {subtitle && <div style={{ fontSize: 10.5, color: T.ink3, padding: "0 14px 10px" }}>{subtitle}</div>}
       <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "0 14px 12px", flexWrap: "wrap" }} onClick={(e) => e.stopPropagation()}>
         {(item.tags || []).map((t) => (
@@ -56,11 +86,6 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
           {item.type === "image" && onPin && (
             <button onClick={(e) => { e.stopPropagation(); onPin(); }} aria-label="Set as board cover" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
               {Ic.pin(isCover, isCover ? T.coral : T.ink2)}
-            </button>
-          )}
-          {onEdit && (
-            <button onClick={(e) => { e.stopPropagation(); onEdit(); }} aria-label="Edit item" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
-              {Ic.pencil(T.ink2)}
             </button>
           )}
           {confirm ? (
