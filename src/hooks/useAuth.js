@@ -25,5 +25,18 @@ export function useAuth() {
   };
   const signOut = () => supabase.auth.signOut();
 
-  return { session, user: session?.user ?? null, loading: session === undefined, sendOtp, verifyOtp, signOut };
+  /* App Store Guideline 5.1.1(v): any app with account creation must let
+     people delete their account from within the app. The actual deletion
+     (auth user + every row it cascades to) happens server-side in the
+     delete-account Edge Function — the service role key that requires
+     can never live in this client bundle. This just calls it and then
+     clears the local session; by the time signOut() runs, the account is
+     already gone. */
+  const deleteAccount = async () => {
+    const { error } = await supabase.functions.invoke("delete-account");
+    if (error) throw error;
+    await supabase.auth.signOut();
+  };
+
+  return { session, user: session?.user ?? null, loading: session === undefined, sendOtp, verifyOtp, signOut, deleteAccount };
 }

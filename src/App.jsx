@@ -40,7 +40,7 @@ function LoadingScreen() {
 }
 
 export default function LitApp() {
-  const { user, loading: authLoading, sendOtp, verifyOtp, signOut } = useAuth();
+  const { user, loading: authLoading, sendOtp, verifyOtp, signOut, deleteAccount } = useAuth();
 
   const todayKey = toDateKey();
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light"); // "light" | "dark" | "system"
@@ -556,7 +556,7 @@ export default function LitApp() {
 
         {/* Profile & settings */}
         {profileOpen && (
-          <SettingsSheet profile={profile} onSaveName={saveProfileName} onSignOut={signOut} theme={theme} setTheme={setTheme}
+          <SettingsSheet profile={profile} onSaveName={saveProfileName} onSignOut={signOut} onDeleteAccount={deleteAccount} theme={theme} setTheme={setTheme}
             onClose={() => setProfileOpen(false)} showToast={showToast} />
         )}
 
