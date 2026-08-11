@@ -245,7 +245,14 @@
 
   .navlinks a.active { color: var(--coral); }
 
-  #how, #pricing, #faq { scroll-margin-top: 90px; }
+  #how, #boards, #pricing, #faq { scroll-margin-top: 90px; }
+
+  /* ---------- why one app: the stack it replaces ---------- */
+  .stack-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 760px; margin: 0 auto; }
+  .stack-item { padding: 10px 18px; border-radius: 100px; background: var(--card); border: 1px solid var(--stroke); }
+  .stack-x { font-size: 13.5px; font-weight: 600; color: var(--ink3); text-decoration: line-through; text-decoration-color: var(--coral); text-decoration-thickness: 1.5px; }
+  .stack-lit { display: flex; align-items: center; gap: 8px; background: var(--ink); border: none; }
+  .stack-lit span, .stack-lit { color: #F2EDE6; font-size: 13.5px; font-weight: 700; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } .reveal { opacity: 1 !important; transform: none !important; } }
 
   /* ---------- bigger icons with gradient + personality ---------- */
@@ -262,6 +269,25 @@
   .polaroid-stack:hover .polaroid { transform: translateY(-3px); }
   .p-back { width: 120px; height: 118px; left: 10px; top: 12px; transform: rotate(-7deg); z-index: 1; }
   .p-front { width: 132px; height: 128px; left: 118px; top: -4px; transform: rotate(5deg); z-index: 2; }
+
+  /* ---------- boards section: full two-column treatment ---------- */
+  .boards-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  @media (max-width: 820px) { .boards-layout { grid-template-columns: 1fr; gap: 40px; } }
+  .boards-copy h2 { font-size: clamp(32px, 4.6vw, 48px); font-weight: 600; font-style: italic; margin-top: 12px; }
+  .boards-lead { font-size: 18px; font-weight: 600; color: var(--ink); margin-top: 16px; }
+  .boards-list { font-size: 16px; color: var(--coral); font-weight: 600; margin-top: 8px; }
+  .boards-copy > p:last-child { font-size: 15px; color: var(--ink2); margin-top: 14px; line-height: 1.6; max-width: 420px; }
+  .boards-visual { display: flex; justify-content: center; }
+  .polaroid-stack-big { height: 320px; width: 100%; max-width: 380px; }
+  .polaroid-stack-big .p-back { width: 220px; height: 260px; left: 4px; top: 30px; }
+  .polaroid-stack-big .p-front { width: 240px; height: 280px; left: 130px; top: 0; }
+  @media (max-width: 480px) {
+    .polaroid-stack-big .p-back { width: 170px; height: 210px; left: 0; top: 40px; }
+    .polaroid-stack-big .p-front { width: 190px; height: 230px; left: 100px; top: 0; }
+  }
+
+  .grid-2 { grid-template-columns: 1fr 1fr; max-width: 640px; margin: 0 auto; }
+  @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
 
   /* ---------- finance: ring + bars mini preview ---------- */
   .finance-preview { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
@@ -301,6 +327,7 @@
     </a>
     <div class="navlinks">
       <a href="#how">How it works</a>
+      <a href="#boards">Boards</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a href="/app" class="btn btn-primary" style="color:#fff;">Get started free</a>
@@ -313,9 +340,9 @@
   <!-- ============ HERO ============ -->
   <section class="hero">
     <div class="wrap">
-      <span class="eyebrow">Daily planner app</span>
-      <h1 class="fr">Plan your day.<br>Feel calmer doing it.</h1>
-      <p class="sub">Three priorities. One ring. Everything else waits in the Inbox until you're ready for it.</p>
+      <span class="eyebrow">Your whole life, reorganized</span>
+      <h1 class="fr">Life isn't just what happens today.<br>It's everything you're building for tomorrow.</h1>
+      <p class="sub">Lit brings your days, your dreams, and everything in between into one calm place — so you can finally stop juggling eight different apps.</p>
       <div class="ctas">
         <a href="/app" class="btn btn-primary" style="color:#fff;">Get started — it's free</a>
         <a href="#how" class="btn btn-ghost">See how it works</a>
@@ -423,6 +450,32 @@
     </div>
   </section>
 
+  <!-- ============ WHY ONE APP ============ -->
+  <section style="padding-top: 20px;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">You're already using eight apps for this</span>
+        <h2 class="fr">Notes for random thoughts.<br>Pinterest for what you're dreaming about.<br>A spreadsheet for the money.</h2>
+        <p>None of it talks to each other. Lit is the one place that replaces the whole stack.</p>
+      </div>
+      <div class="stack-grid reveal">
+        <div class="stack-item"><span class="stack-x">Apple Notes</span></div>
+        <div class="stack-item"><span class="stack-x">Notion</span></div>
+        <div class="stack-item"><span class="stack-x">Pinterest</span></div>
+        <div class="stack-item"><span class="stack-x">Google Calendar</span></div>
+        <div class="stack-item"><span class="stack-x">Reminders</span></div>
+        <div class="stack-item"><span class="stack-x">Todoist</span></div>
+        <div class="stack-item"><span class="stack-x">Splitwise</span></div>
+        <div class="stack-item"><span class="stack-x">Excel</span></div>
+        <div class="stack-item"><span class="stack-x">Paper</span></div>
+        <div class="stack-item stack-lit">
+          <svg width="18" height="18" viewBox="0 0 104 104"><defs><linearGradient id="gsx" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#gsx)" stroke-width="12" stroke-linecap="round"/><path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#gsx)" stroke-width="12" stroke-linecap="round"/><path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#gsx)" stroke-width="12" stroke-linecap="round"/></svg>
+          Lit
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ HOW IT WORKS ============ -->
   <section id="how">
     <div class="wrap">
@@ -464,25 +517,35 @@
     </div>
   </section>
 
-  <!-- ============ WHEN YOU WANT MORE ============ -->
-  <section id="more">
+  <!-- ============ BOARDS ============ -->
+  <section id="boards">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="eyebrow">When you want more than today</span>
-        <h2 class="fr">Everything else, when you're ready.</h2>
-      </div>
-      <div class="grid reveal">
-
-        <div class="card">
-          <div class="icon icon-vision"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></div>
-          <h3>Vision</h3>
-          <p class="tagline">Remember why you're doing it.</p>
-          <p>Photos, quotes and dreams that keep your goals feeling real.</p>
-          <div class="polaroid-stack">
+      <div class="boards-layout reveal">
+        <div class="boards-copy">
+          <span class="eyebrow">Beyond today</span>
+          <h2 class="fr">Boards</h2>
+          <p class="boards-lead">Create beautiful spaces for everything you're planning.</p>
+          <p class="boards-list">A trip. A wedding. Your dream house. A new business.</p>
+          <p>Collect links, photos, reservations, notes and ideas in one place — so the thing you're building toward stays real, not just a tab you forgot to close.</p>
+        </div>
+        <div class="boards-visual">
+          <div class="polaroid-stack polaroid-stack-big">
             <div class="polaroid p-back" style="background-image:url('/images/vision-photo-2.jpg');"></div>
             <div class="polaroid p-front" style="background-image:url('/images/vision-photo-1.jpg');"></div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHEN YOU WANT MORE ============ -->
+  <section id="more">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">And when the day involves money too</span>
+        <h2 class="fr">The rest, still calm</h2>
+      </div>
+      <div class="grid grid-2 reveal">
 
         <div class="card">
           <div class="icon icon-finance"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></div>
@@ -611,7 +674,7 @@
       </svg>
       <div class="final-content">
         <h2 class="fr">Life will always be busy.<br>Your planner doesn't have to be.</h2>
-        <p>Three priorities. One calm place.</p>
+        <p>One place for your days, dreams, and everything in between.</p>
         <a href="/app" class="btn btn-primary btn-final">
           Start today
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -714,8 +777,8 @@
   var annual = false;
   function paintPricing() {
     toggle.classList.toggle("on", annual);
-    if (annual) { amountEl.textContent = "\u20AC39.99"; cycleEl.textContent = "/yr"; noteEl.textContent = "billed annually \u2014 \u20AC3.33/mo"; lm.classList.remove("active-label"); la.classList.add("active-label"); }
-    else { amountEl.textContent = "\u20AC4.99"; cycleEl.textContent = "/mo"; noteEl.textContent = "billed monthly"; la.classList.remove("active-label"); lm.classList.add("active-label"); }
+    if (annual) { amountEl.textContent = "€39.99"; cycleEl.textContent = "/yr"; noteEl.textContent = "billed annually — €3.33/mo"; lm.classList.remove("active-label"); la.classList.add("active-label"); }
+    else { amountEl.textContent = "€4.99"; cycleEl.textContent = "/mo"; noteEl.textContent = "billed monthly"; la.classList.remove("active-label"); lm.classList.add("active-label"); }
   }
   if (toggle) { toggle.addEventListener("click", function () { annual = !annual; paintPricing(); }); paintPricing(); }
 
@@ -727,7 +790,7 @@
     });
   });
 
-  var sections = ["how", "more", "pricing", "faq"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+  var sections = ["how", "boards", "more", "pricing", "faq"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
   var navLinks = document.querySelectorAll(".navlinks a[href^='#']");
   if (sections.length && "IntersectionObserver" in window) {
     var spy = new IntersectionObserver(function (entries) {
