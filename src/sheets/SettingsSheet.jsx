@@ -131,7 +131,7 @@ export function SettingsSheet({ profile, onSaveName, onSignOut, onDeleteAccount,
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 28 }}>
         <HaloMark size={32} />
         <div className="fr" style={{ fontSize: 15, fontWeight: 700, marginTop: 8, color: T.ink2 }}>Lit</div>
-        <p style={{ fontSize: 10.5, color: T.ink3, margin: "3px 0 0" }}>calm by design</p>
+        <p style={{ fontSize: 10.5, color: T.ink3, margin: "3px 0 0" }}>light your mind</p>
       </div>
     </Sheet>
   );
