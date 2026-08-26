@@ -84,7 +84,7 @@ export function SignInScreen({ onSendCode, onVerifyCode }) {
         {/* Inter, not Fraunces — body copy stays in the UI typeface */}
         <p style={{ fontFamily: "'Inter',system-ui,sans-serif", fontSize: 14.5, color: T.ink2, textAlign: "center", lineHeight: 1.5, margin: 0 }}>
           {step === "email"
-            ? "Calm, on purpose. Enter your email to sign in."
+            ? "Light your mind. Enter your email to sign in."
             : <>We sent a code to <strong style={{ color: T.ink }}>{email}</strong>.</>}
         </p>
 
