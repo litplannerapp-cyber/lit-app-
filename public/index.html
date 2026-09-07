@@ -245,7 +245,7 @@
 
   .navlinks a.active { color: var(--coral); }
 
-  #how, #boards, #pricing, #faq { scroll-margin-top: 90px; }
+  #pillars, #how, #pricing, #faq { scroll-margin-top: 90px; }
 
   /* ---------- why one app: the stack it replaces ---------- */
   .stack-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 760px; margin: 0 auto; }
@@ -289,6 +289,77 @@
   .grid-2 { grid-template-columns: 1fr 1fr; max-width: 640px; margin: 0 auto; }
   @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
 
+  /* ---------- four pillars — interactive showcase ---------- */
+  .pillars { max-width: 980px; margin: 0 auto; }
+
+  /* progress line above the tabs — fills as you move through the four */
+  .pillar-progress-track { max-width: 420px; margin: 0 auto 20px; height: 3px; border-radius: 2px; background: var(--stroke); position: relative; }
+  .pillar-progress-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 2px; background: var(--grad); width: 12.5%; transition: width .45s cubic-bezier(.65,0,.35,1); }
+
+  .pillar-tabs { position: relative; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .pillar-tab-indicator { position: absolute; top: 0; height: 100%; border-radius: 100px; background: var(--ink); transition: left .4s cubic-bezier(.65,0,.35,1), width .4s cubic-bezier(.65,0,.35,1); z-index: 0; }
+  .pillar-tab { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; padding: 12px 20px; border-radius: 100px; background: transparent; border: 1px solid var(--stroke); cursor: pointer; transition: border-color .3s ease; }
+  .pillar-tab.active { border-color: transparent; }
+  .pillar-tab-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 12px; color: var(--ink3); transition: color .3s ease; }
+  .pillar-tab-label { font-size: 13.5px; font-weight: 700; color: var(--ink2); transition: color .3s ease; }
+  .pillar-tab.active .pillar-tab-num { color: var(--amber); }
+  .pillar-tab.active .pillar-tab-label { color: #fff; }
+  .pillar-stage { margin-top: 40px; background: var(--card); border-radius: 32px; box-shadow: var(--shadow-lg); overflow: hidden; min-height: 420px; }
+  .pillar-panel { display: none; grid-template-columns: 1fr 1fr; gap: 0; }
+  .pillar-panel.active { display: grid; animation: pillarIn .4s ease; }
+  @keyframes pillarIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 760px) { .pillar-panel.active { grid-template-columns: 1fr; } }
+  .pillar-copy { padding: 48px 40px; display: flex; flex-direction: column; justify-content: center; }
+  .pillar-eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--coral); }
+  .pillar-copy h3 { font-size: clamp(24px, 3vw, 30px); font-weight: 600; font-style: italic; margin-top: 12px; }
+  .pillar-copy p { font-size: 15px; color: var(--ink2); margin-top: 14px; line-height: 1.65; max-width: 380px; }
+  .pillar-demo { background: var(--bg); padding: 40px; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+  .pillar-microcopy { font-size: 12px; color: var(--ink3); text-align: center; margin-top: 4px; }
+
+  /* capture demo */
+  .capture-input-row { display: flex; gap: 8px; }
+  .capture-input-row input { flex: 1; min-width: 0; padding: 13px 16px; border-radius: 14px; border: 1px solid var(--stroke); outline: none; font-size: 14px; font-family: inherit; background: var(--card); }
+  .capture-input-row button { width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px; background: var(--grad); display: grid; place-items: center; cursor: pointer; box-shadow: 0 8px 18px rgba(255,107,94,.3); }
+  .capture-tray { background: var(--card); border-radius: 18px; padding: 16px; min-height: 140px; }
+  .capture-tray-label { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); margin-bottom: 10px; }
+  .capture-items { display: flex; flex-direction: column; gap: 8px; }
+  .capture-item { background: var(--bg); border-radius: 11px; padding: 10px 13px; font-size: 13px; font-weight: 600; color: var(--ink); animation: pillarIn .3s ease; }
+
+  /* boards demo */
+  .board-switcher { display: flex; gap: 6px; margin-bottom: 14px; }
+  .board-switch { padding: 8px 15px; border-radius: 100px; background: var(--card); border: 1px solid var(--stroke); font-size: 12px; font-weight: 700; color: var(--ink2); cursor: pointer; }
+  .board-switch.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .board-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .board-tile { border-radius: 16px; height: 100px; display: flex; align-items: flex-end; padding: 10px; font-size: 11px; font-weight: 700; color: #fff; background-size: cover; background-position: center; animation: pillarIn .3s ease; }
+  .board-tile.tall { grid-row: span 2; height: 100%; }
+
+  /* goals demo */
+  .goal-demo-card { background: var(--card); border-radius: 20px; padding: 24px; }
+  .goal-demo-head { display: flex; align-items: center; justify-content: space-between; }
+  .goal-demo-head span:first-child { font-size: 16px; font-weight: 600; font-style: italic; }
+  .goal-demo-pct { font-size: 13px; font-weight: 700; color: var(--coral); }
+  .goal-demo-bar { height: 8px; border-radius: 4px; background: var(--bg); margin-top: 12px; overflow: hidden; }
+  .goal-demo-fill { height: 100%; border-radius: 4px; background: var(--grad); transition: width .4s ease; }
+  .goal-demo-steps { margin-top: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .goal-demo-step { display: flex; align-items: center; gap: 10px; padding: 8px 4px; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left; }
+  .goal-demo-step .gcheck { width: 19px; height: 19px; border-radius: 7px; border: 1.6px solid var(--ink3); flex-shrink: 0; transition: all .2s ease; }
+  .goal-demo-step.done { color: var(--ink3); text-decoration: line-through; }
+  .goal-demo-step.done .gcheck { background: var(--grad); border-color: transparent; }
+
+  /* finance demo — matches the real app's Finance card exactly */
+  .finance-demo-card { background: var(--card); border-radius: 20px; padding: 24px 26px; box-shadow: var(--shadow-sm); }
+  .finance-demo-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); }
+  .finance-demo-amount { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 700; margin-top: 8px; }
+  .finance-demo-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 18px; background: var(--stroke); }
+  .finance-demo-seg { height: 100%; transition: width .35s cubic-bezier(.4,0,.2,1); }
+  .finance-demo-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+  .finance-demo-legend span { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink2); }
+  .finance-demo-legend i { width: 8px; height: 8px; border-radius: 4px; display: inline-block; }
+  .finance-demo-income { font-size: 12px; color: var(--ink3); margin-top: 12px; }
+  .finance-demo-inputs { display: flex; gap: 10px; margin-top: 16px; }
+  .finance-demo-inputs label { flex: 1; font-size: 11px; font-weight: 700; color: var(--ink2); display: flex; flex-direction: column; gap: 5px; }
+  .finance-demo-inputs input { padding: 9px 11px; border-radius: 10px; border: 1px solid var(--stroke); outline: none; font-size: 13px; font-weight: 700; font-family: inherit; background: var(--bg); color: var(--ink); width: 100%; }
+
   /* ---------- finance: ring + bars mini preview ---------- */
   .finance-preview { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
   .fin-ring { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
@@ -319,15 +390,15 @@
     <a href="/" class="logo">
       <svg width="26" height="26" viewBox="0 0 104 104">
         <defs><linearGradient id="g0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs>
-        <path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#g0)" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#g0)" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#g0)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#g0)" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#g0)" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#g0)" stroke-width="9" stroke-linecap="round"/>
       </svg>
       <span class="fr">Lit Planner</span>
     </a>
     <div class="navlinks">
+      <a href="#pillars">What it does</a>
       <a href="#how">How it works</a>
-      <a href="#boards">Boards</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a href="/app" class="btn btn-primary" style="color:#fff;">Get started free</a>
@@ -450,27 +521,142 @@
     </div>
   </section>
 
-  <!-- ============ WHY ONE APP ============ -->
-  <section style="padding-top: 20px;">
+  <!-- ============ FOUR PILLARS — interactive ============ -->
+  <section id="pillars" style="padding-top: 20px;">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Your mind is carrying eight apps</span>
-        <h2 class="fr">Notes for random thoughts.<br>A mood board app for what you're dreaming about.<br>A spreadsheet for the money.</h2>
-        <p>None of it talks to each other, and all of it adds weight. Lit is the one place that lifts it — for good.</p>
+        <span class="eyebrow">So much lives in your head</span>
+        <h2 class="fr">Imagine it all,<br>in one place.</h2>
+        <p>Four spaces. One calm system. Try each one below.</p>
       </div>
-      <div class="stack-grid reveal">
-        <div class="stack-item"><span class="stack-x">Apple Notes</span></div>
-        <div class="stack-item"><span class="stack-x">Notion</span></div>
-        <div class="stack-item"><span class="stack-x">Mood board app</span></div>
-        <div class="stack-item"><span class="stack-x">Google Calendar</span></div>
-        <div class="stack-item"><span class="stack-x">Reminders</span></div>
-        <div class="stack-item"><span class="stack-x">Todoist</span></div>
-        <div class="stack-item"><span class="stack-x">Splitwise</span></div>
-        <div class="stack-item"><span class="stack-x">Excel</span></div>
-        <div class="stack-item"><span class="stack-x">Paper</span></div>
-        <div class="stack-item stack-lit">
-          <svg width="18" height="18" viewBox="0 0 104 104"><defs><linearGradient id="gsx" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#gsx)" stroke-width="12" stroke-linecap="round"/><path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#gsx)" stroke-width="12" stroke-linecap="round"/><path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#gsx)" stroke-width="12" stroke-linecap="round"/></svg>
-          Lit
+
+      <div class="pillars reveal">
+        <div class="pillar-progress-track">
+          <div class="pillar-progress-fill" id="pillarProgressFill"></div>
+        </div>
+        <div class="pillar-tabs" id="pillarTabs">
+          <div class="pillar-tab-indicator" id="pillarIndicator"></div>
+          <button class="pillar-tab active" data-pillar="capture" data-index="0">
+            <span class="pillar-tab-num">01</span>
+            <span class="pillar-tab-label">Capture</span>
+          </button>
+          <button class="pillar-tab" data-pillar="boards" data-index="1">
+            <span class="pillar-tab-num">02</span>
+            <span class="pillar-tab-label">Boards</span>
+          </button>
+          <button class="pillar-tab" data-pillar="goals" data-index="2">
+            <span class="pillar-tab-num">03</span>
+            <span class="pillar-tab-label">Goals</span>
+          </button>
+          <button class="pillar-tab" data-pillar="finance" data-index="3">
+            <span class="pillar-tab-num">04</span>
+            <span class="pillar-tab-label">Finance</span>
+          </button>
+        </div>
+
+        <div class="pillar-stage">
+
+          <!-- 01 CAPTURE -->
+          <div class="pillar-panel active" data-panel="capture">
+            <div class="pillar-copy">
+              <span class="pillar-eyebrow">Notes, reminders, ideas, lists</span>
+              <h3 class="fr">Get it out of your head.</h3>
+              <p>The appointment. The idea at 2am. The thing you can't forget but can't deal with right now. None of it needs a date, a folder, or a decision this second — it just needs to be somewhere that isn't your head.</p>
+            </div>
+            <div class="pillar-demo">
+              <div class="capture-input-row">
+                <input type="text" id="captureInput" placeholder="Type anything on your mind…" maxlength="60">
+                <button id="captureAddBtn" aria-label="Capture it">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+              <div class="capture-tray" id="captureTray">
+                <div class="capture-tray-label">Inbox</div>
+                <div class="capture-items" id="captureItems">
+                  <div class="capture-item">Call the dentist</div>
+                  <div class="capture-item">Idea: weekend trip to Porto</div>
+                </div>
+              </div>
+              <p class="pillar-microcopy">Try it — type something and drop it in.</p>
+            </div>
+          </div>
+
+          <!-- 02 BOARDS -->
+          <div class="pillar-panel" data-panel="boards">
+            <div class="pillar-copy">
+              <span class="pillar-eyebrow">Links, photos, notes — visually</span>
+              <h3 class="fr">See your someday.</h3>
+              <p>The trip you're saving for. The apartment you're picturing. The wedding you're planning. Create a board, pin what belongs to it, and watch it stay a real thing you're building — not a browser tab you forgot to close.</p>
+            </div>
+            <div class="pillar-demo">
+              <div class="board-switcher">
+                <button class="board-switch active" data-board="trip">Trip</button>
+                <button class="board-switch" data-board="packing">New home</button>
+                <button class="board-switch" data-board="house">Wedding</button>
+              </div>
+              <div class="board-grid" id="boardGrid">
+                <!-- filled by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 03 GOALS -->
+          <div class="pillar-panel" data-panel="goals">
+            <div class="pillar-copy">
+              <span class="pillar-eyebrow">Realistic goals, real steps</span>
+              <h3 class="fr">Turn "someday" into steps.</h3>
+              <p>A goal on its own is just a hope. Broken into small, honest steps, it becomes a plan — one you can actually see yourself finishing, checked off one at a time, tangible from the very first step.</p>
+            </div>
+            <div class="pillar-demo">
+              <div class="goal-demo-card">
+                <div class="goal-demo-head">
+                  <span class="fr">Run a half marathon</span>
+                  <span class="goal-demo-pct" id="goalPct">25%</span>
+                </div>
+                <div class="goal-demo-bar"><div class="goal-demo-fill" id="goalFill" style="width:25%;"></div></div>
+                <div class="goal-demo-steps" id="goalSteps">
+                  <button class="goal-demo-step done" data-step="0"><span class="gcheck"></span>Buy proper running shoes</button>
+                  <button class="goal-demo-step" data-step="1"><span class="gcheck"></span>Run 5k without stopping</button>
+                  <button class="goal-demo-step" data-step="2"><span class="gcheck"></span>Run 10k without stopping</button>
+                  <button class="goal-demo-step" data-step="3"><span class="gcheck"></span>Complete the half marathon</button>
+                </div>
+                <p class="pillar-microcopy">Try it — check off a step.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 04 FINANCE -->
+          <div class="pillar-panel" data-panel="finance">
+            <div class="pillar-copy">
+              <span class="pillar-eyebrow">No spreadsheets, no formulas</span>
+              <h3 class="fr">Money, without the mess.</h3>
+              <p>You don't need a finance degree, and you don't need another chaotic spreadsheet. Enter what came in and what went out — Lit shows you what's left, in a number you understand at a glance.</p>
+            </div>
+            <div class="pillar-demo">
+              <div class="finance-demo-card">
+                <div class="finance-demo-eyebrow">You can save this month</div>
+                <div class="finance-demo-amount" id="finLeft">&euro;5,000</div>
+                <div class="finance-demo-bar">
+                  <div class="finance-demo-seg" id="finSegBills" style="background:#7FB5E0; width:0%;"></div>
+                  <div class="finance-demo-seg" id="finSegSpend" style="background:#FFC29E; width:0%;"></div>
+                  <div class="finance-demo-seg" id="finSegLeft" style="background:#5EC9A7; width:100%;"></div>
+                </div>
+                <div class="finance-demo-legend">
+                  <span><i style="background:#7FB5E0;"></i>Bills &middot; <span id="finBillsLbl">&euro;0</span></span>
+                  <span><i style="background:#FFC29E;"></i>Spending &middot; <span id="finSpendLbl">&euro;0</span></span>
+                  <span><i style="background:#5EC9A7;"></i>Left &middot; <span id="finLeftLbl">&euro;5,000</span></span>
+                </div>
+                <div class="finance-demo-income">Income &euro;<span id="finIncomeLbl">5,000</span></div>
+              </div>
+              <div class="finance-demo-inputs">
+                <label>Income<input type="number" id="finIncome" value="5000" min="0" step="50"></label>
+                <label>Bills<input type="number" id="finBills" value="0" min="0" step="50"></label>
+                <label>Spending<input type="number" id="finSpend" value="0" min="0" step="50"></label>
+              </div>
+              <p class="pillar-microcopy">Try it — change the numbers above.</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -516,75 +702,6 @@
       <p>Most planners pile on. Lit lightens up.</p>
     </div>
   </section>
-
-  <!-- ============ BOARDS ============ -->
-  <section id="boards">
-    <div class="wrap">
-      <div class="boards-layout reveal">
-        <div class="boards-copy">
-          <span class="eyebrow">The weightless kind of thinking ahead</span>
-          <h2 class="fr">Boards</h2>
-          <p class="boards-lead">Create beautiful spaces for everything you're planning.</p>
-          <p class="boards-list">A trip. A wedding. Your dream house. A new business.</p>
-          <p>Collect links, photos, reservations, notes and ideas in one place — so the thing you're building toward stays real, not just a tab you forgot to close.</p>
-        </div>
-        <div class="boards-visual">
-          <div class="polaroid-stack polaroid-stack-big">
-            <div class="polaroid p-back" style="background-image:url('/images/vision-photo-2.jpg');"></div>
-            <div class="polaroid p-front" style="background-image:url('/images/vision-photo-1.jpg');"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ WHEN YOU WANT MORE ============ -->
-  <section id="more">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <span class="eyebrow">And when the day involves money too</span>
-        <h2 class="fr">Still lighter, never heavier</h2>
-      </div>
-      <div class="grid grid-2 reveal">
-
-        <div class="card">
-          <div class="icon icon-finance"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></div>
-          <h3>Finance</h3>
-          <p class="tagline">Know where your money is going.</p>
-          <p>One simple monthly overview&mdash;without spreadsheets.</p>
-          <div class="finance-preview">
-            <div class="fin-ring">
-              <svg width="64" height="64" viewBox="0 0 64 64">
-                <defs><linearGradient id="fg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs>
-                <circle cx="32" cy="32" r="26" fill="none" stroke="#EFE6D8" stroke-width="7"/>
-                <circle cx="32" cy="32" r="26" fill="none" stroke="url(#fg0)" stroke-width="7" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="45.7" transform="rotate(-90 32 32)"/>
-              </svg>
-              <div class="fin-ring-label"><span>72%</span><small>left</small></div>
-            </div>
-            <div class="fin-bars">
-              <div class="fin-bar-row"><span class="fin-bar-label">Income</span><div class="fin-bar"><div class="fin-bar-fill" style="width:88%; background:var(--mint);"></div></div></div>
-              <div class="fin-bar-row"><span class="fin-bar-label">Spent</span><div class="fin-bar"><div class="fin-bar-fill" style="width:38%; background:var(--coral);"></div></div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="icon icon-goals"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg></div>
-          <h3>Goals</h3>
-          <p class="tagline">Turn someday into progress.</p>
-          <p>Break big goals into milestones you can actually finish.</p>
-          <div class="goals-preview">
-            <div class="goal-row done"><span class="goal-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span>Save the deposit</span></div>
-            <div class="goal-row done"><span class="goal-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span>Book the viewing</span></div>
-            <div class="goal-row"><span class="goal-check off"></span><span>Sign the lease</span></div>
-            <div class="goal-progress"><div class="goal-progress-fill" style="width:66%;"></div></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
   <!-- ============ TRUST ============ -->
   <section style="padding: 20px 0 76px;">
     <div class="wrap">
@@ -691,9 +808,9 @@
     <div class="logo">
       <svg width="20" height="20" viewBox="0 0 104 104">
         <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFB35C"/><stop offset="55%" stop-color="#FF6B5E"/><stop offset="100%" stop-color="#F4508C"/></linearGradient></defs>
-        <path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#g2)" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#g2)" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#g2)" stroke-width="9" stroke-linecap="round"/>
       </svg>
       <span class="copyright">&copy; 2026 Lit Planner</span>
     </div>
@@ -777,8 +894,8 @@
   var annual = false;
   function paintPricing() {
     toggle.classList.toggle("on", annual);
-    if (annual) { amountEl.textContent = "€39.99"; cycleEl.textContent = "/yr"; noteEl.textContent = "billed annually — €3.33/mo"; lm.classList.remove("active-label"); la.classList.add("active-label"); }
-    else { amountEl.textContent = "€4.99"; cycleEl.textContent = "/mo"; noteEl.textContent = "billed monthly"; la.classList.remove("active-label"); lm.classList.add("active-label"); }
+    if (annual) { amountEl.textContent = "\u20AC39.99"; cycleEl.textContent = "/yr"; noteEl.textContent = "billed annually \u2014 \u20AC3.33/mo"; lm.classList.remove("active-label"); la.classList.add("active-label"); }
+    else { amountEl.textContent = "\u20AC4.99"; cycleEl.textContent = "/mo"; noteEl.textContent = "billed monthly"; la.classList.remove("active-label"); lm.classList.add("active-label"); }
   }
   if (toggle) { toggle.addEventListener("click", function () { annual = !annual; paintPricing(); }); paintPricing(); }
 
@@ -790,7 +907,205 @@
     });
   });
 
-  var sections = ["how", "boards", "more", "pricing", "faq"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+  /* ---------- four pillars: tab switching, sliding indicator, progress
+     line, and a one-time auto-advance so the interaction is discoverable
+     without turning into a carousel that never stops ---------- */
+  (function () {
+    var tabsWrap = document.getElementById("pillarTabs");
+    var indicator = document.getElementById("pillarIndicator");
+    var progressFill = document.getElementById("pillarProgressFill");
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".pillar-tab"));
+    var pillarsSection = document.getElementById("pillars");
+    if (!tabsWrap || !indicator || !tabs.length) return;
+
+    var autoTimer = null;
+    var autoStopped = false;
+
+    function moveIndicator(tab) {
+      indicator.style.left = tab.offsetLeft + "px";
+      indicator.style.width = tab.offsetWidth + "px";
+    }
+    function updateProgress(index) {
+      var pct = ((index + 1) / tabs.length) * 100;
+      if (progressFill) progressFill.style.width = pct + "%";
+    }
+    function activate(tab, userInitiated) {
+      var name = tab.getAttribute("data-pillar");
+      var index = parseInt(tab.getAttribute("data-index"), 10) || 0;
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      document.querySelectorAll(".pillar-panel").forEach(function (p) { p.classList.remove("active"); });
+      tab.classList.add("active");
+      var panel = document.querySelector('.pillar-panel[data-panel="' + name + '"]');
+      if (panel) panel.classList.add("active");
+      moveIndicator(tab);
+      updateProgress(index);
+      if (userInitiated) stopAuto();
+    }
+    function stopAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      autoStopped = true;
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () { activate(tab, true); });
+    });
+    // any interaction with a demo (typing, clicking a demo control) also
+    // counts as "found it" — stop the auto-advance the same way
+    document.querySelectorAll(".pillar-stage input, .pillar-stage button:not(.pillar-tab)").forEach(function (el) {
+      el.addEventListener("pointerdown", stopAuto, { once: true });
+    });
+
+    // set the indicator's starting position once layout is ready
+    requestAnimationFrame(function () { moveIndicator(tabs[0]); });
+    window.addEventListener("resize", function () {
+      var active = tabs.find(function (t) { return t.classList.contains("active"); });
+      if (active) moveIndicator(active);
+    });
+
+    // one full pass through the four tabs, ~1.9s apart, starting once the
+    // section is actually on screen — never loops, stops the instant the
+    // visitor touches anything
+    if ("IntersectionObserver" in window) {
+      var started = false;
+      new IntersectionObserver(function (entries, obs) {
+        if (entries[0].isIntersecting && !started && !autoStopped) {
+          started = true;
+          var i = 0;
+          autoTimer = setInterval(function () {
+            i++;
+            if (i >= tabs.length || autoStopped) { stopAuto(); return; }
+            activate(tabs[i], false);
+          }, 1900);
+          obs.disconnect();
+        }
+      }, { threshold: 0.6 }).observe(pillarsSection);
+    }
+  })();
+
+  /* ---------- pillar 1: capture — type something, drop it in the inbox ---------- */
+  (function () {
+    var input = document.getElementById("captureInput");
+    var btn = document.getElementById("captureAddBtn");
+    var tray = document.getElementById("captureItems");
+    if (!input || !btn || !tray) return;
+    function addItem() {
+      var v = input.value.trim();
+      if (!v) return;
+      var el = document.createElement("div");
+      el.className = "capture-item";
+      el.textContent = v;
+      tray.insertBefore(el, tray.firstChild);
+      input.value = "";
+      // keep the tray from growing forever in the demo
+      while (tray.children.length > 4) tray.removeChild(tray.lastChild);
+    }
+    btn.addEventListener("click", addItem);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") addItem(); });
+  })();
+
+  /* ---------- pillar 2: boards — switch between three example boards ---------- */
+  (function () {
+    var grid = document.getElementById("boardGrid");
+    if (!grid) return;
+    var data = {
+      trip: [
+        { label: "Flights booked", img: "/images/boards/board-trip-flights.jpg" },
+        { label: "Hotel — Porto", img: "/images/boards/board-trip-hotel.jpg", tall: true },
+        { label: "Packing list", img: "/images/boards/board-trip-packing.jpg" },
+        { label: "\"Best pastel de nata\"", img: "/images/boards/board-trip-pastel.jpg" },
+      ],
+      packing: [
+        { label: "Living room mood", img: "/images/boards/board-home-living.jpg", tall: true },
+        { label: "Sofa — saved link", img: "/images/boards/board-home-sofa.jpg" },
+        { label: "Paint colors", img: "/images/boards/board-home-paint.jpg" },
+      ],
+      house: [
+        { label: "Venue shortlist", img: "/images/boards/board-wedding-venue.jpg", tall: true },
+        { label: "Guest list draft", img: "/images/boards/board-wedding-invite.jpg" },
+        { label: "Dress inspiration", img: "/images/boards/board-wedding-dress.jpg" },
+      ],
+    };
+    function render(key) {
+      grid.innerHTML = "";
+      data[key].forEach(function (item) {
+        var d = document.createElement("div");
+        d.className = "board-tile" + (item.tall ? " tall" : "");
+        d.style.backgroundImage = "linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55)), url('" + item.img + "')";
+        d.textContent = item.label;
+        grid.appendChild(d);
+      });
+    }
+    render("trip");
+    document.querySelectorAll(".board-switch").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".board-switch").forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        render(btn.getAttribute("data-board"));
+      });
+    });
+  })();
+
+  /* ---------- pillar 3: goals — check a step, watch the bar move ---------- */
+  (function () {
+    var steps = document.querySelectorAll(".goal-demo-step");
+    var fill = document.getElementById("goalFill");
+    var pct = document.getElementById("goalPct");
+    if (!steps.length || !fill || !pct) return;
+    function update() {
+      var total = steps.length;
+      var done = document.querySelectorAll(".goal-demo-step.done").length;
+      var p = Math.round((done / total) * 100);
+      fill.style.width = p + "%";
+      pct.textContent = p + "%";
+    }
+    steps.forEach(function (step) {
+      step.addEventListener("click", function () {
+        step.classList.toggle("done");
+        update();
+      });
+    });
+    update();
+  })();
+
+  /* ---------- pillar 4: finance — Bills/Spending/Left, matching the real app's card ---------- */
+  (function () {
+    var incomeEl = document.getElementById("finIncome");
+    var billsEl = document.getElementById("finBills");
+    var spendEl = document.getElementById("finSpend");
+    if (!incomeEl || !billsEl || !spendEl) return;
+    var els = {
+      left: document.getElementById("finLeft"),
+      segBills: document.getElementById("finSegBills"),
+      segSpend: document.getElementById("finSegSpend"),
+      segLeft: document.getElementById("finSegLeft"),
+      billsLbl: document.getElementById("finBillsLbl"),
+      spendLbl: document.getElementById("finSpendLbl"),
+      leftLbl: document.getElementById("finLeftLbl"),
+      incomeLbl: document.getElementById("finIncomeLbl"),
+    };
+    function money(n) { return "\u20AC" + Math.round(n).toLocaleString(); }
+    function update() {
+      var income = Math.max(0, parseFloat(incomeEl.value) || 0);
+      var bills = Math.max(0, parseFloat(billsEl.value) || 0);
+      var spend = Math.max(0, parseFloat(spendEl.value) || 0);
+      var left = Math.max(0, income - bills - spend);
+      var total = Math.max(income, bills + spend + left, 1);
+      els.left.textContent = money(left);
+      els.billsLbl.textContent = money(bills);
+      els.spendLbl.textContent = money(spend);
+      els.leftLbl.textContent = money(left);
+      els.incomeLbl.textContent = Math.round(income).toLocaleString();
+      els.segBills.style.width = ((bills / total) * 100) + "%";
+      els.segSpend.style.width = ((spend / total) * 100) + "%";
+      els.segLeft.style.width = ((left / total) * 100) + "%";
+    }
+    incomeEl.addEventListener("input", update);
+    billsEl.addEventListener("input", update);
+    spendEl.addEventListener("input", update);
+    update();
+  })();
+
+  var sections = ["pillars", "how", "pricing", "faq"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
   var navLinks = document.querySelectorAll(".navlinks a[href^='#']");
   if (sections.length && "IntersectionObserver" in window) {
     var spy = new IntersectionObserver(function (entries) {
