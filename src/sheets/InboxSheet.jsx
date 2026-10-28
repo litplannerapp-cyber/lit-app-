@@ -8,7 +8,7 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { CaptureRow } from "./CaptureRow";
 import { ListEditorSheet } from "./ListEditorSheet";
 
-export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, updateCapture, captureToTask, captureToVision, onSchedule, onClose, showToast }) {
+export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, updateCapture, captureToTask, captureToVision, fetchLinkPreview, onSchedule, onClose, showToast }) {
   useBodyScrollLock(true);
   const [type, setType] = useState(null); // null | task | list | image
   const [free, setFree] = useState("");
@@ -25,11 +25,14 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
   const parseTags = (s) => (s.match(/#[\w-]+/g) || []).map((t) => t.slice(1));
   const stripTags = (s) => s.replace(/#[\w-]+/g, "").trim();
   const isUrl = (s) => /^https?:\/\/\S+$/i.test(s.trim());
+  /* a direct image file — anything else that's still a URL gets a fetched
+     link card instead of an <img> that would just fail to load */
+  const isImageUrl = (s) => /^https?:\/\/\S+\.(jpe?g|png|webp|gif|avif|svg)(\?\S*)?(#\S*)?$/i.test(s.trim());
 
   const sendFree = () => {
     const v = free.trim(); if (!v) return;
     const tags = parseTags(v);
-    if (isUrl(v)) addCapture({ type: "link", url: v, tags });
+    if (isUrl(v)) addCapture({ type: "link", url: v, tags }, (real) => fetchLinkPreview(real.id, v));
     else addCapture({ type: "note", text: stripTags(v), tags });
     setFree("");
   };
@@ -39,7 +42,13 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
     addCapture({ type: "list", title: v, items: items.split("\n").map((s) => s.trim()).filter(Boolean).map((text) => ({ text, done: false })), tags: [] });
     setTitle(""); setItems("");
   };
-  const sendImage = () => { if (!imgUrl.trim()) return; addCapture({ type: "image", title: title.trim(), imageUrl: imgUrl.trim(), tags: [] }); setTitle(""); setImgUrl(""); };
+  const sendImage = () => {
+    const url = imgUrl.trim(); if (!url) return;
+    const titleVal = title.trim();
+    if (isImageUrl(url)) addCapture({ type: "image", title: titleVal, imageUrl: url, tags: [] });
+    else addCapture({ type: "link", title: titleVal, url, tags: [] }, (real) => fetchLinkPreview(real.id, url));
+    setTitle(""); setImgUrl("");
+  };
 
   const startVoice = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -105,10 +114,16 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
         {type === "image" && (<>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)"
             style={{ width: "100%", border: "none", outline: "none", fontSize: 14.5, background: "transparent", marginBottom: 8 }} />
-          <input value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} placeholder="Paste an image URL"
+          <input value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} placeholder="Paste an image or link URL"
             onKeyDown={(e) => e.key === "Enter" && sendImage()}
             style={{ width: "100%", border: "none", outline: "none", fontSize: 14, background: "transparent" }} />
-          {imgUrl && isUrl(imgUrl) && <img src={imgUrl} alt="" style={{ width: "100%", borderRadius: 12, marginTop: 10, maxHeight: 160, objectFit: "cover" }} />}
+          {imgUrl && isImageUrl(imgUrl) && (
+            <img src={imgUrl} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }}
+              style={{ width: "100%", borderRadius: 12, marginTop: 10, maxHeight: 160, objectFit: "cover" }} />
+          )}
+          {imgUrl && isUrl(imgUrl) && !isImageUrl(imgUrl) && (
+            <p style={{ fontSize: 12, color: T.ink3, marginTop: 8 }}>Not a direct image link — this will be saved as a link with a preview.</p>
+          )}
         </>)}
 
         {grocerySuggest && (
