@@ -22,9 +22,9 @@
 <meta name="twitter:description" content="Put everything on your mind in one calm place. Then pick three for today.">
 <meta name="twitter:image" content="https://litplanner.app/og-image.png">
 
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,13 +95,13 @@ section[id],header[id]{scroll-margin-top:96px}
 .dusk .form-error{color:#FFB09E}
 
 /* App look */
-.grad{background:linear-gradient(100deg,#F4B16B 0%,#ED7B65 52%,#E35F87 100%)}
-.app-eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#6F665F}
+.grad{background:linear-gradient(135deg,#FFB35C 0%,#FF6B5E 55%,#F4508C 100%)}
+.app-eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#B5ACA1}
 .app-card{background:var(--card);border-radius:22px;box-shadow:0 12px 32px -20px rgba(70,35,20,.3)}
 .app-title{font-size:28px;margin:2px 0 14px;font-weight:450}
-.badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:700;box-shadow:0 0 0 2px var(--cream)}
+.badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:700;box-shadow:0 0 0 2px #FDFAF5}
 .dock-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#6F665F}
-.chip{padding:6px 12px;border-radius:999px;background:#DDF0E6;color:#2E7A59;font-size:12.5px;font-weight:600}
+.chip{padding:6px 12px;border-radius:999px;background:rgba(94,201,167,.14);color:#5EC9A7;font-size:12.5px;font-weight:600}
 .board{position:relative;height:150px;border-radius:22px;overflow:hidden;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .board:hover{transform:translateY(-3px)}
 .board img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
@@ -111,11 +111,11 @@ section[id],header[id]{scroll-margin-top:96px}
 .board .cap .serif{font-size:19px;font-weight:500}
 .board .cap small{display:block;font-size:12px;opacity:.9}
 .ms{display:flex;align-items:center;gap:12px;min-height:40px}
-.ms-box{display:grid;place-items:center;width:22px;height:22px;flex:none;border-radius:7px;border:1.75px solid #80C8AB;background:var(--card)}
-.ms-box.on{background:#80C8AB}
+.ms-box{display:grid;place-items:center;width:20px;height:20px;flex:none;border-radius:7px;border:1.6px solid #B5ACA1;background:transparent}
+.ms-box.on{background:#5EC9A7;border-color:transparent}
 .ms-t{flex:1;font-size:15px;font-weight:500}
-.ms-t.done{color:#857A72;text-decoration:line-through;text-decoration-color:#80C8AB}
-.next{padding:4px 10px;border-radius:999px;background:#DDF0E6;color:#2E7A59;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.ms-t.done{color:#B5ACA1;text-decoration:line-through;text-decoration-color:#B5ACA1}
+.next{padding:4px 10px;border-radius:999px;background:rgba(94,201,167,.14);color:#5EC9A7;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .capture{display:flex;align-items:center;gap:8px;padding:5px 5px 5px 16px;border-radius:16px;background:var(--card);box-shadow:0 10px 26px -18px rgba(70,35,20,.35);transition:box-shadow .3s}
 .capture:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,#ED7B65 30%,transparent),0 10px 26px -18px rgba(70,35,20,.35)}
 .cap-btn{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:12px;color:#fff}
@@ -126,65 +126,152 @@ section[id],header[id]{scroll-margin-top:96px}
 .thought{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:16px;background:var(--card);box-shadow:0 8px 22px -18px rgba(70,35,20,.4);animation:drop .7s cubic-bezier(.2,.9,.25,1.1) both}
 .thought .tx{font-size:14px;font-weight:500;color:#2A2420;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag{flex:none;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;animation:tagin .5s ease .45s both}
-.tag-inbox{background:#EFE9E2;color:#5E5650}
+.tag-inbox{background:#F6F1EA;color:#5E5650}
 .tag-vision{background:#F6DCD3;color:#A3452F}
 .tag-goals{background:#DDF0E6;color:#2E7A59}
 .tag-finance{background:#E2EBF6;color:#3A6894}
 
-/* ===== Inbox — mirrors the app's real Inbox sheet exactly (InboxSheet.jsx /
-   CaptureRow.jsx / theme.js / Icons.jsx) — same colours, radii, sizes ===== */
-.ib-screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:#FDFAF5;display:flex;flex-direction:column;padding:30px 14px 14px}
-.ib-sheet{position:relative;margin-top:28px;flex:1;display:flex;flex-direction:column;min-height:0;border-radius:28px;background:#FDFAF5;border:1px solid rgba(46,42,38,.06);padding:22px;box-shadow:0 24px 50px -36px rgba(70,35,20,.4)}
+/* ===== Inbox — mirrors the app's Inbox sheet ===== */
+.ib-screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:#FBF8F4;display:flex;flex-direction:column;padding:30px 14px 14px}
+.ib-sheet{position:relative;margin-top:28px;flex:1;display:flex;flex-direction:column;min-height:0;border-radius:28px;background:#FBF8F4;border:1px solid rgba(31,26,23,.05);padding:22px;box-shadow:0 24px 50px -36px rgba(70,35,20,.4)}
 .ib-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .ib-title{font-size:23px;font-weight:600;line-height:1.1;letter-spacing:-0.01em}
+.ib-sheet .ib-title{font-size:30px}
 .ib-sub{margin-top:3px;font-size:12.5px;color:#B5ACA1}
+.ib-sheet .ib-sub{font-size:14px}
 .ib-close{flex:none;width:34px;height:34px;border-radius:12px;background:#F6F1EA;display:grid;place-items:center;color:#8A8177}
 .ib-composer{margin-top:14px;background:#FDFAF5;border:1px solid rgba(46,42,38,.06);border-radius:22px;padding:16px;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05);transition:box-shadow .3s}
 .ib-composer:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,#FF6B5E 26%,transparent),0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.ib-sheet .ib-composer{padding:14px 16px}
 .ib-chips{display:flex;gap:8px;flex-wrap:wrap}
-.ib-chip{padding:7px 14px;border-radius:100px;background:#F6F1EA;color:#8A8177;font-size:12.5px;font-weight:600}
+.ib-chip{padding:7px 14px;border-radius:999px;background:#F6F1EA;color:#8A8177;font-size:12.5px;font-weight:600}
+.ib-sheet .ib-chip{padding:8px 16px;font-size:14px}
 .ib-input{display:block;width:100%;margin-top:10px;border:0;background:transparent;outline:none;font:400 14.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:var(--ink);padding:4px 2px}
 .ib-input::placeholder,.ib-ph{color:#857C75}
+.ib-sheet .ib-input{font-size:15px;margin-top:14px}
 .ib-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 .ib-mic{width:40px;height:40px;border-radius:14px;background:#F6F1EA;display:grid;place-items:center;color:#8A8177}
 .ib-send{width:40px;height:40px;border-radius:14px;border:0;display:grid;place-items:center;color:#fff;cursor:pointer;box-shadow:0 6px 16px rgba(255,107,94,.3);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
+.ib-sheet .ib-mic,.ib-sheet .ib-send{width:42px;height:42px;border-radius:13px}
 .ib-search{margin-top:20px;padding:11px 16px;border-radius:14px;background:#F6F1EA;color:#857C75;font-size:13.5px}
+.ib-sheet .ib-search{padding:12px 16px;font-size:15px}
 .ib-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.ib-tags span{padding:7px 14px;border-radius:100px;background:#F6F1EA;color:#8A8177;font-size:12.5px;font-weight:600}
-.ib-tags span.ib-tagchip{background:rgba(94,201,167,.14);color:#5EC9A7}
+.ib-tags span{padding:7px 13px;border-radius:999px;background:#F1ECE6;color:#5E5650;font-size:13px;font-weight:500}
 .ib-list{flex:1;min-height:0;margin-top:12px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
 .ib-row{display:flex;align-items:center;gap:9px;padding:12px;border-radius:16px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05);animation:drop .7s cubic-bezier(.2,.9,.25,1.1) both}
-.ib-badge{flex:none;padding:3px 8px;border-radius:100px;background:rgba(255,107,94,.12);color:#FF6B5E;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1.4}
+.ib-badge{flex:none;padding:3px 8px;border-radius:999px;background:rgba(255,107,94,.12);color:#FF6B5E;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1.4}
+.ib-sheet .ib-badge{font-size:11px;padding:4px 10px}
 .ib-rt{flex:1;min-width:0;font-size:13.5px;font-weight:500;color:#2E2A26;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ib-meta{color:#8A8177;font-weight:500}
 .ib-pencil{flex:none;color:#B5ACA1}
-.ib-cards{display:flex;flex-direction:column;gap:8px;margin:14px -4px 0;padding:2px 4px 18px;max-height:390px;overflow-y:auto;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(#000 90%,transparent);mask-image:linear-gradient(#000 90%,transparent)}
-.ib-card{border-radius:16px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.ib-cards{display:flex;flex-direction:column;gap:10px;margin:14px -4px 0;padding:2px 4px 18px;max-height:390px;overflow-y:auto;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(#000 90%,transparent);mask-image:linear-gradient(#000 90%,transparent)}
+.ib-card{border-radius:18px;background:#FDFBF8;box-shadow:0 10px 24px -18px rgba(70,35,20,.45)}
 .ib-card[hidden]{display:none}
-.ib-card-h{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:12px 14px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:16px}
-.ib-card-h .ib-rt{font-size:13.5px}
-.ib-card-b{padding:0 14px 12px}
+.ib-card-h{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:14px 16px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:18px}
+.ib-card-h .ib-rt{font-size:15.5px}
+.ib-card-b{padding:0 16px 16px}
 .ib-card:not(.open) .ib-card-b{display:none}
 .ib-card.open .ib-card-b{animation:fadein .4s ease both}
-.ib-preview{margin-top:10px;border-radius:12px;overflow:hidden;background:#F6F1EA}
-.ib-preview img{display:block;width:100%;height:140px;object-fit:cover}
-.ib-preview .pt{padding:10px 12px}
-.ib-preview .pt-t{font-size:13px;font-weight:600;color:#2E2A26;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ib-preview .pt-s{margin-top:2px;font-size:11px;color:#B5ACA1}
-.ib-checks{display:flex;flex-direction:column;margin-top:10px}
-.ib-ck{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:7px 2px;border:0;background:transparent;cursor:pointer;font-size:13.5px;font-weight:500;text-align:left;color:#2E2A26}
-.ib-box{flex:none;width:20px;height:20px;border-radius:7px;border:1.6px solid #B5ACA1;background:transparent;display:grid;place-items:center;color:transparent;transition:background .25s,border-color .25s,color .25s}
-.ib-ck.on .ib-box{background:linear-gradient(135deg,#FFB35C 0%,#FF6B5E 55%,#F4508C 100%);border-color:transparent;color:#fff}
+.ib-preview{border-radius:14px;overflow:hidden;background:#F1ECE6}
+.ib-preview img{display:block;width:100%;height:150px;object-fit:cover}
+.ib-preview .pt{padding:10px 14px 12px}
+.ib-preview .pt-t{font-size:14.5px;font-weight:600;color:#2A2420;line-height:1.35}
+.ib-preview .pt-s{margin-top:2px;font-size:12.5px;color:#7A7068}
+.ib-checks{display:flex;flex-direction:column}
+.ib-ck{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0;border:0;background:transparent;cursor:pointer;font-size:15.5px;text-align:left;color:#2A2420}
+.ib-box{flex:none;width:24px;height:24px;border-radius:7px;border:1.6px solid #CFC6BE;background:#FDFBF8;display:grid;place-items:center;color:transparent;transition:background .3s,border-color .3s,color .3s}
+.ib-ck.on .ib-box{background:linear-gradient(135deg,#F4B16B,#ED7B65 55%,#E35F87);border-color:transparent;color:#fff;animation:pop .45s cubic-bezier(.2,.8,.2,1)}
 .ib-ck .lbl{transition:color .3s;text-decoration:line-through;text-decoration-color:transparent}
-.ib-ck.on .lbl{color:#B5ACA1;text-decoration-color:#B5ACA1}
-.ib-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
-.ib-act{padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600}
-.ib-act.vision{background:rgba(94,201,167,.14);color:#5EC9A7}
-.ib-act.sched{background:rgba(127,181,224,.16);color:#7FB5E0}
-.ib-trash{flex:none;width:44px;height:44px;border-radius:16px;border:0;background:#F6F1EA;color:#8A8177;display:grid;place-items:center;cursor:pointer}
-.ib-toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:100px;background:#2E2A26;color:#FDFAF5;font-size:13px;font-weight:500;box-shadow:0 1px 2px rgba(46,42,38,.04),0 10px 28px rgba(46,42,38,.07);animation:rise .3s cubic-bezier(.34,1.3,.5,1) both;z-index:2}
-.ib-undo{min-height:auto;padding:0;border:0;background:none;color:#5EC9A7;font-weight:700;text-decoration:underline;cursor:pointer}
+.ib-ck.on .lbl{color:#8A817A;text-decoration-color:#ED7B65}
+.ib-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.ib-act{padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600}
+.ib-act.vision{background:#E1F1E9;color:#2E7A59}
+.ib-act.sched{background:#E3ECF7;color:#3A6894}
+.ib-trash{width:44px;height:44px;border-radius:14px;border:0;background:#F1ECE6;color:#5E5650;display:grid;place-items:center;cursor:pointer;transition:background .25s,color .25s,transform .25s}
+.ib-trash:hover{background:#FBE4DC;color:#B4452E;transform:translateY(-1px)}
+.ib-toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:10px 12px 10px 18px;border-radius:999px;background:var(--ink);color:#FFF8F3;font-size:14px;font-weight:600;box-shadow:0 14px 30px -14px rgba(31,26,23,.6);animation:rise .4s cubic-bezier(.2,.8,.2,1) both;z-index:2}
+.ib-undo{min-height:32px;padding:0 12px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#FFF8F3;font-weight:600;cursor:pointer}
+.ib-undo:hover{background:rgba(255,255,255,.24)}
+
+/* ===== Hero phone: interactive replica of the app ===== */
+.ph-frame{position:relative;width:320px;height:660px;border-radius:54px;padding:10px;background:var(--ink);box-shadow:0 60px 90px -40px rgba(70,35,20,.55),0 0 0 1px rgba(255,255,255,.08) inset}
+.ph-screen{position:relative;width:100%;height:100%;border-radius:44px;overflow:hidden;background:#F3EEE8;display:flex;flex-direction:column}
+.ph-top{display:flex;align-items:center;justify-content:space-between;padding:26px 16px 8px}
+.ph-inbox-btn{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;border:0;background:#FDFAF5;box-shadow:0 6px 16px -8px rgba(70,35,20,.35);color:#8A8177;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.ph-inbox-btn:hover{transform:translateY(-1px)}
+.ph-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:6px 16px 16px;scrollbar-width:none}
+.ph-body::-webkit-scrollbar{display:none}
+.ph-view{animation:fadein .45s ease both}
+.ph-h{font-size:27px;line-height:1.1;margin:2px 0 12px;font-weight:450}
+.ph-week{display:flex;justify-content:space-between;gap:2px;margin-bottom:10px}
+.ph-day{display:flex;flex-direction:column;align-items:center;gap:1px;width:36px;padding:6px 0;border-radius:12px;font-size:14px;font-weight:600;color:#2A2420}
+.ph-day small{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:#7A7068;font-weight:600}
+.ph-day.on{color:#fff;box-shadow:0 8px 16px -8px rgba(227,95,135,.6)}
+.ph-day.on small{color:rgba(255,255,255,.9)}
+.ph-quote{display:flex;gap:6px;align-items:flex-start;margin:0 0 10px;font-size:12.5px;font-style:italic;color:#5E5650;line-height:1.35}
+.ph-quote svg{flex:none;margin-top:2px}
+.ph-ringcard{display:flex;align-items:center;gap:14px;padding:14px}
+.ph-ring{position:relative;display:grid;place-items:center;width:66px;height:66px;flex:none}
+.ph-ring span{position:absolute;font-size:17px}
+.ph-ring-t{font-size:18px;line-height:1.15}
+.ph-ring-s{margin-top:2px;font-size:12px;line-height:1.4;color:#5E5650}
+.ph-tasks{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.ph-task{min-height:44px;padding:8px 12px;border-radius:14px}
+.ph-task .t-label{font-size:13.5px}
+.ph-task .tick{width:22px;height:22px;border-radius:7px}
+.ph-addtask{display:block;margin-top:10px;padding:12px;border-radius:18px;text-align:center;color:#fff;font-weight:600;font-size:14px;box-shadow:0 10px 24px rgba(255,107,94,.32)}
+.ph-addrow{display:flex;gap:6px;align-items:center}
+.ph-field{flex:1;min-width:0;padding:10px 12px;border-radius:12px;background:#FDFBF8;color:#857C75;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-iconbtn{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:11px;background:#FDFAF5;color:#8A8177;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.ph-addbtn{padding:10px 14px;border-radius:12px;color:#fff;font-weight:600;font-size:13px}
+.ph-chips{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 12px}
+.ph-chips .chip{padding:5px 10px;font-size:11.5px}
+.ph-boards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ph-board{height:122px;border-radius:18px}
+.ph-board .cap{left:10px;bottom:9px}
+.ph-board .cap .serif{font-size:15px}
+.ph-board .cap small{font-size:10.5px}
+.ph-mslist{margin-top:8px}
+.ph-ms{width:100%;min-height:38px;border:0;background:transparent;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.ph-ms .ms-t{font-size:13px}
+.ph-ms .ms-box{width:20px;height:20px;border-radius:6px;transition:background .3s}
+.ph-ms .ms-box svg{opacity:0;transition:opacity .2s}
+.ph-ms .ms-box.on svg{opacity:1}
+.ph-next{display:inline-block;margin-top:8px;font-size:9.5px;letter-spacing:.1em}
+.ph-newgoal{display:block;margin-top:10px;padding:12px;border-radius:16px;border:1.5px dashed #C9BDB3;text-align:center;font-size:13px;font-weight:600;color:#5E5650}
+.ph-month{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:16px}
+.ph-bill{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:0;border:0;background:transparent;cursor:pointer;font:inherit;color:#2A2420;font-size:13px;text-align:left}
+.ph-bill-dot{width:16px;height:16px;flex:none;border-radius:50%;border:1.6px solid #B5ACA1;transition:background .3s,border-color .3s}
+.ph-bill.paid .ph-bill-dot{background:#5EC9A7;border-color:#5EC9A7}
+.ph-bill-n{flex:1}
+.ph-bill.paid .ph-bill-n{color:#B5ACA1;text-decoration:line-through;text-decoration-color:#B5ACA1}
+.ph-bill-a{font-weight:600;color:#7FB5E0}
+.ph-dock{display:flex;justify-content:space-around;margin:0 12px 12px;padding:8px 10px;border-radius:26px;background:rgba(253,250,245,.88);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);border:1px solid rgba(46,42,38,.06);box-shadow:0 1px 2px rgba(46,42,38,.04),0 10px 28px rgba(46,42,38,.07)}
+.ph-dock-btn{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px;min-height:44px;padding:5px 4px;border:0;border-radius:14px;background:transparent;cursor:pointer;color:#B5ACA1;font-size:10px;font-weight:650;transition:color .25s,background .25s}
+.ph-dock-btn:hover{color:#2E2A26}
+.ph-dock-btn[aria-pressed="true"]{color:#FF6B5E;background:rgba(255,107,94,.12)}
+.ph-inbox{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(24,21,18,.4);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);transition:opacity .35s ease}
+.ph-inbox[hidden]{display:flex!important;opacity:0;pointer-events:none}
+.ph-inbox-sheet{height:calc(100% - 22px);display:flex;flex-direction:column;padding:22px 14px 14px;border-radius:30px 30px 44px 44px;background:#FDFAF5;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.ph-inbox[hidden] .ph-inbox-sheet{transform:translateY(40px)}
+.ph-inbox .ib-close{border:0;cursor:pointer}
+.ph-chip-pulse{animation:pop .5s cubic-bezier(.2,.8,.2,1)}
+.ph-flash{animation:phflash 1.2s ease}
+@keyframes phflash{0%{box-shadow:0 60px 90px -40px rgba(70,35,20,.55),0 0 0 0 color-mix(in srgb,var(--coral) 55%,transparent)}100%{box-shadow:0 60px 90px -40px rgba(70,35,20,.55),0 0 0 22px transparent}}
+
+/* ===== Section 3: five spaces summary ===== */
+.sp-grid{list-style:none;margin:56px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.sp-card{display:flex;flex-direction:column;padding:24px;border-radius:28px;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.sp-card:hover{transform:translateY(-6px)}
+.sp-top{display:flex;justify-content:space-between;align-items:center}
+.sp-num{font-size:15px;color:#A93C24}
+.sp-ico{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#FDFBF8;color:#C2513A}
+.sp-card h3{margin:18px 0 0;font-size:30px;font-weight:400}
+.sp-pain{margin:10px 0 0;font-size:14.5px;font-style:italic;color:#6B625B;line-height:1.45}
+.sp-fix{margin:10px 0 0;font-size:15.5px;line-height:1.5;color:#2A2420;flex:1}
+.sp-see{margin-top:14px;border:0;background:transparent;padding:0;cursor:pointer;font-size:14px;align-self:flex-start}
+@media (max-width:380px){.ph-frame{width:300px;height:640px}}
 
 /* Motion */
 @keyframes rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
@@ -218,13 +305,13 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 .ring-glow{transition:opacity 1s ease}
 .task{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 14px;border-radius:16px;border:0;background:var(--card);box-shadow:0 8px 22px -18px rgba(70,35,20,.4);text-align:left;cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s}
 .task:hover{transform:translateY(-1px);box-shadow:0 14px 28px -18px rgba(70,35,20,.45)}
-.task .tick{display:grid;place-items:center;width:24px;height:24px;flex:none;border-radius:8px;border:1.75px solid #D9CFC6;background:var(--card);color:transparent;transition:background .35s,border-color .35s,color .35s}
-.task.done .tick{background:linear-gradient(135deg,#F4B16B,#ED7B65 55%,#E35F87);border-color:transparent;color:#fff;animation:pop .5s cubic-bezier(.2,.8,.2,1)}
+.task .tick{display:grid;place-items:center;width:26px;height:26px;flex:none;border-radius:9px;border:1.6px solid #B5ACA1;background:transparent;color:transparent;transition:background .35s,border-color .35s,color .35s}
+.task.done .tick{background:linear-gradient(135deg,#FFB35C 0%,#FF6B5E 55%,#F4508C 100%);border-color:transparent;color:#fff;animation:pop .5s cubic-bezier(.2,.8,.2,1)}
 .task .t-label{font-size:15px;font-weight:500;text-decoration:line-through;text-decoration-color:transparent;transition:color .4s,text-decoration-color .4s}
-.task.done .t-label{color:#857A72;text-decoration-color:#ED7B65}
+.task.done .t-label{color:#B5ACA1;text-decoration-color:#B5ACA1}
 .task.lg{min-height:60px;padding:14px 18px;border-radius:18px}
 .task.lg .t-label{font-size:17px}
-.task.lg .tick{width:28px;height:28px}
+
 .add-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:12px 18px;border-radius:18px;border:1.5px dashed #C9BDB3;background:transparent;color:#5E5650;cursor:pointer;font-weight:500;font-size:16px;transition:border-color .3s,color .3s}
 .add-btn:hover{border-color:var(--ink);color:var(--ink)}
 
@@ -309,12 +396,12 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 </head>
 <body>
 <div class="lit">
-<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs><linearGradient id="logoGrad" gradientUnits="userSpaceOnUse" x1="20" y1="10" x2="85" y2="92"><stop offset="0" stop-color="#FFB35C"></stop><stop offset="0.55" stop-color="#FF6B5E"></stop><stop offset="1" stop-color="#F4508C"></stop></linearGradient><linearGradient id="litGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4B16B"></stop><stop offset="0.52" stop-color="#ED7B65"></stop><stop offset="1" stop-color="#E35F87"></stop></linearGradient></defs></svg>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs><linearGradient id="logoGrad" gradientUnits="userSpaceOnUse" x1="20" y1="10" x2="85" y2="92"><stop offset="0" stop-color="#FFB35C"></stop><stop offset="0.55" stop-color="#FF6B5E"></stop><stop offset="1" stop-color="#F4508C"></stop></linearGradient></defs></svg>
 
 <!-- NAV -->
 <div class="nav">
   <nav class="glass in" aria-label="Main" style="max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 8px 8px 22px;border-radius:999px">
-    <a href="#top" class="logo" aria-label="Lit, home" style="font-size:26px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></svg><span>Lit</span></a>
+    <a href="#top" class="logo" aria-label="Lit, home" style="font-size:26px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></path></svg><span>Lit</span></a>
     <div class="nav-links">
       <a href="#spaces">How it works</a>
       <a href="#today">Three for today</a>
@@ -347,24 +434,95 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       </div>
     </div>
 
-    <!-- Phone: live brain dump -->
-    <div class="in d3" style="flex:1 1 380px;min-width:0;display:flex;justify-content:center;position:relative;padding:20px 0 30px">
+    <!-- Phone: the real Lit app, interactive -->
+    <div class="in d3" style="flex:1 1 380px;min-width:0;display:flex;justify-content:center;position:relative;padding:20px 0 34px">
       <div class="glass float slow float-chip" style="--r:-4deg;position:absolute;left:0;top:-4px;z-index:3;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:18px">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A93C24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 2.5h5L16 13h5"></path><path d="M5.5 5h13L21 13v6H3v-6z"></path></svg>
-        <span style="font-size:14px;font-weight:600"><span id="dump-label">0 thoughts</span>, out of your head</span>
+        <span style="font-size:14px;font-weight:600" id="ph-chip">0 thoughts, out of your head</span>
       </div>
 
-      <div style="position:relative;width:304px;height:622px;border-radius:52px;padding:10px;background:var(--ink);box-shadow:0 60px 90px -40px rgba(70,35,20,.55),0 0 0 1px rgba(255,255,255,.08) inset">
-        <div class="ib-screen">
-          <div class="ib-head"><div><div class="ib-title serif">Inbox</div><div class="ib-sub">Capture anything. Decide later.</div></div><span class="ib-close" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span></div>
-          <form class="ib-composer" id="dump-form"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Task</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><label class="sr-only" for="dump-input">Type something to capture</label><input id="dump-input" class="ib-input" type="text" autocomplete="off" maxlength="70" placeholder="Anything on your mind…"><div class="ib-foot"><span class="ib-mic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><button type="submit" class="ib-send grad" aria-label="Capture"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div></form>
-          <div class="ib-search" aria-hidden="true">Search captures</div>
-          <div id="dump-list" class="ib-list" aria-live="polite">
-            <div id="dump-empty" class="serif" style="margin:auto;text-align:center;font-size:17px;font-style:italic;color:#6F665F">Nothing here yet. Your head is still full.</div>
+      <div class="ph-frame" id="ph">
+        <div class="ph-screen">
+          <div class="ph-top">
+            <div class="logo" style="font-size:17px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></path></svg><span>Lit</span></div>
+            <button type="button" class="ph-inbox-btn" id="ph-inbox-open" aria-label="Open Inbox" aria-controls="ph-inbox" aria-expanded="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h4l2 3h4l2-3h4"></path><path d="M4 13V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"></path><path d="M4 13v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg><span class="badge grad" id="ph-badge" aria-hidden="true">0</span></button>
+          </div>
+          <div class="ph-body" id="ph-body">
+          <section class="ph-view" data-view="today" aria-label="Today">
+            <div class="app-eyebrow">Tuesday 27 October</div>
+            <div class="ph-h serif">Good morning, Lily</div>
+            <div class="ph-week" aria-hidden="true"><span class="ph-day"><small>Mon</small>26</span><span class="ph-day on grad"><small>Tue</small>27</span><span class="ph-day"><small>Wed</small>28</span><span class="ph-day"><small>Thu</small>29</span><span class="ph-day"><small>Fri</small>30</span><span class="ph-day"><small>Sat</small>31</span><span class="ph-day"><small>Sun</small>1</span></div>
+            <p class="ph-quote serif"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4c-6 0-11 4-12 11l-3 5"></path><path d="M8 15c4 0 8-2 9-7"></path></svg> Finish one thing before you feed the next worry.</p>
+            <div class="app-card ph-ringcard">
+              <div class="ph-ring">
+                <svg width="66" height="66" viewBox="0 0 104 104" role="img" id="ph-ring-svg" aria-label="0 of 3 priorities done"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="#EDE7E1" stroke-width="5" stroke-linecap="round"></path><path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="#EDE7E1" stroke-width="5" stroke-linecap="round"></path><path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="#EDE7E1" stroke-width="5" stroke-linecap="round"></path><path class="ring-prog" id="ph-ring-0" d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="49.99" style="stroke-dashoffset:49.99"></path><path class="ring-prog" id="ph-ring-1" d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="77.33" style="stroke-dashoffset:77.33"></path><path class="ring-prog" id="ph-ring-2" d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="128.86" style="stroke-dashoffset:128.86"></path></svg>
+                <span class="serif" id="ph-ring-n">0/3</span>
+              </div>
+              <div style="min-width:0"><div class="serif ph-ring-t" id="ph-ring-t">A clear runway</div><div class="ph-ring-s" id="ph-ring-s">Choose up to three things that matter today.</div></div>
+            </div>
+            <div class="app-eyebrow" style="margin-top:14px">Your 3 today</div>
+            <div class="ph-tasks"><button type="button" class="task ph-task" aria-pressed="false" data-ph-today="0"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Send the flat deposit</span></button><button type="button" class="task ph-task" aria-pressed="false" data-ph-today="1"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Finish the Q4 brief</span></button><button type="button" class="task ph-task" aria-pressed="false" data-ph-today="2"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Call Mum</span></button></div>
+            <span class="ph-addtask grad" aria-hidden="true">Add task</span>
+          </section>
+          <section class="ph-view" data-view="vision" aria-label="Vision" hidden>
+            <div class="app-eyebrow">Why you're doing all of this</div>
+            <div class="ph-h serif">Vision</div>
+            <div class="ph-addrow" aria-hidden="true"><span class="ph-field">A quote, a link, an image URL…</span><span class="ph-iconbtn"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"></rect><circle cx="8.5" cy="8.5" r="1.6"></circle><path d="M21 15l-5-5L5 21"></path></svg></span><span class="ph-addbtn grad">Add</span></div>
+            <div class="ph-chips" aria-hidden="true"><span class="chip">#destinations</span><span class="chip">#home</span><span class="chip">#run</span></div>
+            <div class="ph-boards"><div class="board ph-board"><img src="/landing-img/vision-liguria.jpg" width="386" height="293" loading="lazy" decoding="async" alt="Rocks and striped beach umbrellas on the Ligurian coast"><div class="shade"></div><div class="cap"><div class="serif">Trip to Liguria</div><small>7 items</small></div></div><div class="board ph-board"><img src="/landing-img/vision-nyc.jpg" width="640" height="640" loading="lazy" decoding="async" alt="A lit Christmas tree and ice rink among New York skyscrapers"><div class="shade"></div><div class="cap"><div class="serif">NYC Christmas</div><small>4 items</small></div></div><div class="board ph-board"><img src="/landing-img/vision-spain.jpg" width="640" height="533" loading="lazy" decoding="async" alt="A sunny Spanish terrace with tapas overlooking the sea"><div class="shade"></div><div class="cap"><div class="serif">Spain</div><small>2 items</small></div></div><div class="board ph-board"><img src="/landing-img/vision-run.jpg" width="386" height="308" loading="lazy" decoding="async" alt="A woman running along the water at sunset"><div class="shade"></div><div class="cap"><div class="serif">Run</div><small>7 items</small></div></div></div>
+          </section>
+          <section class="ph-view" data-view="finance" aria-label="Finance" hidden>
+            <div class="app-eyebrow">An honest number about your month</div>
+            <div class="ph-h serif">Finance</div>
+            <div class="ph-month" aria-hidden="true"><span class="ph-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></span><span class="serif">October 2026</span><span class="ph-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></div>
+            <div class="app-card" style="padding:16px">
+              <div class="app-eyebrow">You can save this month</div>
+              <div class="serif" style="margin-top:4px;font-size:40px;line-height:1;font-weight:450">€1,060</div>
+              <div style="margin-top:14px;height:9px;border-radius:999px;background:#F6F1EA;overflow:hidden;display:flex;gap:3px"><div style="width:45%;height:100%;border-radius:999px;background:#7FB5E0"></div><div style="width:22%;height:100%;border-radius:999px;background:#FFC29E"></div><div style="width:33%;height:100%;border-radius:999px;background:#5EC9A7"></div></div>
+              <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:#5E5650">
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#7FB5E0"></span>Bills · €1,450</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#FFC29E"></span>Spending · €690</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#5EC9A7"></span>Left · €1,060</span>
+              </div>
+              <div style="margin-top:8px;font-size:11.5px;color:#6F665F">Income €3,200</div>
+            </div>
+            <div class="app-card" style="padding:14px 16px;margin-top:10px">
+              <div style="font-weight:600;font-size:14.5px">Bills</div>
+              <div style="font-size:11.5px;color:#6F665F">Tap to mark as paid</div>
+              <div style="margin-top:6px"><button type="button" class="ph-bill paid" aria-pressed="true" data-ph-bill><span class="ph-bill-dot"></span><span class="ph-bill-n">Rent</span><span class="ph-bill-a">€1,200</span></button><button type="button" class="ph-bill paid" aria-pressed="true" data-ph-bill><span class="ph-bill-dot"></span><span class="ph-bill-n">Phone</span><span class="ph-bill-a">€25</span></button><button type="button" class="ph-bill" aria-pressed="false" data-ph-bill><span class="ph-bill-dot"></span><span class="ph-bill-n">Gym</span><span class="ph-bill-a">€45</span></button><button type="button" class="ph-bill" aria-pressed="false" data-ph-bill><span class="ph-bill-dot"></span><span class="ph-bill-n">Netflix</span><span class="ph-bill-a">€13</span></button></div>
+            </div>
+          </section>
+          <section class="ph-view" data-view="goals" aria-label="Goals" hidden>
+            <div class="app-eyebrow">Big things, broken into steps</div>
+            <div class="ph-h serif">Goals</div>
+            <div class="app-card" style="padding:16px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font-weight:600;font-size:15px">Run a Marathon</span><span class="serif" id="ph-goal-pct" style="font-size:28px;color:#5EC9A7">40%</span></div>
+              <div style="margin-top:10px;height:7px;border-radius:999px;background:#F6F1EA;overflow:hidden"><div id="ph-goal-bar" style="width:40%;height:100%;border-radius:999px;background:#5EC9A7;transition:width .6s cubic-bezier(.2,.8,.2,1)"></div></div>
+              <div class="ph-mslist"><button type="button" class="ms ph-ms" aria-pressed="true" data-ph-ms><span class="ms-box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="ms-t done">Buy proper running shoes</span></button><button type="button" class="ms ph-ms" aria-pressed="true" data-ph-ms><span class="ms-box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="ms-t done">Run 5k without stopping</span></button><button type="button" class="ms ph-ms" aria-pressed="false" data-ph-ms><span class="ms-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="ms-t">Sign up for a half marathon</span></button><button type="button" class="ms ph-ms" aria-pressed="false" data-ph-ms><span class="ms-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="ms-t">Run 30k in one go</span></button><button type="button" class="ms ph-ms" aria-pressed="false" data-ph-ms><span class="ms-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="ms-t">Race day in Dublin</span></button></div>
+              <span class="next ph-next" id="ph-next" aria-hidden="true">Next: Sign up for a half marathon</span>
+            </div>
+            <div class="app-card" style="padding:16px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font-weight:600;font-size:15px">Save for Málaga</span><span class="serif" style="font-size:28px;color:#5EC9A7">65%</span></div>
+              <div style="margin-top:10px;height:7px;border-radius:999px;background:#F6F1EA;overflow:hidden"><div style="width:65%;height:100%;border-radius:999px;background:#5EC9A7"></div></div>
+            </div>
+            <span class="ph-newgoal" aria-hidden="true">+ New goal</span>
+          </section>
+          </div>
+          <nav class="ph-dock" aria-label="App sections"><button type="button" class="ph-dock-btn" data-go="today" aria-pressed="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span>Today</span></button><button type="button" class="ph-dock-btn" data-go="vision" aria-pressed="false"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.5"></rect><rect x="13" y="3" width="8" height="8" rx="2.5"></rect><rect x="3" y="13" width="8" height="8" rx="2.5"></rect><rect x="13" y="13" width="8" height="8" rx="2.5"></rect></svg><span>Vision</span></button><button type="button" class="ph-dock-btn" data-go="finance" aria-pressed="false"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"></path></svg><span>Finance</span></button><button type="button" class="ph-dock-btn" data-go="goals" aria-pressed="false"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.4" fill="currentColor"></circle></svg><span>Goals</span></button></nav>
+
+          <div class="ph-inbox" id="ph-inbox" role="dialog" aria-label="Inbox">
+            <div class="ph-inbox-sheet">
+              <div class="ib-head"><div><div class="ib-title serif">Inbox</div><div class="ib-sub">Capture anything. Decide later.</div></div><button type="button" class="ib-close" id="ph-inbox-close" aria-label="Close Inbox"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>
+              <form class="ib-composer" id="dump-form"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Task</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><label class="sr-only" for="dump-input">Type something to capture</label><input id="dump-input" class="ib-input" type="text" autocomplete="off" maxlength="70" placeholder="Anything on your mind…"><div class="ib-foot"><span class="ib-mic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><button type="submit" class="ib-send grad" aria-label="Capture"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div></form>
+              <div class="ib-search" aria-hidden="true">Search captures</div>
+              <div id="dump-list" class="ib-list" aria-live="polite">
+                <div id="dump-empty" class="serif" style="margin:auto;text-align:center;font-size:17px;font-style:italic;color:#6F665F">Nothing here yet. Your head is still full.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" id="dump-replay" style="position:absolute;bottom:-18px;left:50%;transform:translateX(-50%)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>Replay</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="ph-replay" style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>Replay tour</button>
     </div>
   </div>
 
@@ -405,102 +563,45 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     <div style="text-align:center;max-width:780px;margin:0 auto">
       <div class="eyebrow reveal">Step one · Empty your head</div>
       <h2 id="spaces-h" class="serif h2 reveal">Put it all down. <br><em class="accent" style="font-weight:340">Everything finds its place.</em></h2>
-      <p class="lead reveal" style="margin:22px 0 0">Five spaces, ready on day one.</p>
+      <p class="lead reveal" style="margin:22px 0 0">Five spaces, ready on day one. Tap any of them to see it in the app above.</p>
     </div>
-
-    <div class="reveal" style="display:flex;flex-wrap:wrap;gap:40px;margin-top:64px;align-items:stretch">
-      <div role="tablist" aria-label="Lit's five spaces" aria-orientation="vertical" style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:6px">
-        <button type="button" class="space-tab" role="tab" id="tab-0" aria-controls="panel-0" aria-selected="true" tabindex="0" data-space="0"><span class="num">01</span><span style="display:block;min-width:0"><span class="serif name">Inbox</span><span class="sub">“Ideas vanish before I write them down.”</span></span></button>
-        <button type="button" class="space-tab" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="false" tabindex="-1" data-space="1"><span class="num">02</span><span style="display:block;min-width:0"><span class="serif name">Vision</span><span class="sub">“My plans live on Pinterest and never move.”</span></span></button>
-        <button type="button" class="space-tab" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1" data-space="2"><span class="num">03</span><span style="display:block;min-width:0"><span class="serif name">Goals</span><span class="sub">“I never get past step one.”</span></span></button>
-        <button type="button" class="space-tab" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1" data-space="3"><span class="num">04</span><span style="display:block;min-width:0"><span class="serif name">Finance</span><span class="sub">“I never know what’s left this month.”</span></span></button>
-        <button type="button" class="space-tab" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1" data-space="4"><span class="num">05</span><span style="display:block;min-width:0"><span class="serif name">Today</span><span class="sub">“My list never ends.”</span></span></button>
-      </div>
-
-      <div class="glass" style="flex:1.4 1 480px;min-width:0;border-radius:36px;padding:clamp(20px,3vw,36px);min-height:700px;display:flex;flex-direction:column">
-        <!-- Panel 0: Inbox -->
-        <div role="tabpanel" id="panel-0" aria-labelledby="tab-0" class="space-panel" style="display:flex;flex-direction:column;flex:1">
-          <p class="serif fade" style="margin:0;font-size:clamp(28px,2.6vw,38px);line-height:1.1;letter-spacing:-0.02em">Get it out of your head. It’s safe here.</p>
-          <div class="ib-sheet fade" id="ib-sheet">
-            <div class="ib-head"><div><div class="ib-title serif">Inbox</div><div class="ib-sub">Capture anything. Decide later.</div></div></div>
-            <div class="ib-composer" aria-hidden="true"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Task</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><div class="ib-input ib-ph">Anything on your mind. #tag to tag, paste a link or image…</div><div class="ib-foot"><span class="ib-mic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><span class="ib-send grad"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></span></div></div>
-            <div class="ib-search" aria-hidden="true">Search captures</div>
-            <div class="ib-tags" aria-hidden="true"><span>link</span><span>list</span><span class="ib-tagchip">#malaga</span><span class="ib-tagchip">#home</span></div>
-            <div class="ib-cards"><div class="ib-card open"><button type="button" class="ib-card-h" aria-expanded="true" aria-controls="ibc-0"><span class="ib-badge">LINK</span><span class="ib-rt">Málaga in May?</span></button><div class="ib-card-b" id="ibc-0"><div class="ib-preview"><img src="/landing-img/vision-spain.jpg" width="640" height="533" loading="lazy" decoding="async" alt="A sunny terrace with tapas overlooking the sea"><div class="pt"><div class="pt-t">48 hours in Málaga: tapas, sea views and long lunches</div><div class="pt-s">The Slow Edit</div></div></div><div class="ib-actions"><span class="ib-act vision">→ Vision</span><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-1"><span class="ib-badge">LIST</span><span class="ib-rt">Groceries<span class="ib-meta"> · 1/5</span></span><svg class="ib-pencil" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg></button><div class="ib-card-b" id="ibc-1"><div class="ib-checks"><button type="button" class="ib-ck on" aria-pressed="true"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Oat milk</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Sourdough</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Basil &amp; cherry tomatoes</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Washing-up liquid</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Something sweet for Friday</span></button></div><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-2"><span class="ib-badge">TASK</span><span class="ib-rt">Book the dentist — it’s been two years</span></button><div class="ib-card-b" id="ibc-2"><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-3"><span class="ib-badge">LIST</span><span class="ib-rt">Packing for Málaga<span class="ib-meta"> · 1/6</span></span><svg class="ib-pencil" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg></button><div class="ib-card-b" id="ibc-3"><div class="ib-checks"><button type="button" class="ib-ck on" aria-pressed="true"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Passport</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Linen shirt</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Sunscreen</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Adaptor</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Book for the plane</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Earplugs</span></button></div><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-4"><span class="ib-badge">TASK</span><span class="ib-rt">Cancel the free trial before it renews</span></button><div class="ib-card-b" id="ibc-4"><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-5"><span class="ib-badge">TASK</span><span class="ib-rt">Return the parcel — refund window ends Sunday</span></button><div class="ib-card-b" id="ibc-5"><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div></div>
-            <div class="ib-toast" role="status" hidden><span>Deleted ·</span><button type="button" class="ib-undo">Undo</button></div>
-          </div>
-        </div>
-        <!-- Panel 1: Vision -->
-        <div role="tabpanel" id="panel-1" aria-labelledby="tab-1" class="space-panel" style="display:flex;flex-direction:column;flex:1" hidden>
-          <p class="serif fade" style="margin:0;font-size:clamp(28px,2.6vw,38px);line-height:1.1;letter-spacing:-0.02em">See the life you’re planning.</p>
-          <div class="fade" style="margin-top:30px;flex:1;border-radius:28px;background:var(--cream);border:1px solid rgba(31,26,23,.05);padding:24px">
-            <div class="app-eyebrow">Why you're doing all of this</div>
-            <div class="serif app-title" style="margin-bottom:12px">Vision</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"><span class="chip">#destinations</span><span class="chip">#restaurants</span><span class="chip">#home</span></div>
-            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
-              <div class="board" style="background:#DCE6EE"><img src="/landing-img/vision-liguria.jpg" width="386" height="293" loading="lazy" decoding="async" alt="Rocks and striped beach umbrellas on the Ligurian coast"><div class="shade"></div><div class="cap"><div class="serif">Trip to Liguria</div><small>7 items</small></div></div>
-              <div class="board" style="background:#2B3550"><img src="/landing-img/vision-nyc.jpg" width="640" height="640" loading="lazy" decoding="async" alt="A lit Christmas tree and ice rink among New York skyscrapers"><div class="shade"></div><div class="cap"><div class="serif">NYC Christmas</div><small>4 items</small></div></div>
-              <div class="board" style="background:#F6E5D1"><img src="/landing-img/vision-spain.jpg" width="640" height="533" loading="lazy" decoding="async" alt="A sunny Spanish terrace with tapas overlooking the sea"><div class="shade"></div><div class="cap"><div class="serif">Spain</div><small>2 items</small></div></div>
-              <div class="board" style="background:#D9D2CA"><img src="/landing-img/vision-run.jpg" width="386" height="308" loading="lazy" decoding="async" alt="A woman running along the water at sunset"><div class="shade"></div><div class="cap"><div class="serif">Run</div><small>7 items</small></div></div>
-            </div>
-          </div>
-        </div>
-        <!-- Panel 2: Goals -->
-        <div role="tabpanel" id="panel-2" aria-labelledby="tab-2" class="space-panel" style="display:flex;flex-direction:column;flex:1" hidden>
-          <p class="serif fade" style="margin:0;font-size:clamp(28px,2.6vw,38px);line-height:1.1;letter-spacing:-0.02em">Big plans, small steps.</p>
-          <div class="fade" style="margin-top:30px;flex:1;border-radius:28px;background:var(--cream);border:1px solid rgba(31,26,23,.05);padding:24px">
-            <div class="app-eyebrow">Big things, broken into steps</div>
-            <div class="serif app-title">Goals</div>
-            <div class="app-card" style="padding:20px">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><span style="font-weight:600;font-size:17px">Run a Marathon</span><span class="serif" style="font-size:34px;color:#3E9670">40%</span></div>
-              <div style="margin-top:12px;height:8px;border-radius:999px;background:#EFE9E2;overflow:hidden"><div style="width:40%;height:100%;border-radius:999px;background:#80C8AB"></div></div>
-              <div style="margin-top:14px;display:flex;flex-direction:column;gap:4px">
-                <div class="ms"><span class="ms-box on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="ms-t done">Buy proper running shoes</span></div>
-                <div class="ms"><span class="ms-box on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="ms-t done">Run 5k without stopping</span></div>
-                <div class="ms"><span class="ms-box"></span><span class="ms-t">Sign up for a half marathon</span><span class="next">Next</span></div>
-                <div class="ms"><span class="ms-box"></span><span class="ms-t">Run 30k in one go</span></div>
-              </div>
-              <div style="margin-top:12px;padding:12px 16px;border-radius:14px;background:var(--cream);font-size:14px;color:#6F665F">Add a milestone</div>
-            </div>
-          </div>
-        </div>
-        <!-- Panel 3: Finance -->
-        <div role="tabpanel" id="panel-3" aria-labelledby="tab-3" class="space-panel" style="display:flex;flex-direction:column;flex:1" hidden>
-          <p class="serif fade" style="margin:0;font-size:clamp(28px,2.6vw,38px);line-height:1.1;letter-spacing:-0.02em">Know where you stand.</p>
-          <div class="fade" style="margin-top:30px;flex:1;border-radius:28px;background:var(--cream);border:1px solid rgba(31,26,23,.05);padding:24px">
-            <div class="app-eyebrow">An honest number about your month</div>
-            <div class="serif app-title">Finance</div>
-            <div class="app-card" style="padding:22px">
-              <div class="app-eyebrow">You can save this month</div>
-              <div class="serif" style="margin-top:6px;font-size:50px;line-height:1;font-weight:450">€1,060</div>
-              <div style="margin-top:18px;height:10px;border-radius:999px;background:#EFE9E2;overflow:hidden;display:flex;gap:3px"><div style="width:45%;height:100%;border-radius:999px;background:#7FA8DA"></div><div style="width:22%;height:100%;border-radius:999px;background:#F2B48F"></div><div style="width:33%;height:100%;border-radius:999px;background:#80C8AB"></div></div>
-              <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:#5E5650">
-                <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#7FA8DA"></span>Bills · €1,450</span>
-                <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#F2B48F"></span>Spending · €690</span>
-                <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#80C8AB"></span>Left · €1,060</span>
-              </div>
-              <div style="margin-top:12px;font-size:13px;color:#6F665F">Income €3,200</div>
-            </div>
-          </div>
-        </div>
-        <!-- Panel 4: Today -->
-        <div role="tabpanel" id="panel-4" aria-labelledby="tab-4" class="space-panel" style="display:flex;flex-direction:column;flex:1" hidden>
-          <p class="serif fade" style="margin:0;font-size:clamp(28px,2.6vw,38px);line-height:1.1;letter-spacing:-0.02em">Then, just three for today.</p>
-          <div class="fade" style="margin-top:30px;flex:1;border-radius:28px;background:var(--cream);border:1px solid rgba(31,26,23,.05);padding:24px">
-            <div class="app-eyebrow">Tuesday 27 October</div>
-            <div class="serif app-title">Good morning, Lily</div>
-            <div class="app-card" style="padding:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-              <div style="position:relative;display:grid;place-items:center;width:104px;height:104px">
-                <svg width="104" height="104" viewBox="0 0 140 140" aria-hidden="true"><circle cx="70" cy="70" r="52" fill="none" stroke="#EDE7E1" stroke-width="9"></circle><circle cx="70" cy="70" r="52" fill="none" stroke="url(#litGrad)" stroke-width="9" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="108.9" transform="rotate(-90 70 70)"></circle></svg>
-                <span class="serif" style="position:absolute;font-size:26px">2/3</span>
-              </div>
-              <div style="flex:1 1 160px"><div class="serif" style="font-size:24px">Nearly there</div><div style="margin-top:4px;font-size:15px;color:#5E5650">One more, then you're done for today.</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <ul class="sp-grid reveal">
+        <li class="sp-card glass">
+          <div class="sp-top"><span class="sp-num serif">01</span><span class="sp-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M3 13h5l1.5 2.5h5L16 13h5"></path></svg></span></div>
+          <h3 class="serif">Inbox</h3>
+          <p class="sp-pain">“Ideas vanish before I write them down.”</p>
+          <p class="sp-fix">Capture a task, a list, a link or a photo in seconds. Decide later.</p>
+          <button type="button" class="link-cta sp-see" data-show="inbox"><span class="u">See it in the app</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+        </li>
+        <li class="sp-card glass">
+          <div class="sp-top"><span class="sp-num serif">02</span><span class="sp-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span></div>
+          <h3 class="serif">Today</h3>
+          <p class="sp-pain">“My list never ends.”</p>
+          <p class="sp-fix">Pick three priorities, close your ring, call it a day.</p>
+          <button type="button" class="link-cta sp-see" data-show="today"><span class="u">See it in the app</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+        </li>
+        <li class="sp-card glass">
+          <div class="sp-top"><span class="sp-num serif">03</span><span class="sp-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg></span></div>
+          <h3 class="serif">Vision</h3>
+          <p class="sp-pain">“My plans live on Pinterest and never move.”</p>
+          <p class="sp-fix">Boards for the trip, the flat, the wedding — connected to your goals.</p>
+          <button type="button" class="link-cta sp-see" data-show="vision"><span class="u">See it in the app</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+        </li>
+        <li class="sp-card glass">
+          <div class="sp-top"><span class="sp-num serif">04</span><span class="sp-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.5"></circle></svg></span></div>
+          <h3 class="serif">Goals</h3>
+          <p class="sp-pain">“I never get past step one.”</p>
+          <p class="sp-fix">Big plans, split into small steps you can actually see.</p>
+          <button type="button" class="link-cta sp-see" data-show="goals"><span class="u">See it in the app</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+        </li>
+        <li class="sp-card glass">
+          <div class="sp-top"><span class="sp-num serif">05</span><span class="sp-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"></path><path d="M7 16v-3"></path><path d="M11 16V8"></path><path d="M15 16v-5"></path><path d="M19 16v-2"></path></svg></span></div>
+          <h3 class="serif">Finance</h3>
+          <p class="sp-pain">“I never know what’s left this month.”</p>
+          <p class="sp-fix">In, out, what’s left. One honest number — no spreadsheet.</p>
+          <button type="button" class="link-cta sp-see" data-show="finance"><span class="u">See it in the app</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+        </li>
+    </ul>
     <div class="reveal" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;margin-top:40px">
       <p class="serif" style="margin:0;font-size:26px;font-style:italic">Everything has a place. Nothing is forgotten.</p>
       <a class="link-cta" href="/app" data-cta><span class="u">Empty your head — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
@@ -526,11 +627,8 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 
       <div class="app-card" style="margin-top:18px;padding:22px;display:flex;flex-wrap:wrap;align-items:center;gap:22px">
         <div style="position:relative;display:grid;place-items:center;width:132px;height:132px;flex:none">
-          <div class="ring-glow" id="today-glow" aria-hidden="true" style="position:absolute;inset:10px;border-radius:50%;background:radial-gradient(circle,#ED7B65 0%,transparent 68%);filter:blur(18px);opacity:.2"></div>
-          <svg width="132" height="132" viewBox="0 0 140 140" role="img" id="today-svg" aria-label="1 of 3 priorities done" style="position:relative">
-            <circle cx="70" cy="70" r="52" fill="none" stroke="#EDE7E1" stroke-width="9"></circle>
-            <circle class="ring-prog" id="today-ring" cx="70" cy="70" r="52" fill="none" stroke="url(#litGrad)" stroke-width="9" stroke-linecap="round" stroke-dasharray="326.73" style="stroke-dashoffset:217.82" transform="rotate(-90 70 70)"></circle>
-          </svg>
+          <div class="ring-glow" id="today-glow" aria-hidden="true" style="position:absolute;inset:10px;border-radius:50%;background:radial-gradient(circle,rgba(255,179,92,.35) 0%,rgba(255,107,94,.18) 45%,transparent 72%);filter:blur(18px);opacity:.2"></div>
+          <svg width="132" height="132" viewBox="0 0 104 104" role="img" id="today-svg" aria-label="1 of 3 priorities done" style="position:relative"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="#EDE7E1" stroke-width="5" stroke-linecap="round"></path><path d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="#EDE7E1" stroke-width="5" stroke-linecap="round"></path><path d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="#EDE7E1" stroke-width="5" stroke-linecap="round"></path><path class="ring-prog" id="today-ring-0" d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="49.99" style="stroke-dashoffset:0"></path><path class="ring-prog" id="today-ring-1" d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="77.33" style="stroke-dashoffset:77.33"></path><path class="ring-prog" id="today-ring-2" d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round" stroke-dasharray="128.86" style="stroke-dashoffset:128.86"></path></svg>
           <span class="serif" style="position:absolute;font-size:30px"><span id="today-count">1</span>/3</span>
         </div>
         <div role="status" style="flex:1 1 180px;min-width:0">
@@ -541,9 +639,9 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 
       <div class="app-eyebrow" style="margin-top:24px">Your 3 today</div>
       <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
-        <button type="button" class="task lg done" aria-pressed="true" data-today="0"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="t-label">Send the flat deposit</span></button>
-        <button type="button" class="task lg" aria-pressed="false" data-today="1"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="t-label">Finish the Q4 brief</span></button>
-        <button type="button" class="task lg" aria-pressed="false" data-today="2"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="t-label">Call Mum</span></button>
+        <button type="button" class="task lg done" aria-pressed="true" data-today="0"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Send the flat deposit</span></button>
+        <button type="button" class="task lg" aria-pressed="false" data-today="1"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Finish the Q4 brief</span></button>
+        <button type="button" class="task lg" aria-pressed="false" data-today="2"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Call Mum</span></button>
         <button type="button" class="add-btn" id="fourth-btn" aria-describedby="fourth-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add a fourth priority</button>
       </div>
       <div id="fourth-note" role="status" style="margin-top:16px;min-height:48px;display:grid;place-items:center;text-align:center">
@@ -673,7 +771,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 
   <footer class="wrap" style="position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;padding-top:44px;padding-bottom:110px">
     <div style="display:flex;align-items:center;gap:12px">
-      <span class="logo" style="font-size:26px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></svg><span>Lit</span></span>
+      <span class="logo" style="font-size:26px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></path></svg><span>Lit</span></span>
       <span class="serif" style="font-size:18px;font-style:italic;color:#D8CDC5">Light your mind.</span>
     </div>
     <nav aria-label="Footer" style="display:flex;flex-wrap:wrap;gap:6px 24px;font-size:15px">
@@ -701,27 +799,39 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  /* ---------- Hero: live Inbox ---------- */
-  var PENCIL = '<svg class="ib-pencil" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg>';
+  /* ---------- Hero phone: the real app ---------- */
+  var phone = $('#ph'), phBody = $('#ph-body'), phInbox = $('#ph-inbox'), phChip = $('#ph-chip'), phBadge = $('#ph-badge');
+  var PENCIL = '<svg class="ib-pencil" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 3.5l4 4L8 20H4v-4z"></path></svg>';
+  var touched = false, tourTimers = [];
+  function later(fn, ms) { tourTimers.push(setTimeout(fn, ms)); }
+  function stopTour() { tourTimers.forEach(clearTimeout); tourTimers = []; }
+
+  function go(view) {
+    $$('.ph-view', phBody).forEach(function (v) { v.hidden = v.getAttribute('data-view') !== view; });
+    $$('.ph-dock-btn', phone).forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-go') === view ? 'true' : 'false'); });
+    phBody.scrollTop = 0;
+  }
+  function openInbox() { phInbox.hidden = false; $('#ph-inbox-open').setAttribute('aria-expanded', 'true'); }
+  function closeInbox() { phInbox.hidden = true; $('#ph-inbox-open').setAttribute('aria-expanded', 'false'); }
+
+  // Inbox captures
   function parseCapture(text) {
     var t = String(text || '').trim();
+    if (!t) return null;
     if (/^(https?:\/\/|www\.)|\.(com|co|ie|uk|io|app|net|org)(\/|$)/i.test(t)) {
       return { type: 'LINK', title: t.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '') };
     }
-    var parts = t.split(/\s*,\s*/).filter(Boolean);
-    if (parts.length > 1) {
-      var head = parts[0].indexOf(':') > -1 ? parts[0].split(':')[0] : 'List';
-      return { type: 'LIST', title: head.charAt(0).toUpperCase() + head.slice(1), meta: '0/' + parts.length };
-    }
     var m = t.match(/^([^:]{2,30}):\s*(.+)$/);
     if (m && /,|\band\b/.test(m[2])) return { type: 'LIST', title: m[1], meta: '0/' + m[2].split(/,|\band\b/).filter(function (x) { return x.trim(); }).length };
+    var parts = t.split(/\s*,\s*/).filter(Boolean);
+    if (parts.length > 1) return { type: 'LIST', title: 'List', meta: '0/' + parts.length };
     return { type: 'TASK', title: t };
   }
-  var dumpList = $('#dump-list'), dumpEmpty = $('#dump-empty'), dumpLabel = $('#dump-label');
-  var dumpCount = 0, timers = [];
+  var dumpList = $('#dump-list'), dumpEmpty = $('#dump-empty'), dumpCount = 0;
   function setCount(n) {
     dumpCount = n;
-    dumpLabel.textContent = n === 1 ? '1 thought' : n + ' thoughts';
+    phBadge.textContent = n;
+    phChip.textContent = (n === 1 ? '1 thought' : n + ' thoughts') + ', out of your head';
     dumpEmpty.hidden = n > 0;
   }
   function addCapture(c) {
@@ -729,7 +839,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     var row = document.createElement('div'); row.className = 'ib-row';
     var badge = document.createElement('span'); badge.className = 'ib-badge'; badge.textContent = c.type;
     var rt = document.createElement('span'); rt.className = 'ib-rt'; rt.textContent = c.title;
-    if (c.meta) { var m = document.createElement('span'); m.className = 'ib-meta'; m.textContent = ' · ' + c.meta; rt.appendChild(m); }
+    if (c.meta) { var mm = document.createElement('span'); mm.className = 'ib-meta'; mm.textContent = ' · ' + c.meta; rt.appendChild(mm); }
     row.appendChild(badge); row.appendChild(rt);
     if (c.type === 'LIST') row.insertAdjacentHTML('beforeend', PENCIL);
     dumpList.insertBefore(row, dumpList.firstChild);
@@ -737,7 +847,6 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     if (rows.length > 6) dumpList.removeChild(rows[rows.length - 1]);
     setCount(dumpCount + 1);
   }
-  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
   var PRESETS = [
     { type: 'TASK', title: 'Call the landlord about the boiler' },
     { type: 'LIST', title: 'Gift ideas for Mum', meta: '1/4' },
@@ -746,83 +855,111 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     { type: 'LIST', title: 'Groceries', meta: '0/6' },
     { type: 'TASK', title: 'Book the dentist — it’s been two years' }
   ];
-  function playDump() {
-    clearTimers();
-    $$('.ib-row', dumpList).forEach(function (r) { dumpList.removeChild(r); });
-    setCount(0);
-    if (reduced) { PRESETS.forEach(addCapture); return; }
-    PRESETS.forEach(function (p, i) { timers.push(setTimeout(function () { addCapture(p); }, 900 + i * 800)); });
+
+  // Today ring (phone)
+  var PH_STATES = [
+    { t: 'A clear runway', s: 'Choose up to three things that matter today.' },
+    { t: 'Off you go', s: 'One down, two to go.' },
+    { t: 'Nearly there', s: 'One more, then you’re done for today.' },
+    { t: 'Done for today', s: 'Go live your evening.' }
+  ];
+  var phTasks = $$('[data-ph-today]', phone);
+  var RING_ARC_LENGTHS = [49.99, 77.33, 128.86];
+  function setPhTask(btn, on) { btn.classList.toggle('done', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); renderPhRing(); }
+  function renderPhRing() {
+    var n = 0;
+    phTasks.forEach(function (b, i) {
+      var done = b.classList.contains('done');
+      if (done) n++;
+      var arc = $('#ph-ring-' + i);
+      if (arc) arc.style.strokeDashoffset = done ? 0 : RING_ARC_LENGTHS[i];
+    });
+    $('#ph-ring-n').textContent = n + '/3';
+    $('#ph-ring-t').textContent = PH_STATES[n].t;
+    $('#ph-ring-s').textContent = PH_STATES[n].s;
+    $('#ph-ring-svg').setAttribute('aria-label', n + ' of 3 priorities done');
   }
+  phTasks.forEach(function (b) { b.addEventListener('click', function () { setPhTask(b, !b.classList.contains('done')); }); });
+
+  // Goals milestones
+  var msBtns = $$('[data-ph-ms]', phone);
+  function renderGoal() {
+    var done = msBtns.filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; }).length;
+    var pct = Math.round(done / msBtns.length * 100);
+    $('#ph-goal-pct').textContent = pct + '%';
+    $('#ph-goal-bar').style.width = pct + '%';
+    var next = msBtns.filter(function (b) { return b.getAttribute('aria-pressed') !== 'true'; })[0];
+    $('#ph-next').textContent = next ? 'Next: ' + $('.ms-t', next).textContent : 'Goal complete';
+  }
+  msBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      $('.ms-box', b).classList.toggle('on', on);
+      $('.ms-t', b).classList.toggle('done', on);
+      renderGoal();
+    });
+  });
+  renderGoal();
+
+  // Finance bills
+  $$('[data-ph-bill]', phone).forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = !b.classList.contains('paid');
+      b.classList.toggle('paid', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  });
+
+  // Navigation
+  $$('.ph-dock-btn', phone).forEach(function (b) { b.addEventListener('click', function () { closeInbox(); go(b.getAttribute('data-go')); }); });
+  $('#ph-inbox-open').addEventListener('click', openInbox);
+  $('#ph-inbox-close').addEventListener('click', closeInbox);
   $('#dump-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var input = $('#dump-input');
-    clearTimers();
     addCapture(parseCapture(input.value));
     input.value = '';
   });
-  $('#dump-replay').addEventListener('click', playDump);
-  playDump();
+  phone.addEventListener('pointerdown', function () { if (!touched) { touched = true; stopTour(); } });
+  phone.addEventListener('keydown', function () { if (!touched) { touched = true; stopTour(); } });
 
-  /* ---------- Inbox panel: expand, tick, delete + undo ---------- */
-  var sheet = $('#ib-sheet'), toast = $('.ib-toast', sheet), lastDeleted = null, toastTimer = null;
-  function hideToast() { toast.hidden = true; lastDeleted = null; }
-  sheet.addEventListener('click', function (e) {
-    var h = e.target.closest('.ib-card-h');
-    if (h) {
-      var card = h.parentNode, open = !card.classList.contains('open');
-      $$('.ib-card', sheet).forEach(function (c) { c.classList.remove('open'); $('.ib-card-h', c).setAttribute('aria-expanded', 'false'); });
-      if (open) { card.classList.add('open'); h.setAttribute('aria-expanded', 'true'); }
+  // Guided tour: capture → close Inbox → tick today's first priority
+  function playTour() {
+    stopTour(); touched = false;
+    $$('.ib-row', dumpList).forEach(function (r) { dumpList.removeChild(r); });
+    setCount(0);
+    phTasks.forEach(function (b) { b.classList.remove('done'); b.setAttribute('aria-pressed', 'false'); });
+    renderPhRing();
+    go('today'); openInbox();
+    if (reduced) {
+      PRESETS.forEach(addCapture);
+      closeInbox();
+      setPhTask(phTasks[0], true);
+      phChip.textContent = 'Tap around — it’s the real app';
       return;
     }
-    var ck = e.target.closest('.ib-ck');
-    if (ck) {
-      var on = !ck.classList.contains('on');
-      ck.classList.toggle('on', on); ck.setAttribute('aria-pressed', on ? 'true' : 'false');
-      var c2 = ck.closest('.ib-card'), all = $$('.ib-ck', c2), done = all.filter(function (x) { return x.classList.contains('on'); }).length;
-      var meta = $('.ib-meta', c2); if (meta) meta.textContent = ' · ' + done + '/' + all.length;
-      return;
-    }
-    var tr = e.target.closest('.ib-trash');
-    if (tr) {
-      lastDeleted = tr.closest('.ib-card');
-      lastDeleted.hidden = true;
-      toast.hidden = false; toast.style.animation = 'none'; void toast.offsetWidth; toast.style.animation = '';
-      clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 4500);
-      $('.ib-undo', toast).focus({ preventScroll: true });
-      return;
-    }
-    if (e.target.closest('.ib-undo')) {
-      clearTimeout(toastTimer);
-      if (lastDeleted) { lastDeleted.hidden = false; $('.ib-card-h', lastDeleted).focus({ preventScroll: true }); }
-      hideToast();
-    }
-  });
-
-  /* ---------- Five spaces tabs ---------- */
-  var tabs = $$('[data-space]');
-  function selectSpace(i, focus) {
-    tabs.forEach(function (t, k) {
-      var on = k === i;
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.tabIndex = on ? 0 : -1;
-      $('#panel-' + k).hidden = !on;
-    });
-    if (focus) tabs[i].focus();
+    PRESETS.forEach(function (p, i) { later(function () { addCapture(p); }, 900 + i * 750); });
+    var t = 900 + PRESETS.length * 750 + 1400;
+    later(closeInbox, t);
+    later(function () { setPhTask(phTasks[0], true); }, t + 1100);
+    later(function () { phChip.textContent = 'Tap around — it’s the real app'; phChip.parentNode.classList.add('ph-chip-pulse'); }, t + 1600);
   }
-  tabs.forEach(function (t, i) {
-    t.addEventListener('click', function () { selectSpace(i); });
-    t.addEventListener('mouseenter', function () { if (window.matchMedia('(hover: hover)').matches) selectSpace(i); });
-    t.addEventListener('keydown', function (e) {
-      var k = e.key, n = tabs.length;
-      if (k === 'ArrowDown' || k === 'ArrowRight') { e.preventDefault(); selectSpace((i + 1) % n, true); }
-      else if (k === 'ArrowUp' || k === 'ArrowLeft') { e.preventDefault(); selectSpace((i - 1 + n) % n, true); }
-      else if (k === 'Home') { e.preventDefault(); selectSpace(0, true); }
-      else if (k === 'End') { e.preventDefault(); selectSpace(n - 1, true); }
+  $('#ph-replay').addEventListener('click', playTour);
+  playTour();
+
+  // Section 3 → open that space in the phone
+  $$('[data-show]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var view = b.getAttribute('data-show');
+      touched = true; stopTour();
+      if (view === 'inbox') { go('today'); openInbox(); } else { closeInbox(); go(view); }
+      var top = phone.getBoundingClientRect().top + window.scrollY - 110;
+      window.scrollTo({ top: Math.max(0, top), behavior: reduced ? 'auto' : 'smooth' });
+      phone.classList.remove('ph-flash'); void phone.offsetWidth; phone.classList.add('ph-flash');
     });
   });
 
   /* ---------- Today ring ---------- */
-  var CIRC = 326.73;
   var STATES = [
     { t: 'A clear runway', s: 'Choose up to three things that matter today.' },
     { t: 'Off you go', s: 'One down, two to go.' },
@@ -832,8 +969,13 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
   var todayBtns = $$('[data-today]');
   var fourthBtn = $('#fourth-btn'), fourthMsg = $('#fourth-msg'), fourthHint = $('#fourth-hint'), fourthTimer = null, fourthOn = false;
   function renderToday() {
-    var n = todayBtns.filter(function (b) { return b.classList.contains('done'); }).length;
-    $('#today-ring').style.strokeDashoffset = (CIRC * (1 - n / 3)).toFixed(2);
+    var n = 0;
+    todayBtns.forEach(function (b, i) {
+      var done = b.classList.contains('done');
+      if (done) n++;
+      var arc = $('#today-ring-' + i);
+      if (arc) arc.style.strokeDashoffset = done ? 0 : RING_ARC_LENGTHS[i];
+    });
     $('#today-count').textContent = n;
     $('#today-title').textContent = STATES[n].t;
     $('#today-sub').textContent = STATES[n].s;
