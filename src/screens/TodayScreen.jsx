@@ -31,7 +31,7 @@ const findDropZone = (x, y) => {
   return null;
 };
 
-export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab, openDetail, financeMonth, setFinanceMonth, profile }) {
+export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab, openDetail, financeMonth, setFinanceMonth, profile, captures, toggleListItem, onEditList }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const now = new Date();
   const hour = now.getHours();
@@ -325,7 +325,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           </div>
         )}
         {top3.map((t) => (
-          <TaskCard key={t.id} t={t} big toggleDone={toggleDone} deleteTask={deleteTask} setTop3={setTop3} setEditor={setEditor} openDetail={openDetailGuarded} onPressDrag={startDrag(t)} dragging={drag?.id === t.id} />
+          <TaskCard key={t.id} t={t} big toggleDone={toggleDone} deleteTask={deleteTask} setTop3={setTop3} setEditor={setEditor} openDetail={openDetailGuarded} onPressDrag={startDrag(t)} dragging={drag?.id === t.id} captures={captures} toggleListItem={toggleListItem} onEditList={onEditList} />
         ))}
         {top3.length === 0 && rest.length > 0 && (
           <div data-drop="top3"
@@ -359,7 +359,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
           <div key={g} style={{ marginBottom: 10 }}>
             {Object.keys(grouped).length > 1 && <div style={{ fontSize: 11.5, color: T.ink3, fontWeight: 600, margin: "10px 2px 6px" }}>{g}</div>}
             {list.map((t) => (
-              <TaskCard key={t.id} t={t} toggleDone={toggleDone} deleteTask={deleteTask} setTop3={setTop3} setEditor={setEditor} openDetail={openDetailGuarded} onPressDrag={startDrag(t)} dragging={drag?.id === t.id} />
+              <TaskCard key={t.id} t={t} toggleDone={toggleDone} deleteTask={deleteTask} setTop3={setTop3} setEditor={setEditor} openDetail={openDetailGuarded} onPressDrag={startDrag(t)} dragging={drag?.id === t.id} captures={captures} toggleListItem={toggleListItem} onEditList={onEditList} />
             ))}
           </div>
         ))}
