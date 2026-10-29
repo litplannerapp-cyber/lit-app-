@@ -3,23 +3,45 @@ import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Check } from "./Check";
 
+/* the brand gradient used for the "this is one of your three" outline —
+   a fixed identity colour, intentionally not T.coralGrad, same in both
+   themes (see the spec this was built to). */
+const PRIORITY_OUTLINE = "linear-gradient(135deg, #F4B16B, #ED7B65 52%, #E35F87)";
+const CARD_RADIUS = 18;
+
 export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, openDetail, onPressDrag, dragging }) {
   const [leaving, setLeaving] = useState(false);
   const remove = () => { setLeaving(true); setTimeout(() => deleteTask(t.id), 260); };
   return (
     <div
       style={{
+        position: "relative", zIndex: 0,
         display: "flex", alignItems: "center", gap: 10, marginBottom: 10,
         userSelect: "none", WebkitUserSelect: "none",
         opacity: dragging ? 0.35 : 1, pointerEvents: dragging ? "none" : "auto",
-        padding: big ? "13px 14px" : "11px 12px",
-        borderRadius: big ? 18 : 14,
-        background: big ? T.card : "transparent",
-        boxShadow: big ? T.shadowSm : "none",
-        borderLeft: t.group ? `3px solid ${t.group.color}` : big ? "3px solid transparent" : "none",
+        padding: "13px 14px",
+        borderRadius: CARD_RADIUS,
+        background: T.card,
+        boxShadow: T.shadowSm,
+        borderLeft: t.group ? `3px solid ${t.group.color}` : "3px solid transparent",
         animation: leaving ? "fadeSlideOut .26s ease forwards" : undefined,
         transition: "opacity .2s",
       }}>
+      {/* priority outline — a separate absolutely-positioned layer so fading it
+          in/out when a task is starred/unstarred never resizes the card or
+          repaints its content. The padding-box/border-box double background is
+          the standard CSS trick for a gradient border that still respects the
+          card's own radius; the row above establishes its own stacking context
+          (position: relative + z-index: 0) so this layer's negative z-index
+          keeps it behind the checkbox/text/buttons (z-index: auto) and only
+          on top of the row's own flat background, never covering content. */}
+      <span aria-hidden="true" style={{
+        position: "absolute", zIndex: -1, inset: 0, borderRadius: CARD_RADIUS, pointerEvents: "none",
+        border: "1.5px solid transparent",
+        background: `linear-gradient(${T.card}, ${T.card}) padding-box, ${PRIORITY_OUTLINE} border-box`,
+        opacity: t.top3 ? (t.done ? 0.5 : 1) : 0,
+        transition: "opacity .25s ease",
+      }} />
       <span onPointerDown={onPressDrag} data-noswipe aria-label="Drag to move"
         style={{ touchAction: "none", cursor: "grab", flexShrink: 0, padding: "6px 2px", display: "grid", placeItems: "center", color: T.ink3 }}>
         <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
@@ -32,8 +54,8 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
       <div onClick={() => openDetail(t.id)} role="button" aria-label={`Open ${t.text}`}
         style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
-          {t.priority && !t.done && <span style={{ width: 6, height: 6, borderRadius: 3, background: T.coral, flexShrink: 0, marginTop: big ? 7 : 6 }} aria-label="Priority" />}
-          <span style={{ fontSize: big ? 14.5 : 13.5, fontWeight: big ? 600 : 500, color: t.done ? T.ink3 : T.ink, textDecoration: t.done ? "line-through" : "none", textDecorationColor: T.ink3, lineHeight: 1.4, overflowWrap: "break-word", minWidth: 0 }}>
+          {t.priority && !t.done && <span style={{ width: 6, height: 6, borderRadius: 3, background: T.coral, flexShrink: 0, marginTop: 7 }} aria-label="Priority" />}
+          <span style={{ fontSize: big ? 16.5 : 15.5, fontWeight: big ? 600 : 500, color: t.done ? T.ink3 : T.ink, textDecoration: t.done ? "line-through" : "none", textDecorationColor: T.ink3, lineHeight: 1.45, overflowWrap: "break-word", minWidth: 0 }}>
             {t.text}
           </span>
         </div>
