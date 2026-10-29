@@ -8,7 +8,7 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { CaptureRow } from "./CaptureRow";
 import { ListEditorSheet } from "./ListEditorSheet";
 
-export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, updateCapture, captureToTask, captureToVision, fetchLinkPreview, onSchedule, onClose, showToast }) {
+export function InboxSheet({ captures, addCapture, releaseCapture, toggleListItem, updateCapture, captureToVision, fetchLinkPreview, onSchedule, onClose, showToast }) {
   useBodyScrollLock(true);
   const [type, setType] = useState(null); // null | task | list | image
   const [free, setFree] = useState("");
@@ -167,7 +167,7 @@ export function InboxSheet({ captures, addCapture, releaseCapture, toggleListIte
           <div style={{ marginTop: 14 }}>
             {visible.map((c) => (
               <CaptureRow key={c.id} c={c} expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
-                onTask={() => captureToTask(c)} onVision={() => captureToVision(c)} onSchedule={() => onSchedule(c)} onRelease={() => releaseCapture(c.id)}
+                onVision={() => captureToVision(c)} onSchedule={() => onSchedule(c)} onRelease={() => releaseCapture(c)}
                 onToggleItem={(ix) => toggleListItem(c.id, ix)} onEdit={(changes) => updateCapture(c.id, changes)}
                 onEditList={() => setEditingListId(c.id)} />
             ))}

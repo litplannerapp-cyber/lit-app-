@@ -46,7 +46,7 @@ function LinkCard({ url, title, image, site }) {
   );
 }
 
-export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule, onRelease, onToggleItem, onEdit, onEditList }) {
+export function CaptureRow({ c, expanded, onToggle, onVision, onSchedule, onRelease, onToggleItem, onEdit, onEditList }) {
   const [leaving, setLeaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const editableField = c.type === "task" ? "title" : "text";
@@ -154,11 +154,13 @@ export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule
         </div>
       )}
       {expanded && !editing && (
-        <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
-          {act("→ Task", onTask, "#fff", T.coralGrad)}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
           {canVision && act("→ Vision", onVision, T.mint, T.mintSoft)}
           {act("Schedule", onSchedule, T.sky, T.skySoft)}
-          {act("Release", release)}
+          <button onClick={release} aria-label="Delete" title="Delete"
+            style={{ width: 44, height: 44, borderRadius: 16, display: "grid", placeItems: "center", background: T.bg, color: T.ink2, cursor: "pointer", flexShrink: 0 }}>
+            {Ic.trash(T.ink2)}
+          </button>
         </div>
       )}
     </div>
