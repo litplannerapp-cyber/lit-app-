@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en-GB" data-launch="pre">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lit — Your mind is for living, not remembering everything.</title>
-<meta name="description" content="Empty your head into one calm place for your tasks, plans, dreams and money. Then pick three for today. A daily planner for iPhone.">
+<meta name="description" content="Empty your head into one calm place for your tasks, plans, dreams and money. Then pick three for today. A calm daily planner that works in your browser.">
 <meta name="theme-color" content="#F3EEE8">
 <link rel="canonical" href="https://litplanner.app/">
 
@@ -31,16 +31,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&amp;family=Instrument+Sans:wght@400;500;600;700&amp;display=swap">
 
-<script>
-  /* ================= LAUNCH + BACKEND CONFIG ================= */
-  window.LIT_CONFIG = {
-    PRE_LAUNCH: true,            // true = early-access email capture. false = every CTA goes to the App Store.
-    APP_STORE_URL: '',           // fill on launch day, e.g. https://apps.apple.com/app/idXXXXXXXXX
-    SUPABASE_URL: 'https://uunrpccgyracrbtcfjqw.supabase.co',
-    SUPABASE_ANON_KEY: 'sb_publishable_XwR7poV-9vPhXIDM52o6wg__etfagvd'   // public key (safe in the browser; RLS only allows INSERT on waitlist)
-  };
-  document.documentElement.setAttribute('data-launch', window.LIT_CONFIG.PRE_LAUNCH === false ? 'live' : 'pre');
-</script>
 
 <style>
 :root{--coral:#ED7B65;--ink:#1F1A17;--cream:#F3EEE8;--card:#FDFAF6}
@@ -51,8 +41,6 @@ img{max-width:100%}
 a{color:var(--ink)}a:hover{color:#A93C24}
 button{font:inherit;color:inherit}
 [hidden]{display:none!important}
-[data-launch="pre"] [data-live-only]{display:none!important}
-[data-launch="live"] [data-pre-only]{display:none!important}
 section[id],header[id]{scroll-margin-top:96px}
 
 .lit{position:relative;min-height:100vh;overflow-x:hidden}
@@ -278,7 +266,7 @@ section[id],header[id]{scroll-margin-top:96px}
       <a href="#streak">Why it sticks</a>
       <a href="#faq">Questions</a>
     </div>
-    <a class="btn btn-ink btn-sm" href="#join" data-cta data-cta-label><span class="dot"></span><span class="lbl">Get early access</span></a>
+    <a class="btn btn-ink btn-sm" href="/app" data-cta><span class="dot"></span>Start for free</a>
   </nav>
 </div>
 
@@ -296,21 +284,9 @@ section[id],header[id]{scroll-margin-top:96px}
       <p class="lead in d3" style="margin:18px 0 0;max-width:540px">All your ideas, plans, goals and to-dos, finally in one place. Capture what’s on your mind, make sense of it, and turn what matters into action — one step at a time.</p>
 
       <div class="in d4" style="margin-top:36px;max-width:540px">
-        <div data-pre-only>
-          <form class="field glass" data-waitlist data-source="hero" novalidate>
-            <label class="sr-only" for="email-hero">Email address</label>
-            <input id="email-hero" class="email" type="email" name="email" autocomplete="email" inputmode="email" placeholder="Your email address" required>
-            <button class="btn btn-ink" type="submit"><span class="dot"></span><span class="lbl">Get early access</span><svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
-          </form>
-          <div class="joined glass fade" role="status" data-joined hidden>
-            <span class="ok"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1A17" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
-            <span style="font-size:16px;font-weight:500">You're in. We'll email you the day Lit lands.</span>
-          </div>
-          <p class="form-error" role="alert" data-error hidden></p>
-        </div>
-        <a class="btn btn-ink" href="#" data-cta data-live-only><span class="dot"></span>Start for free<svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        <a class="btn btn-ink" href="/app" data-cta style="min-height:58px;padding:0 32px;font-size:17px"><span class="dot"></span>Start for free<svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;margin:18px 0 0 18px">
-          <span style="font-size:14px;color:#6B625B" data-risk>Coming to iPhone soon · Be first in</span>
+          <span style="font-size:14px;color:#6B625B">Free to start · Works in your browser · No download</span>
           <a class="link-cta" href="#spaces" style="font-size:14px"><span class="u">See how it works</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg></a>
         </div>
       </div>
@@ -499,7 +475,7 @@ section[id],header[id]{scroll-margin-top:96px}
 
     <div class="reveal" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;margin-top:40px">
       <p class="serif" style="margin:0;font-size:26px;font-style:italic">Everything has a place. Nothing is forgotten.</p>
-      <a class="link-cta" href="#join" data-cta><span class="u">Empty your head — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+      <a class="link-cta" href="/app" data-cta><span class="u">Empty your head — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
     </div>
   </div>
 </section>
@@ -512,7 +488,7 @@ section[id],header[id]{scroll-margin-top:96px}
       <div class="eyebrow reveal">Step two · Then, three for today</div>
       <h2 id="today-h" class="serif h2 reveal">With a clear head, today gets simple. <em class="accent" style="font-weight:340">Pick three. Then rest.</em></h2>
       <p class="lead reveal" style="margin:26px 0 0;max-width:520px">Your list never ends. Your day should. Three things, a ring that closes, and permission to stop.</p>
-      <div class="reveal" style="margin-top:30px"><a class="link-cta" href="#join" data-cta><span class="u">Choose your three — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+      <div class="reveal" style="margin-top:30px"><a class="link-cta" href="/app" data-cta><span class="u">Choose your three — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
     </div>
 
     <div class="reveal" style="flex:1 1 460px;min-width:0;padding:clamp(20px,3vw,30px);border-radius:36px;background:var(--cream);border:1px solid rgba(255,255,255,.9);box-shadow:0 30px 70px -36px rgba(70,35,20,.35)">
@@ -562,7 +538,7 @@ section[id],header[id]{scroll-margin-top:96px}
         <button type="button" aria-pressed="false" data-stack-btn="lit">With Lit</button>
       </div>
       <p class="reveal" style="margin:26px 0 0;font-size:16px;color:#4A423D"><b style="color:var(--ink)">Free to start.</b> €9.99 a month for everything.</p>
-      <div class="reveal" style="margin-top:18px"><a class="link-cta" href="#join" data-cta><span class="u">Swap the stack — start free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+      <div class="reveal" style="margin-top:18px"><a class="link-cta" href="/app" data-cta><span class="u">Swap the stack — start free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
     </div>
 
     <div class="reveal" style="flex:1 1 460px;min-width:0">
@@ -599,7 +575,7 @@ section[id],header[id]{scroll-margin-top:96px}
       <div class="eyebrow reveal">Built to forgive</div>
       <h2 id="streak-h" class="serif h2 reveal" style="font-size:clamp(40px,4.6vw,64px);line-height:1.03">Missed a week? <em class="accent" style="font-weight:340">Your streak waited for you.</em></h2>
       <p class="reveal" style="margin:24px 0 0;max-width:520px;font-size:18px;line-height:1.65;color:#4A423D">One bad week and other apps reset you to zero. Lit just pauses. No red badges, no guilt.</p>
-      <div class="reveal" style="margin-top:24px"><a class="link-cta" href="#join" data-cta><span class="u">Start — and restart — any time</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+      <div class="reveal" style="margin-top:24px"><a class="link-cta" href="/app" data-cta><span class="u">Start — and restart — any time</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
     </div>
   </div>
 </section>
@@ -618,7 +594,7 @@ section[id],header[id]{scroll-margin-top:96px}
     </ol>
     <div class="reveal" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;margin-top:40px">
       <p style="margin:0;max-width:560px;font-size:18px;line-height:1.6;color:#4A423D">Built for full heads, not perfect planners.</p>
-      <a class="link-cta" href="#join" data-cta><span class="u">Set up in five minutes</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+      <a class="link-cta" href="/app" data-cta><span class="u">Set up in five minutes</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
     </div>
   </div>
 </section>
@@ -637,7 +613,7 @@ section[id],header[id]{scroll-margin-top:96px}
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-3"><span>Is my financial data private?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-3" class="faq-a"><div><p>Absolutely. Finance is completely optional, and your data stays yours. We never sell it or use it to train AI.</p></div></div></div>
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-4"><span>Can I cancel anytime?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-4" class="faq-a"><div><p>Of course. No phone calls. No hidden steps. No awkward retention flows. Cancel in just a couple of taps.</p></div></div></div>
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-5"><span>Another subscription?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-5" class="faq-a"><div><p>Free to start, free to keep. €9.99 a month if you want everything — instead of five apps.</p></div></div></div>
-      <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-6"><span>Is it on Android?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-6" class="faq-a"><div><p>Not yet. iPhone first.</p></div></div></div>
+      <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-6"><span>Does it work on Android and desktop?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-6" class="faq-a"><div><p>Yes. Lit runs in your browser on any phone, tablet or computer — no download needed. Add it to your home screen and it opens like an app.</p></div></div></div>
     </div>
   </div>
 </section>
@@ -650,25 +626,13 @@ section[id],header[id]{scroll-margin-top:96px}
     <div class="reveal" style="width:150px;height:150px;margin:0 auto">
       <svg width="150" height="150" viewBox="0 0 104 104" aria-hidden="true" style="overflow:visible;filter:drop-shadow(0 0 14px rgba(237,123,101,.75))"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="6" stroke-linecap="round"></path></svg>
     </div>
-    <div class="eyebrow reveal" style="margin-top:34px" data-final-eyebrow>Coming to iPhone soon</div>
+    <div class="eyebrow reveal" style="margin-top:34px">Your reset starts here</div>
     <h2 id="final-h" class="serif reveal" style="margin:20px auto 0;max-width:900px;font-size:clamp(48px,6.4vw,96px);line-height:.98;font-weight:360">Empty your head. <em style="color:var(--coral);font-weight:320">Then rest.</em></h2>
     <p class="reveal" style="margin:28px auto 0;max-width:560px;font-size:19px;line-height:1.6;color:#D8CDC5">You're not behind. You're carrying too much.</p>
 
     <div class="reveal" style="max-width:540px;margin:40px auto 0;text-align:left">
-      <div data-pre-only>
-        <form class="field" data-waitlist data-source="final" novalidate>
-          <label class="sr-only" for="email-final">Email address</label>
-          <input id="email-final" class="email" type="email" name="email" autocomplete="email" inputmode="email" placeholder="Your email address" required>
-          <button class="btn btn-coral" type="submit"><span class="lbl">Get early access</span><svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
-        </form>
-        <div class="joined fade" role="status" data-joined hidden style="justify-content:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14)">
-          <span class="ok"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1A17" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
-          <span style="font-size:16px;font-weight:500">You're in. We'll email you the day Lit lands.</span>
-        </div>
-        <p class="form-error" role="alert" data-error hidden></p>
-      </div>
-      <div data-live-only style="text-align:center"><a class="btn btn-coral" href="#" data-cta>Start for free<svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
-      <p style="margin:18px 0 0;text-align:center;font-size:14px;color:#B5AAA2" data-risk>Coming to iPhone soon · Be first in</p>
+      <div style="text-align:center"><a class="btn btn-coral" href="/app" data-cta style="min-height:58px;padding:0 34px;font-size:17px">Start for free<svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+      <p style="margin:18px 0 0;text-align:center;font-size:14px;color:#B5AAA2">Free to start · Works in your browser · No download</p>
     </div>
   </div>
 
@@ -690,96 +654,24 @@ section[id],header[id]{scroll-margin-top:96px}
       <a href="mailto:hello@litplanner.app" style="color:#D8CDC5;text-decoration:none;min-height:44px;display:inline-flex;align-items:center">Support</a>
       <a href="mailto:hello@litplanner.app" style="color:#D8CDC5;text-decoration:none;min-height:44px;display:inline-flex;align-items:center">Contact</a>
     </nav>
-    <div style="font-size:14px;color:#B5AAA2">Made in Dublin. For iPhone.</div>
+    <div style="font-size:14px;color:#B5AAA2">Made in Dublin.</div>
   </footer>
 </section>
 
 <!-- Sticky mobile bar -->
 <div class="sticky-bar glass" id="sticky-bar" aria-hidden="true">
   <span class="serif" style="font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">Empty your head.</span>
-  <a class="btn btn-ink btn-sm" href="#join" data-cta data-cta-label tabindex="-1" style="flex:none;padding:0 16px"><span class="lbl">Get early access</span></a>
+  <a class="btn btn-ink btn-sm" href="/app" data-cta tabindex="-1" style="flex:none;padding:0 16px">Start for free</a>
 </div>
 </div>
 
 <script>
 (function () {
   'use strict';
-  var CONFIG = window.LIT_CONFIG || {};
-  var PRE = CONFIG.PRE_LAUNCH !== false;
   var reduced = false;
   try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-
-  /* ---------- Launch mode: CTAs, labels, risk lines ---------- */
-  var ctaHref = PRE ? '#join' : (CONFIG.APP_STORE_URL || '#');
-  $$('[data-cta]').forEach(function (a) {
-    a.setAttribute('href', ctaHref);
-    if (!PRE) { a.setAttribute('rel', 'noopener'); }
-  });
-  $$('[data-cta-label] .lbl').forEach(function (l) { l.textContent = PRE ? 'Get early access' : 'Start for free'; });
-  $$('[data-risk]').forEach(function (r) { r.textContent = PRE ? 'Coming to iPhone soon · Be first in' : 'iPhone · Free to start · Set up in five minutes'; });
-  $$('[data-final-eyebrow]').forEach(function (e) { e.textContent = PRE ? 'Coming to iPhone soon' : 'Your reset starts here'; });
-
-  /* ---------- Waitlist (Supabase REST, insert only) ---------- */
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  function joinWaitlist(email, source) {
-    if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY) {
-      return Promise.reject(new Error('Supabase is not configured (LIT_CONFIG).'));
-    }
-    return fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/waitlist', {
-      method: 'POST',
-      headers: {
-        'apikey': CONFIG.SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ email: email, source: source })
-    }).then(function (res) {
-      if (res.ok || res.status === 409) return; // 409 = already on the list → treat as success
-      return res.json().catch(function () { return {}; }).then(function (body) {
-        if (body && body.code === '23505') return;
-        throw new Error((body && body.message) || ('HTTP ' + res.status));
-      });
-    });
-  }
-  function showJoined() {
-    $$('[data-waitlist]').forEach(function (f) {
-      f.hidden = true;
-      var box = f.parentNode;
-      $('[data-joined]', box).hidden = false;
-      $('[data-error]', box).hidden = true;
-    });
-  }
-  $$('[data-waitlist]').forEach(function (form) {
-    var input = $('input[type="email"]', form);
-    var btn = $('button[type="submit"]', form);
-    var lbl = $('.lbl', btn);
-    var err = $('[data-error]', form.parentNode);
-    input.addEventListener('input', function () { err.hidden = true; input.removeAttribute('aria-invalid'); });
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email = String(input.value || '').trim().toLowerCase();
-      if (!EMAIL_RE.test(email)) {
-        err.textContent = 'Please enter a valid email address.';
-        err.hidden = false;
-        input.setAttribute('aria-invalid', 'true');
-        input.focus();
-        return;
-      }
-      btn.disabled = true; btn.setAttribute('aria-busy', 'true');
-      var original = lbl.textContent; lbl.textContent = 'Joining…';
-      joinWaitlist(email, form.getAttribute('data-source') || 'unknown')
-        .then(showJoined)
-        .catch(function (ex) {
-          if (window.console) console.error('[waitlist]', ex);
-          err.textContent = 'Something went wrong. Try again in a moment.';
-          err.hidden = false;
-        })
-        .then(function () { btn.disabled = false; btn.removeAttribute('aria-busy'); lbl.textContent = original; });
-    });
-  });
 
   /* ---------- Hero: live brain dump ---------- */
   var TAGS = { inbox: 'Inbox', vision: 'Vision', goals: 'Goals', finance: 'Finance' };
