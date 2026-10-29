@@ -217,8 +217,10 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 .ph-ring-t{font-size:18px;line-height:1.15}
 .ph-ring-s{margin-top:2px;font-size:12px;line-height:1.4;color:#5E5650}
 .ph-tasks{display:flex;flex-direction:column;gap:7px;margin-top:8px}
-.ph-task{min-height:44px;padding:8px 12px;border-radius:14px}
-.ph-task .t-label{font-size:13.5px}
+.ph-task{position:relative;z-index:0;min-height:44px;padding:8px 12px;border-radius:14px}
+.ph-task::before{content:"";position:absolute;z-index:-1;inset:0;border-radius:14px;pointer-events:none;border:1.5px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#F4B16B,#ED7B65 52%,#E35F87) border-box;transition:opacity .25s ease}
+.ph-task.done::before{opacity:.5}
+.ph-tasks .ph-task .t-label{font-size:15.5px}
 .ph-task .tick{width:22px;height:22px;border-radius:7px}
 .ph-addtask{display:block;margin-top:10px;padding:12px;border-radius:18px;text-align:center;color:#fff;font-weight:600;font-size:14px;box-shadow:0 10px 24px rgba(255,107,94,.32)}
 .ph-addrow{display:flex;gap:6px;align-items:center}
