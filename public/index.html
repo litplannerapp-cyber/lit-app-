@@ -131,6 +131,61 @@ section[id],header[id]{scroll-margin-top:96px}
 .tag-goals{background:#DDF0E6;color:#2E7A59}
 .tag-finance{background:#E2EBF6;color:#3A6894}
 
+/* ===== Inbox — mirrors the app's real Inbox sheet exactly (InboxSheet.jsx /
+   CaptureRow.jsx / theme.js / Icons.jsx) — same colours, radii, sizes ===== */
+.ib-screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:#FDFAF5;display:flex;flex-direction:column;padding:30px 14px 14px}
+.ib-sheet{position:relative;margin-top:28px;flex:1;display:flex;flex-direction:column;min-height:0;border-radius:28px;background:#FDFAF5;border:1px solid rgba(46,42,38,.06);padding:22px;box-shadow:0 24px 50px -36px rgba(70,35,20,.4)}
+.ib-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.ib-title{font-size:23px;font-weight:600;line-height:1.1;letter-spacing:-0.01em}
+.ib-sub{margin-top:3px;font-size:12.5px;color:#B5ACA1}
+.ib-close{flex:none;width:34px;height:34px;border-radius:12px;background:#F6F1EA;display:grid;place-items:center;color:#8A8177}
+.ib-composer{margin-top:14px;background:#FDFAF5;border:1px solid rgba(46,42,38,.06);border-radius:22px;padding:16px;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05);transition:box-shadow .3s}
+.ib-composer:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,#FF6B5E 26%,transparent),0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.ib-chips{display:flex;gap:8px;flex-wrap:wrap}
+.ib-chip{padding:7px 14px;border-radius:100px;background:#F6F1EA;color:#8A8177;font-size:12.5px;font-weight:600}
+.ib-input{display:block;width:100%;margin-top:10px;border:0;background:transparent;outline:none;font:400 14.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:var(--ink);padding:4px 2px}
+.ib-input::placeholder,.ib-ph{color:#857C75}
+.ib-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.ib-mic{width:40px;height:40px;border-radius:14px;background:#F6F1EA;display:grid;place-items:center;color:#8A8177}
+.ib-send{width:40px;height:40px;border-radius:14px;border:0;display:grid;place-items:center;color:#fff;cursor:pointer;box-shadow:0 6px 16px rgba(255,107,94,.3);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
+.ib-search{margin-top:20px;padding:11px 16px;border-radius:14px;background:#F6F1EA;color:#857C75;font-size:13.5px}
+.ib-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ib-tags span{padding:7px 14px;border-radius:100px;background:#F6F1EA;color:#8A8177;font-size:12.5px;font-weight:600}
+.ib-tags span.ib-tagchip{background:rgba(94,201,167,.14);color:#5EC9A7}
+.ib-list{flex:1;min-height:0;margin-top:12px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.ib-row{display:flex;align-items:center;gap:9px;padding:12px;border-radius:16px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05);animation:drop .7s cubic-bezier(.2,.9,.25,1.1) both}
+.ib-badge{flex:none;padding:3px 8px;border-radius:100px;background:rgba(255,107,94,.12);color:#FF6B5E;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1.4}
+.ib-rt{flex:1;min-width:0;font-size:13.5px;font-weight:500;color:#2E2A26;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib-meta{color:#8A8177;font-weight:500}
+.ib-pencil{flex:none;color:#B5ACA1}
+.ib-cards{display:flex;flex-direction:column;gap:8px;margin:14px -4px 0;padding:2px 4px 18px;max-height:390px;overflow-y:auto;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(#000 90%,transparent);mask-image:linear-gradient(#000 90%,transparent)}
+.ib-card{border-radius:16px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.ib-card[hidden]{display:none}
+.ib-card-h{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:12px 14px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:16px}
+.ib-card-h .ib-rt{font-size:13.5px}
+.ib-card-b{padding:0 14px 12px}
+.ib-card:not(.open) .ib-card-b{display:none}
+.ib-card.open .ib-card-b{animation:fadein .4s ease both}
+.ib-preview{margin-top:10px;border-radius:12px;overflow:hidden;background:#F6F1EA}
+.ib-preview img{display:block;width:100%;height:140px;object-fit:cover}
+.ib-preview .pt{padding:10px 12px}
+.ib-preview .pt-t{font-size:13px;font-weight:600;color:#2E2A26;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib-preview .pt-s{margin-top:2px;font-size:11px;color:#B5ACA1}
+.ib-checks{display:flex;flex-direction:column;margin-top:10px}
+.ib-ck{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:7px 2px;border:0;background:transparent;cursor:pointer;font-size:13.5px;font-weight:500;text-align:left;color:#2E2A26}
+.ib-box{flex:none;width:20px;height:20px;border-radius:7px;border:1.6px solid #B5ACA1;background:transparent;display:grid;place-items:center;color:transparent;transition:background .25s,border-color .25s,color .25s}
+.ib-ck.on .ib-box{background:linear-gradient(135deg,#FFB35C 0%,#FF6B5E 55%,#F4508C 100%);border-color:transparent;color:#fff}
+.ib-ck .lbl{transition:color .3s;text-decoration:line-through;text-decoration-color:transparent}
+.ib-ck.on .lbl{color:#B5ACA1;text-decoration-color:#B5ACA1}
+.ib-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
+.ib-act{padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600}
+.ib-act.vision{background:rgba(94,201,167,.14);color:#5EC9A7}
+.ib-act.sched{background:rgba(127,181,224,.16);color:#7FB5E0}
+.ib-trash{flex:none;width:44px;height:44px;border-radius:16px;border:0;background:#F6F1EA;color:#8A8177;display:grid;place-items:center;cursor:pointer}
+.ib-toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:100px;background:#2E2A26;color:#FDFAF5;font-size:13px;font-weight:500;box-shadow:0 1px 2px rgba(46,42,38,.04),0 10px 28px rgba(46,42,38,.07);animation:rise .3s cubic-bezier(.34,1.3,.5,1) both;z-index:2}
+.ib-undo{min-height:auto;padding:0;border:0;background:none;color:#5EC9A7;font-weight:700;text-decoration:underline;cursor:pointer}
+
 /* Motion */
 @keyframes rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -298,38 +353,14 @@ section[id],header[id]{scroll-margin-top:96px}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A93C24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h5l1.5 2.5h5L16 13h5"></path><path d="M5.5 5h13L21 13v6H3v-6z"></path></svg>
         <span style="font-size:14px;font-weight:600"><span id="dump-label">0 thoughts</span>, out of your head</span>
       </div>
-      <div class="glass float float-chip" style="--r:3deg;position:absolute;right:0;bottom:120px;z-index:3;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:18px">
-        <span class="dot"></span>
-        <span style="font-size:14px;font-weight:600">Then pick three for today</span>
-      </div>
 
       <div style="position:relative;width:304px;height:622px;border-radius:52px;padding:10px;background:var(--ink);box-shadow:0 60px 90px -40px rgba(70,35,20,.55),0 0 0 1px rgba(255,255,255,.08) inset">
-        <div style="position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--cream);display:flex;flex-direction:column;padding:30px 16px 14px">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="logo" style="font-size:19px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></svg><span>Lit</span></div>
-            <div style="position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--card);box-shadow:0 6px 16px -8px rgba(70,35,20,.35);color:#5E5650">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M3 13h5l1.5 2.5h5L16 13h5"></path></svg>
-              <span class="badge grad" id="dump-badge" aria-hidden="true">0</span>
-            </div>
-          </div>
-          <div class="app-eyebrow" style="margin-top:20px">Out of your head</div>
-          <div class="serif" style="font-size:30px;margin-top:2px;font-weight:450">Inbox</div>
-
-          <form class="capture" id="dump-form" style="margin-top:14px">
-            <label class="sr-only" for="dump-input">Type a thought to capture</label>
-            <input id="dump-input" type="text" autocomplete="off" maxlength="60" placeholder="A thought, a link, a photo…">
-            <button type="submit" class="grad" aria-label="Capture thought"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
-          </form>
-
-          <div id="dump-list" aria-live="polite" style="flex:1;min-height:0;margin-top:12px;display:flex;flex-direction:column;gap:8px;overflow:hidden">
-            <div id="dump-empty" class="serif" style="margin:auto;text-align:center;font-size:18px;font-style:italic;color:#6F665F">Nothing here yet. Your head is still full.</div>
-          </div>
-
-          <div style="margin-top:10px;display:flex;justify-content:space-around;padding:9px 4px 7px;border-radius:22px;background:var(--card);box-shadow:0 10px 26px -16px rgba(70,35,20,.35)" aria-hidden="true">
-            <span class="dock-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Today</span>
-            <span class="dock-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Vision</span>
-            <span class="dock-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"></path><path d="M7 16v-3"></path><path d="M11 16V8"></path><path d="M15 16v-5"></path><path d="M19 16v-2"></path></svg>Finance</span>
-            <span class="dock-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.5"></circle></svg>Goals</span>
+        <div class="ib-screen">
+          <div class="ib-head"><div><div class="ib-title serif">Inbox</div><div class="ib-sub">Capture anything. Decide later.</div></div><span class="ib-close" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span></div>
+          <form class="ib-composer" id="dump-form"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Task</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><label class="sr-only" for="dump-input">Type something to capture</label><input id="dump-input" class="ib-input" type="text" autocomplete="off" maxlength="70" placeholder="Anything on your mind…"><div class="ib-foot"><span class="ib-mic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><button type="submit" class="ib-send grad" aria-label="Capture"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div></form>
+          <div class="ib-search" aria-hidden="true">Search captures</div>
+          <div id="dump-list" class="ib-list" aria-live="polite">
+            <div id="dump-empty" class="serif" style="margin:auto;text-align:center;font-size:17px;font-style:italic;color:#6F665F">Nothing here yet. Your head is still full.</div>
           </div>
         </div>
       </div>
@@ -386,20 +417,17 @@ section[id],header[id]{scroll-margin-top:96px}
         <button type="button" class="space-tab" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1" data-space="4"><span class="num">05</span><span style="display:block;min-width:0"><span class="serif name">Today</span><span class="sub">“My list never ends.”</span></span></button>
       </div>
 
-      <div class="glass" style="flex:1.4 1 480px;min-width:0;border-radius:36px;padding:clamp(20px,3vw,36px);min-height:520px;display:flex;flex-direction:column">
+      <div class="glass" style="flex:1.4 1 480px;min-width:0;border-radius:36px;padding:clamp(20px,3vw,36px);min-height:700px;display:flex;flex-direction:column">
         <!-- Panel 0: Inbox -->
         <div role="tabpanel" id="panel-0" aria-labelledby="tab-0" class="space-panel" style="display:flex;flex-direction:column;flex:1">
           <p class="serif fade" style="margin:0;font-size:clamp(28px,2.6vw,38px);line-height:1.1;letter-spacing:-0.02em">Get it out of your head. It’s safe here.</p>
-          <div class="fade" style="margin-top:30px;flex:1;border-radius:28px;background:var(--cream);border:1px solid rgba(31,26,23,.05);padding:24px">
-            <div class="app-eyebrow">Out of your head</div>
-            <div class="serif app-title">Inbox</div>
-            <div class="capture" aria-hidden="true"><span style="flex:1;font-size:14px;color:#6F665F;padding:10px 0">A thought, a link, a photo…</span><span class="cap-btn grad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></span></div>
-            <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-              <div class="thought"><span class="tx">Birthday gift for Ana</span><span class="tag tag-inbox">Inbox</span></div>
-              <div class="thought"><span class="tx">Living room shelves · screenshot</span><span class="tag tag-vision">Vision</span></div>
-              <div class="thought"><span class="tx">Rent goes out on the 1st</span><span class="tag tag-finance">Finance</span></div>
-              <div class="thought"><span class="tx" style="display:flex;align-items:center;gap:8px"><span class="dot"></span>Voice note · 0:12</span><span class="tag tag-inbox">Sort later</span></div>
-            </div>
+          <div class="ib-sheet fade" id="ib-sheet">
+            <div class="ib-head"><div><div class="ib-title serif">Inbox</div><div class="ib-sub">Capture anything. Decide later.</div></div></div>
+            <div class="ib-composer" aria-hidden="true"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Task</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><div class="ib-input ib-ph">Anything on your mind. #tag to tag, paste a link or image…</div><div class="ib-foot"><span class="ib-mic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><span class="ib-send grad"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></span></div></div>
+            <div class="ib-search" aria-hidden="true">Search captures</div>
+            <div class="ib-tags" aria-hidden="true"><span>link</span><span>list</span><span class="ib-tagchip">#malaga</span><span class="ib-tagchip">#home</span></div>
+            <div class="ib-cards"><div class="ib-card open"><button type="button" class="ib-card-h" aria-expanded="true" aria-controls="ibc-0"><span class="ib-badge">LINK</span><span class="ib-rt">Málaga in May?</span></button><div class="ib-card-b" id="ibc-0"><div class="ib-preview"><img src="/landing-img/vision-spain.jpg" width="640" height="533" loading="lazy" decoding="async" alt="A sunny terrace with tapas overlooking the sea"><div class="pt"><div class="pt-t">48 hours in Málaga: tapas, sea views and long lunches</div><div class="pt-s">The Slow Edit</div></div></div><div class="ib-actions"><span class="ib-act vision">→ Vision</span><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-1"><span class="ib-badge">LIST</span><span class="ib-rt">Groceries<span class="ib-meta"> · 1/5</span></span><svg class="ib-pencil" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg></button><div class="ib-card-b" id="ibc-1"><div class="ib-checks"><button type="button" class="ib-ck on" aria-pressed="true"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Oat milk</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Sourdough</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Basil &amp; cherry tomatoes</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Washing-up liquid</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Something sweet for Friday</span></button></div><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-2"><span class="ib-badge">TASK</span><span class="ib-rt">Book the dentist — it’s been two years</span></button><div class="ib-card-b" id="ibc-2"><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-3"><span class="ib-badge">LIST</span><span class="ib-rt">Packing for Málaga<span class="ib-meta"> · 1/6</span></span><svg class="ib-pencil" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg></button><div class="ib-card-b" id="ibc-3"><div class="ib-checks"><button type="button" class="ib-ck on" aria-pressed="true"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Passport</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Linen shirt</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Sunscreen</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Adaptor</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Book for the plane</span></button><button type="button" class="ib-ck" aria-pressed="false"><span class="ib-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span class="lbl">Earplugs</span></button></div><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-4"><span class="ib-badge">TASK</span><span class="ib-rt">Cancel the free trial before it renews</span></button><div class="ib-card-b" id="ibc-4"><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div><div class="ib-card"><button type="button" class="ib-card-h" aria-expanded="false" aria-controls="ibc-5"><span class="ib-badge">TASK</span><span class="ib-rt">Return the parcel — refund window ends Sunday</span></button><div class="ib-card-b" id="ibc-5"><div class="ib-actions"><span class="ib-act sched">Schedule</span><button type="button" class="ib-trash" aria-label="Delete" title="Delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M10 11v6M14 11v6"></path></svg></button></div></div></div></div>
+            <div class="ib-toast" role="status" hidden><span>Deleted ·</span><button type="button" class="ib-undo">Undo</button></div>
           </div>
         </div>
         <!-- Panel 1: Vision -->
@@ -673,54 +701,102 @@ section[id],header[id]{scroll-margin-top:96px}
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  /* ---------- Hero: live brain dump ---------- */
-  var TAGS = { inbox: 'Inbox', vision: 'Vision', goals: 'Goals', finance: 'Finance' };
-  function classify(text) {
-    var t = String(text).toLowerCase();
-    if (/€|£|\$|rent|pay|bill|budget|money|bank|salary|invoice|spend|subscription/.test(t)) return 'finance';
-    if (/trip|lisbon|holiday|travel|flat|home|wedding|dream|someday|one day|inspo|paris|beach|garden/.test(t)) return 'vision';
-    if (/run|10k|gym|learn|read|course|habit|goal|train|practise|practice|write|save for|marathon|yoga/.test(t)) return 'goals';
-    return 'inbox';
+  /* ---------- Hero: live Inbox ---------- */
+  var PENCIL = '<svg class="ib-pencil" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg>';
+  function parseCapture(text) {
+    var t = String(text || '').trim();
+    if (/^(https?:\/\/|www\.)|\.(com|co|ie|uk|io|app|net|org)(\/|$)/i.test(t)) {
+      return { type: 'LINK', title: t.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '') };
+    }
+    var parts = t.split(/\s*,\s*/).filter(Boolean);
+    if (parts.length > 1) {
+      var head = parts[0].indexOf(':') > -1 ? parts[0].split(':')[0] : 'List';
+      return { type: 'LIST', title: head.charAt(0).toUpperCase() + head.slice(1), meta: '0/' + parts.length };
+    }
+    var m = t.match(/^([^:]{2,30}):\s*(.+)$/);
+    if (m && /,|\band\b/.test(m[2])) return { type: 'LIST', title: m[1], meta: '0/' + m[2].split(/,|\band\b/).filter(function (x) { return x.trim(); }).length };
+    return { type: 'TASK', title: t };
   }
-  var dumpList = $('#dump-list'), dumpEmpty = $('#dump-empty'), dumpBadge = $('#dump-badge'), dumpLabel = $('#dump-label');
+  var dumpList = $('#dump-list'), dumpEmpty = $('#dump-empty'), dumpLabel = $('#dump-label');
   var dumpCount = 0, timers = [];
   function setCount(n) {
     dumpCount = n;
-    dumpBadge.textContent = n;
     dumpLabel.textContent = n === 1 ? '1 thought' : n + ' thoughts';
     dumpEmpty.hidden = n > 0;
   }
-  function addThought(text) {
-    text = String(text || '').trim();
-    if (!text) return;
-    var space = classify(text);
-    var row = document.createElement('div'); row.className = 'thought';
-    var tx = document.createElement('span'); tx.className = 'tx'; tx.textContent = text;
-    var tag = document.createElement('span'); tag.className = 'tag tag-' + space; tag.textContent = TAGS[space];
-    row.appendChild(tx); row.appendChild(tag);
-    dumpList.appendChild(row);
-    var rows = $$('.thought', dumpList);
-    if (rows.length > 5) dumpList.removeChild(rows[0]);
+  function addCapture(c) {
+    if (!c || !c.title) return;
+    var row = document.createElement('div'); row.className = 'ib-row';
+    var badge = document.createElement('span'); badge.className = 'ib-badge'; badge.textContent = c.type;
+    var rt = document.createElement('span'); rt.className = 'ib-rt'; rt.textContent = c.title;
+    if (c.meta) { var m = document.createElement('span'); m.className = 'ib-meta'; m.textContent = ' · ' + c.meta; rt.appendChild(m); }
+    row.appendChild(badge); row.appendChild(rt);
+    if (c.type === 'LIST') row.insertAdjacentHTML('beforeend', PENCIL);
+    dumpList.insertBefore(row, dumpList.firstChild);
+    var rows = $$('.ib-row', dumpList);
+    if (rows.length > 6) dumpList.removeChild(rows[rows.length - 1]);
     setCount(dumpCount + 1);
   }
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  var PRESETS = [
+    { type: 'TASK', title: 'Call the landlord about the boiler' },
+    { type: 'LIST', title: 'Gift ideas for Mum', meta: '1/4' },
+    { type: 'TASK', title: 'Cancel the free trial before it renews' },
+    { type: 'LINK', title: 'Málaga in May — flights from €39' },
+    { type: 'LIST', title: 'Groceries', meta: '0/6' },
+    { type: 'TASK', title: 'Book the dentist — it’s been two years' }
+  ];
   function playDump() {
     clearTimers();
-    $$('.thought', dumpList).forEach(function (r) { dumpList.removeChild(r); });
+    $$('.ib-row', dumpList).forEach(function (r) { dumpList.removeChild(r); });
     setCount(0);
-    var presets = ['Call Mum back', 'Lisbon in May?', 'Rent goes out on the 1st', 'Run a 10k this year', 'Birthday gift for Ana'];
-    if (reduced) { presets.forEach(addThought); return; }
-    presets.forEach(function (p, i) { timers.push(setTimeout(function () { addThought(p); }, 900 + i * 850)); });
+    if (reduced) { PRESETS.forEach(addCapture); return; }
+    PRESETS.forEach(function (p, i) { timers.push(setTimeout(function () { addCapture(p); }, 900 + i * 800)); });
   }
   $('#dump-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var input = $('#dump-input');
     clearTimers();
-    addThought(input.value);
+    addCapture(parseCapture(input.value));
     input.value = '';
   });
   $('#dump-replay').addEventListener('click', playDump);
   playDump();
+
+  /* ---------- Inbox panel: expand, tick, delete + undo ---------- */
+  var sheet = $('#ib-sheet'), toast = $('.ib-toast', sheet), lastDeleted = null, toastTimer = null;
+  function hideToast() { toast.hidden = true; lastDeleted = null; }
+  sheet.addEventListener('click', function (e) {
+    var h = e.target.closest('.ib-card-h');
+    if (h) {
+      var card = h.parentNode, open = !card.classList.contains('open');
+      $$('.ib-card', sheet).forEach(function (c) { c.classList.remove('open'); $('.ib-card-h', c).setAttribute('aria-expanded', 'false'); });
+      if (open) { card.classList.add('open'); h.setAttribute('aria-expanded', 'true'); }
+      return;
+    }
+    var ck = e.target.closest('.ib-ck');
+    if (ck) {
+      var on = !ck.classList.contains('on');
+      ck.classList.toggle('on', on); ck.setAttribute('aria-pressed', on ? 'true' : 'false');
+      var c2 = ck.closest('.ib-card'), all = $$('.ib-ck', c2), done = all.filter(function (x) { return x.classList.contains('on'); }).length;
+      var meta = $('.ib-meta', c2); if (meta) meta.textContent = ' · ' + done + '/' + all.length;
+      return;
+    }
+    var tr = e.target.closest('.ib-trash');
+    if (tr) {
+      lastDeleted = tr.closest('.ib-card');
+      lastDeleted.hidden = true;
+      toast.hidden = false; toast.style.animation = 'none'; void toast.offsetWidth; toast.style.animation = '';
+      clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 4500);
+      $('.ib-undo', toast).focus({ preventScroll: true });
+      return;
+    }
+    if (e.target.closest('.ib-undo')) {
+      clearTimeout(toastTimer);
+      if (lastDeleted) { lastDeleted.hidden = false; $('.ib-card-h', lastDeleted).focus({ preventScroll: true }); }
+      hideToast();
+    }
+  });
 
   /* ---------- Five spaces tabs ---------- */
   var tabs = $$('[data-space]');
