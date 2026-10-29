@@ -75,14 +75,19 @@ export default function LitApp() {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [editor, setEditor] = useState(null); // null | {initial?}
   const [detailId, setDetailId] = useState(null); // task id open in read-only detail
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState(null); // null | { msg, action? }
   const [boardOpen, setBoardOpen] = useState(null);
   const toastTimer = useRef();
+  const deleteUndoRef = useRef(null); // { capture, timer } while a deleted Inbox item's Undo window is open
 
-  const showToast = useCallback((msg) => {
-    setToast(msg);
+  /* opts.action adds an inline Undo-style link to the toast; opts.duration
+     overrides the default auto-dismiss time (used for the longer
+     delete-undo window below). Existing callers that just pass a string
+     are unaffected. */
+  const showToast = useCallback((msg, opts) => {
+    setToast({ msg, action: opts?.action });
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2400);
+    toastTimer.current = setTimeout(() => setToast(null), opts?.duration ?? 2400);
   }, []);
 
   /* ----- load everything once signed in ----- */
@@ -213,6 +218,32 @@ export default function LitApp() {
   const releaseCapture = (id) => {
     setCaptures((cs) => cs.filter((c) => c.id !== id));
     db.dbDeleteCapture(id).catch(console.error);
+  };
+  /* the Inbox trash button's delete — same end effect as releaseCapture
+     (removed locally, deleted in Supabase) but given a 5s grace window
+     with a toast "Undo" instead of deleting the instant it's tapped, so a
+     mis-tap isn't destructive. If a second delete happens while one is
+     still pending, the first one is committed immediately rather than
+     silently dropped — there's only ever one toast on screen at a time. */
+  const deleteCapture = (c) => {
+    if (deleteUndoRef.current) {
+      clearTimeout(deleteUndoRef.current.timer);
+      db.dbDeleteCapture(deleteUndoRef.current.capture.id).catch(console.error);
+    }
+    setCaptures((cs) => cs.filter((x) => x.id !== c.id));
+    const timer = setTimeout(() => {
+      deleteUndoRef.current = null;
+      db.dbDeleteCapture(c.id).catch(console.error);
+    }, 5000);
+    deleteUndoRef.current = { capture: c, timer };
+    showToast("Deleted ·", {
+      duration: 5000,
+      action: () => {
+        clearTimeout(timer);
+        deleteUndoRef.current = null;
+        setCaptures((cs) => [c, ...cs]);
+      },
+    });
   };
   const toggleListItem = (cid, ix) => {
     const capture = captures.find((c) => c.id === cid);
@@ -526,8 +557,8 @@ export default function LitApp() {
       <>
         {inboxOpen && (
           <InboxSheet
-            captures={captures} addCapture={addCapture} releaseCapture={releaseCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
-            captureToTask={captureToTask} captureToVision={captureToVision}
+            captures={captures} addCapture={addCapture} releaseCapture={deleteCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
+            captureToVision={captureToVision}
             onSchedule={(c) => { setInboxOpen(false); setEditor({ initial: { text: c.title || c.text }, fromCaptureId: c.id }); }}
             onClose={() => setInboxOpen(false)} showToast={showToast}
           />
@@ -574,9 +605,15 @@ export default function LitApp() {
 
         {/* toast — top, quiet */}
         {toast && (
-          <div style={{ position: "fixed", top: 18, left: "50%", transform: "translateX(-50%)", background: T.ink, color: T.card, fontSize: 13, fontWeight: 500, padding: "10px 16px", borderRadius: 100, boxShadow: T.shadow, zIndex: 200, animation: "toastIn .3s cubic-bezier(.34,1.3,.5,1)", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8, backdropFilter: "blur(8px)" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={T.mint} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>
-            {toast}
+          <div style={{ position: "fixed", top: 18, left: "50%", transform: "translateX(-50%)", background: T.ink, color: T.card, fontSize: 13, fontWeight: 500, padding: "10px 16px", borderRadius: 100, boxShadow: T.shadow, zIndex: 10000, animation: "toastIn .3s cubic-bezier(.34,1.3,.5,1)", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8, backdropFilter: "blur(8px)" }}>
+            {!toast.action && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={T.mint} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
+            <span>{toast.msg}</span>
+            {toast.action && (
+              <button onClick={() => { clearTimeout(toastTimer.current); toast.action(); setToast(null); }}
+                style={{ fontWeight: 700, color: T.mint, textDecoration: "underline", cursor: "pointer" }}>
+                Undo
+              </button>
+            )}
           </div>
         )}
       </>
