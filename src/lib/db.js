@@ -16,6 +16,7 @@ const taskToRow = (t, userId) => ({
 const captureFromRow = (r) => ({
   id: r.id, type: r.type, title: r.title, text: r.text, url: r.url, imageUrl: r.image_url,
   items: r.items || [], tags: r.tags || [], createdAt: new Date(r.created_at).getTime(),
+  previewTitle: r.preview_title || null, previewImage: r.preview_image || null, previewSite: r.preview_site || null,
 });
 const captureToRow = (c, userId) => ({
   user_id: userId, type: c.type, title: c.title ?? null, text: c.text ?? null, url: c.url ?? null,
@@ -123,6 +124,16 @@ export async function dbInsertCapture(userId, capture) {
 }
 export const dbUpdateCapture = (id, patch) => Promise.resolve(supabase.from("captures").update(patch).eq("id", id));
 export const dbDeleteCapture = (id) => Promise.resolve(supabase.from("captures").delete().eq("id", id));
+
+/* server-side Open Graph fetch for a "link" capture — the browser can't
+   read another site's HTML itself (CORS), so this calls the link-preview
+   Edge Function and hands back { title, image, site }. The caller is
+   responsible for caching the result onto the capture row. */
+export async function fetchLinkPreview(url) {
+  const { data, error } = await supabase.functions.invoke("link-preview", { body: { url } });
+  if (error) throw error;
+  return { title: data?.title ?? null, image: data?.image ?? null, site: data?.site ?? null };
+}
 
 /* ---------- boards & vision items ---------- */
 

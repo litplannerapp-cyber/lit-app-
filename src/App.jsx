@@ -201,32 +201,74 @@ export default function LitApp() {
     showToast("Moved to Inbox");
   };
 
-  /* ----- capture ops ----- */
-  const addCapture = (c) => {
+  /* ----- capture ops -----
+     Every write here is optimistic (local state updates before Supabase
+     confirms), so every one of them rolls the optimistic change back and
+     tells the person calmly if the Supabase call actually fails — a
+     capture that only "saved" locally and silently vanishes on next
+     reload (no error, no trace) is worse than a visible failure. */
+  const addCapture = (c, onSaved) => {
     const temp = { id: uid(), createdAt: Date.now(), ...c };
     setCaptures((cs) => [temp, ...cs]);
     showToast(`Captured to Inbox · ${c.type}`);
     db.dbInsertCapture(user.id, temp).then((real) => {
       setCaptures((cs) => cs.map((x) => (x.id === temp.id ? real : x)));
-    }).catch(console.error);
+      onSaved?.(real);
+    }).catch((e) => {
+      console.error(e);
+      setCaptures((cs) => cs.filter((x) => x.id !== temp.id));
+      showToast("Couldn't save that to the cloud — please try again");
+    });
   };
   const releaseCapture = (id) => {
+    const prev = captures.find((c) => c.id === id);
     setCaptures((cs) => cs.filter((c) => c.id !== id));
-    db.dbDeleteCapture(id).catch(console.error);
+    db.dbDeleteCapture(id).catch((e) => {
+      console.error(e);
+      if (prev) setCaptures((cs) => [prev, ...cs]);
+      showToast("Couldn't delete that — please try again");
+    });
   };
   const toggleListItem = (cid, ix) => {
     const capture = captures.find((c) => c.id === cid);
     if (!capture) return;
+    const prevItems = capture.items;
     const items = (capture.items || []).map((it, i) => {
       const obj = typeof it === "string" ? { text: it, done: false } : it;
       return i === ix ? { ...obj, done: !obj.done } : obj;
     });
     setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items } : c)));
-    db.dbUpdateCapture(cid, { items }).catch(console.error);
+    db.dbUpdateCapture(cid, { items }).catch((e) => {
+      console.error(e);
+      setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items: prevItems } : c)));
+      showToast("Couldn't save that change — please try again");
+    });
   };
   const updateCapture = (id, changes) => {
+    const prev = captures.find((c) => c.id === id);
     setCaptures((cs) => cs.map((c) => (c.id === id ? { ...c, ...changes } : c)));
-    db.dbUpdateCapture(id, changes).catch(console.error);
+    db.dbUpdateCapture(id, changes).catch((e) => {
+      console.error(e);
+      if (prev) setCaptures((cs) => cs.map((c) => (c.id === id ? prev : c)));
+      showToast("Couldn't save that change — please try again");
+    });
+  };
+  /* fetches an Open Graph preview for a "link" capture (server-side —
+     browsers can't read another site's HTML) and caches it onto the row.
+     Best-effort: on failure the capture just keeps showing its plain URL,
+     which is already the correct fallback, so no toast here. */
+  const fetchLinkPreview = (captureId, url) => {
+    db.fetchLinkPreview(url).then((preview) => {
+      setCaptures((cs) => cs.map((c) => (c.id === captureId
+        ? { ...c, previewTitle: preview.title, previewImage: preview.image, previewSite: preview.site }
+        : c)));
+      db.dbUpdateCapture(captureId, {
+        preview_title: preview.title ?? null,
+        preview_image: preview.image ?? null,
+        preview_site: preview.site ?? null,
+        preview_fetched_at: new Date().toISOString(),
+      }).catch(console.error);
+    }).catch(console.error);
   };
   const captureToTask = (c) => {
     const temp = { id: uid(), text: c.title || c.text, dateKey: todayKey, done: false, top3: false };
@@ -527,7 +569,7 @@ export default function LitApp() {
         {inboxOpen && (
           <InboxSheet
             captures={captures} addCapture={addCapture} releaseCapture={releaseCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
-            captureToTask={captureToTask} captureToVision={captureToVision}
+            captureToTask={captureToTask} captureToVision={captureToVision} fetchLinkPreview={fetchLinkPreview}
             onSchedule={(c) => { setInboxOpen(false); setEditor({ initial: { text: c.title || c.text }, fromCaptureId: c.id }); }}
             onClose={() => setInboxOpen(false)} showToast={showToast}
           />

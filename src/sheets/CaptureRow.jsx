@@ -4,6 +4,48 @@ import { Ic } from "../icons/Icons";
 
 const DOUBLE_TAP_MS = 320;
 
+/* a capture's image can be any URL someone pasted in — if it 404s, moved,
+   or was never actually an image, fail gracefully instead of a broken
+   browser icon */
+function CaptureImage({ src }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div style={{ marginTop: 10, borderRadius: 12, background: T.bg, padding: "16px 12px", textAlign: "center" }}>
+        <span style={{ fontSize: 12.5, color: T.ink3 }}>Image couldn't load</span>
+      </div>
+    );
+  }
+  return (
+    <img src={src} alt="" onError={() => setFailed(true)}
+      style={{ width: "100%", borderRadius: 12, marginTop: 10, maxHeight: 180, objectFit: "cover" }} />
+  );
+}
+
+/* link capture: shows the cached Open Graph preview (fetched server-side
+   right after capture — see App.jsx's fetchLinkPreview) when it's ready,
+   and falls back to the plain URL while it's loading or if it never
+   resolves (fetch failed, site blocked it, etc). */
+function LinkCard({ url, title, image, site }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const domain = (url || "").replace(/^https?:\/\//, "").split("/")[0];
+  return (
+    <a href={url} target="_blank" rel="noreferrer"
+      style={{ display: "block", marginTop: 10, borderRadius: 12, overflow: "hidden", background: T.bg, textDecoration: "none" }}>
+      {image && !imgFailed && (
+        <img src={image} alt="" onError={() => setImgFailed(true)}
+          style={{ width: "100%", display: "block", maxHeight: 140, objectFit: "cover" }} />
+      )}
+      <div style={{ padding: "10px 12px" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {title || url}
+        </div>
+        <div style={{ fontSize: 11, color: T.ink3, marginTop: 2 }}>{site || domain}</div>
+      </div>
+    </a>
+  );
+}
+
 export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule, onRelease, onToggleItem, onEdit, onEditList }) {
   const [leaving, setLeaving] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -88,7 +130,8 @@ export function CaptureRow({ c, expanded, onToggle, onTask, onVision, onSchedule
         </div>
       )}
 
-      {c.type === "image" && c.imageUrl && expanded && <img src={c.imageUrl} alt="" style={{ width: "100%", borderRadius: 12, marginTop: 10, maxHeight: 180, objectFit: "cover" }} />}
+      {c.type === "image" && c.imageUrl && expanded && <CaptureImage src={c.imageUrl} />}
+      {c.type === "link" && c.url && expanded && <LinkCard url={c.url} title={c.previewTitle} image={c.previewImage} site={c.previewSite} />}
       {c.type === "list" && expanded && (
         <div style={{ margin: "10px 0 0" }}>
           {(c.items || []).map((raw, ix) => {
