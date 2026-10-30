@@ -1,8 +1,11 @@
 import { T } from "../theme";
 
-/* Checkbox with drawn checkmark */
-export const Check = ({ done, onToggle, color = T.coral }) => (
-  <button onClick={onToggle} aria-label={done ? "Mark as not done" : "Mark as done"} style={{
+/* Checkbox with drawn checkmark. ariaLabel/ariaDescribedBy let a caller
+   override the default label (e.g. a scheduled list's main checkbox, whose
+   label and description change depending on whether its items are done)
+   without every other caller having to know about that. */
+export const Check = ({ done, onToggle, color = T.coral, ariaLabel, ariaDescribedBy }) => (
+  <button onClick={onToggle} aria-label={ariaLabel ?? (done ? "Mark as not done" : "Mark as done")} aria-describedby={ariaDescribedBy} style={{
     width: 26, height: 26, borderRadius: 9, flexShrink: 0, cursor: "pointer",
     border: done ? "none" : `1.6px solid ${T.ink3}`,
     background: done ? T.coralGrad : "transparent",

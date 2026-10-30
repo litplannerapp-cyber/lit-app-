@@ -1,19 +1,25 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Check } from "./Check";
+import { normalizeListItems } from "../utils/task";
 
 /* the brand gradient used for the "this is one of your three" outline —
    a fixed identity colour, intentionally not T.coralGrad, same in both
    themes (see the spec this was built to). */
 const PRIORITY_OUTLINE = "linear-gradient(135deg, #F4B16B, #ED7B65 52%, #E35F87)";
 const CARD_RADIUS = 18;
-
-const normalizeItems = (items) => (items || []).map((it) => (typeof it === "string" ? { text: it, done: false } : it));
+const HINT_MS = 2500;
+const HIGHLIGHT_MS = 900;
 
 export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, openDetail, onPressDrag, dragging, captures, toggleListItem, onEditList }) {
   const [leaving, setLeaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [hintVisible, setHintVisible] = useState(false);
+  const [highlightOpen, setHighlightOpen] = useState(false);
+  const hintTimer = useRef(null);
+  const highlightTimer = useRef(null);
+  useEffect(() => () => { clearTimeout(hintTimer.current); clearTimeout(highlightTimer.current); }, []);
   const remove = () => { setLeaving(true); setTimeout(() => deleteTask(t.id), 260); };
 
   /* a scheduled task can point back at the Inbox capture it came from
@@ -24,9 +30,11 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
   const capture = t.captureId ? captures?.find((c) => c.id === t.captureId) : null;
   const isList = capture?.type === "list";
   const isLink = capture?.type === "link";
-  const listItems = isList ? normalizeItems(capture.items) : [];
+  const listItems = isList ? normalizeListItems(capture.items) : [];
+  const hasItems = listItems.length > 0;
   const doneCount = listItems.filter((i) => i.done).length;
   const headerText = isList ? `${capture.title || "List"} · ${doneCount}/${listItems.length}` : t.text;
+  const hintId = `list-hint-${t.id}`;
 
   const handleContentClick = () => {
     if (isList || isLink) setExpanded((e) => !e);
@@ -35,6 +43,24 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
   const handlePencil = () => {
     if (isList) onEditList(capture.id);
     else setEditor({ initial: t });
+  };
+  /* the list's main checkbox only ever reflects what its items say — it
+     can't complete the list on its own (that's a tick away from being a
+     real "done", so letting a tap fake it would make the ring lie), and it
+     can't reopen one either (unticking an item is the only way back, so a
+     slip of the thumb on an already-finished list can't undo it). A
+     zero-item list has no items to defer to, so it's just a normal task
+     checkbox. */
+  const handleListCheck = () => {
+    if (!hasItems) { toggleDone(t.id); return; }
+    if (t.done) return;
+    setExpanded(true);
+    setHighlightOpen(true);
+    clearTimeout(highlightTimer.current);
+    highlightTimer.current = setTimeout(() => setHighlightOpen(false), HIGHLIGHT_MS);
+    setHintVisible(true);
+    clearTimeout(hintTimer.current);
+    hintTimer.current = setTimeout(() => setHintVisible(false), HINT_MS);
   };
 
   return (
@@ -75,10 +101,13 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
           <circle cx="2.5" cy="13.5" r="1.5" /><circle cx="7.5" cy="13.5" r="1.5" />
         </svg>
       </span>
-      {/* a scheduled list has no single "done" state of its own — each item
-          does — so it drops the task checkbox in favour of per-item ticks,
-          same as the Inbox */}
-      {!isList && <Check done={t.done} onToggle={() => toggleDone(t.id)} />}
+      {isList ? (
+        <Check done={t.done} onToggle={handleListCheck}
+          ariaDescribedBy={hintVisible ? hintId : undefined}
+          ariaLabel={!hasItems ? undefined : t.done ? "List complete. Untick an item to reopen it." : "Tick all items to finish this list"} />
+      ) : (
+        <Check done={t.done} onToggle={() => toggleDone(t.id)} />
+      )}
       <div onClick={handleContentClick} role="button" aria-label={`${(isList || isLink) ? (expanded ? "Collapse" : "Expand") : "Open"} ${headerText}`}
         style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
@@ -102,9 +131,21 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
 
         {expanded && isList && (
           <div style={{ margin: "10px 0 0" }} onClick={(e) => e.stopPropagation()}>
+            {hintVisible && (
+              <div id={hintId} role="status" aria-live="polite" style={{
+                background: T.ink, color: T.card, fontSize: 11.5, fontWeight: 600, lineHeight: 1.3,
+                padding: "7px 11px", borderRadius: 10, marginBottom: 8, display: "inline-block",
+                animation: "fadeIn .18s ease",
+              }}>
+                Tick all items to finish this list
+              </div>
+            )}
             {listItems.map((it, ix) => (
               <button key={ix} onClick={() => toggleListItem(capture.id, ix)}
-                style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, padding: "7px 2px", cursor: "pointer", textAlign: "left" }}>
+                style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, padding: "7px 2px", borderRadius: 9, cursor: "pointer", textAlign: "left",
+                  background: highlightOpen && !it.done ? T.coralSoft : "transparent",
+                  animation: highlightOpen && !it.done ? "listItemHighlight .9s ease" : undefined,
+                  transition: "background .3s ease" }}>
                 <span style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, border: it.done ? "none" : `1.6px solid ${T.ink3}`, background: it.done ? T.coralGrad : "transparent", display: "grid", placeItems: "center", transition: "all .25s" }}>
                   {it.done && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
                 </span>

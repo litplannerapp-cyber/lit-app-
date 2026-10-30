@@ -26,6 +26,10 @@ export function GlobalStyle() {
       @keyframes fadeSlideOut { to { opacity: 0; transform: translateX(24px); } }
       @keyframes toastIn { from { opacity: 0; transform: translate(-50%,-10px);} to { opacity:1; transform: translate(-50%,0);} }
       @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      /* a brief, calm pulse on a scheduled list's still-open items when a
+         tap on its main checkbox can't complete it yet — draws the eye to
+         what's left without feeling like an error shake */
+      @keyframes listItemHighlight { 0% { background: ${T.coralSoft}; } 100% { background: transparent; } }
       @keyframes slideFromRight { from { opacity: 0; transform: translateX(56px); } to { opacity: 1; transform: none; } }
       @keyframes slideFromLeft { from { opacity: 0; transform: translateX(-56px); } to { opacity: 1; transform: none; } }
       @keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.14); } 100% { transform: scale(1); } }
