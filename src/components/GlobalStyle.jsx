@@ -74,6 +74,17 @@ export function GlobalStyle() {
         .hoverable:hover { background: ${T.bg}; }
         .navitem:hover { opacity: 1 !important; }
       }
+      /* a goal card's delete icon: low emphasis until the card is hovered or
+         the button itself is focused (desktop/mouse), full emphasis always
+         on touch — there's no hover to reveal it there */
+      .goal-trash { opacity: .5; transition: opacity .18s ease; }
+      @media (hover: hover) and (pointer: fine) {
+        .goal-card:hover .goal-trash, .goal-card:focus-within .goal-trash { opacity: 1; }
+      }
+      .goal-trash:focus-visible { opacity: 1; }
+      @media (hover: none), (pointer: coarse) {
+        .goal-trash { opacity: 1; }
+      }
       @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     `}</style>
   );

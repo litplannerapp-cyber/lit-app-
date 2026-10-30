@@ -81,6 +81,7 @@ export default function LitApp() {
   const [boardOpen, setBoardOpen] = useState(null);
   const toastTimer = useRef();
   const deleteUndoRef = useRef(null); // { capture, timer } while a deleted Inbox item's Undo window is open
+  const goalDeleteUndoRef = useRef(null); // { goal, timer } while a deleted goal's Undo window is open
   /* moveVisionItem's toast "Undo" button calls moveVisionItem again, but
      only after the user reads the toast — by then several renders may have
      passed. A plain closure over `boards`/`looseItems` from the render that
@@ -524,6 +525,41 @@ export default function LitApp() {
       setGoals((gs) => gs.map((g) => (g.id === temp.id ? real : g)));
     }).catch(console.error);
   };
+  /* same grace-window delete as the Inbox trash (deleteCapture below): the
+     goal (and, via milestones.goal_id's on-delete-cascade, its milestones)
+     leaves local state immediately — card collapses, "At a glance" and any
+     other view computed from `goals` just stop seeing it, nothing else in
+     the app stores a goal id to go stale — but the actual Supabase delete
+     only fires once the 5s toast expires without an Undo. Undo is just
+     splicing the in-memory snapshot back at its original index, never a
+     re-fetch or a re-create. */
+  const deleteGoal = (id) => {
+    const ix = goals.findIndex((g) => g.id === id);
+    if (ix === -1) return;
+    const g = goals[ix];
+    if (goalDeleteUndoRef.current) {
+      clearTimeout(goalDeleteUndoRef.current.timer);
+      db.dbDeleteGoal(goalDeleteUndoRef.current.goal.id).catch(console.error);
+    }
+    setGoals((gs) => gs.filter((x) => x.id !== id));
+    const timer = setTimeout(() => {
+      goalDeleteUndoRef.current = null;
+      db.dbDeleteGoal(id).catch(console.error);
+    }, 5000);
+    goalDeleteUndoRef.current = { goal: g, timer };
+    showToast("Goal deleted ·", {
+      duration: 5000,
+      action: () => {
+        clearTimeout(timer);
+        goalDeleteUndoRef.current = null;
+        setGoals((gs) => {
+          const copy = [...gs];
+          copy.splice(Math.min(ix, copy.length), 0, g);
+          return copy;
+        });
+      },
+    });
+  };
 
   /* ----- finance ops ----- */
   const setIncome = (income) => {
@@ -631,7 +667,7 @@ export default function LitApp() {
           onAddExpense: addExpense, onCarryExpenses: carryExpenses }} />
       )}
       {tab === "goals" && (
-        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onCreateGoal: createGoal, setEditor }} />
+        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onCreateGoal: createGoal, onDeleteGoal: deleteGoal, setEditor }} />
       )}
     </div>
   );
