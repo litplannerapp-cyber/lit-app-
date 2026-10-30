@@ -191,6 +191,9 @@ export async function dbInsertMilestone(userId, goalId, text) {
   return { id: data.id, text: data.text, done: data.done };
 }
 export const dbUpdateMilestone = (id, patch) => Promise.resolve(supabase.from("milestones").update(patch).eq("id", id));
+/* milestones.goal_id is "on delete cascade" (migration 0001), so deleting
+   the goal row removes its milestones too — no separate call needed. */
+export const dbDeleteGoal = (id) => Promise.resolve(supabase.from("goals").delete().eq("id", id));
 
 /* ---------- finance ---------- */
 

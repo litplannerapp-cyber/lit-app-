@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { T } from "../theme";
+import { Ic } from "../icons/Icons";
 import { Card } from "../components/Card";
 import { Eyebrow } from "../components/Eyebrow";
 import { MintBar } from "../components/MintBar";
@@ -9,7 +10,7 @@ import { keyToDate } from "../utils/date";
 import { goalPct } from "../utils/task";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 
-export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMilestone, onCreateGoal, setEditor }) {
+export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMilestone, onCreateGoal, onDeleteGoal, setEditor }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState(""); const [date, setDate] = useState(""); const [msDraft, setMsDraft] = useState("");
@@ -29,13 +30,23 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMi
         const pct = goalPct(g);
         const nextIx = g.milestones.findIndex((m) => !m.done);
         return (
-          <Card key={g.id} style={{ padding: 20, marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
+          <Card key={g.id} className="goal-card" style={{ padding: 20, marginBottom: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 16.5, fontWeight: 700 }}>{g.title}</div>
                 {g.targetDate && <div style={{ fontSize: 12, color: T.ink3, marginTop: 3 }}>by {keyToDate(g.targetDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</div>}
               </div>
-              <div className="fr tnum" style={{ fontSize: 30, fontWeight: 600, color: T.mint }}>{pct}%</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                {/* 44×44 tap target, same icon/size/colour as the Inbox trash — a
+                    negative vertical margin keeps its full hit area without the
+                    row (and so the card) growing taller than the percentage
+                    next to it, which is the row's tallest element either way. */}
+                <button onClick={() => onDeleteGoal(g.id)} aria-label="Delete goal" title="Delete goal" className="goal-trash"
+                  style={{ width: 44, height: 44, margin: "-7px 0", borderRadius: 16, display: "grid", placeItems: "center", background: T.bg, color: T.ink2, cursor: "pointer", flexShrink: 0 }}>
+                  {Ic.trash(T.ink2)}
+                </button>
+                <div className="fr tnum" style={{ fontSize: 30, fontWeight: 600, color: T.mint }}>{pct}%</div>
+              </div>
             </div>
             <div style={{ margin: "14px 0 16px" }}><MintBar pct={pct} /></div>
             {g.milestones.map((m, ix) => (
