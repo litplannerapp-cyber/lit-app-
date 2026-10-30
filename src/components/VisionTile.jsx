@@ -3,7 +3,7 @@ import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { LinkPreview } from "./LinkPreview";
 
-export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, onTap, isCover, draggable, onDragStart, onDragOver, onDrop, boardColor }) {
+export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, onTap, isCover, boardColor, dragHandle, onMenu }) {
   const [confirm, setConfirm] = useState(false);
   const [addingTag, setAddingTag] = useState(false);
   const [tagDraft, setTagDraft] = useState("");
@@ -46,9 +46,20 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
   const removeTag = (e, t) => { e.stopPropagation(); if (onEditTags) onEditTags({ tags: (item.tags || []).filter((x) => x !== t) }); };
 
   return (
-    <div draggable={draggable} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}
-      onClick={() => onTap && onTap()}
+    <div onClick={() => onTap && onTap()}
       style={{ breakInside: "avoid", marginBottom: 12, borderRadius: 18, overflow: "hidden", background: T.card, boxShadow: T.shadowSm, position: "relative" }}>
+      {dragHandle && (
+        <button ref={dragHandle.setActivatorNodeRef} {...dragHandle.listeners} {...dragHandle.attributes}
+          onClick={(e) => e.stopPropagation()}
+          aria-label="Reorder or move this item. Press space to pick up, arrow keys to move, space to drop, escape to cancel."
+          style={{
+            position: "absolute", top: 8, left: 8, zIndex: 1, width: 26, height: 26, borderRadius: 9,
+            background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center",
+            color: T.ink2, cursor: dragHandle.isDragging ? "grabbing" : "grab", touchAction: "none",
+          }}>
+          {Ic.grip("currentColor")}
+        </button>
+      )}
       {item.type === "image" && <img src={item.content} alt="" style={{ width: "100%", display: "block" }} />}
       {item.type === "text" && (
         <p className="fr" onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); canEdit && onEdit(); }}
@@ -81,8 +92,13 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
           </button>
         ))}
       </div>
-      {onDelete && (
+      {(onDelete || onMenu) && (
         <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 5 }}>
+          {onMenu && (
+            <button onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Item options" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
+              {Ic.more(T.ink2)}
+            </button>
+          )}
           {item.type === "image" && onPin && (
             <button onClick={(e) => { e.stopPropagation(); onPin(); }} aria-label="Set as board cover" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
               {Ic.pin(isCover, isCover ? T.coral : T.ink2)}

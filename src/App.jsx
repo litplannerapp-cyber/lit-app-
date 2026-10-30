@@ -81,6 +81,15 @@ export default function LitApp() {
   const [boardOpen, setBoardOpen] = useState(null);
   const toastTimer = useRef();
   const deleteUndoRef = useRef(null); // { capture, timer } while a deleted Inbox item's Undo window is open
+  /* moveVisionItem's toast "Undo" button calls moveVisionItem again, but
+     only after the user reads the toast — by then several renders may have
+     passed. A plain closure over `boards`/`looseItems` from the render that
+     created the toast would see that render's snapshot (item still on its
+     original board, pre-optimistic-update), so the undo's own from === to
+     check would wrongly short-circuit and do nothing. These refs always
+     hold the latest state, independent of which render's closure reads them. */
+  const boardsRef = useRef(boards); boardsRef.current = boards;
+  const looseItemsRef = useRef(looseItems); looseItemsRef.current = looseItems;
 
   /* opts.action adds an inline Undo-style link to the toast; opts.duration
      overrides the default auto-dismiss time (used for the longer
@@ -343,9 +352,14 @@ export default function LitApp() {
   const placeOnBoard = (itemId, boardId) => {
     const item = looseItems.find((i) => i.id === itemId);
     if (!item) return;
+    const prevLoose = looseItems, prevBoards = boards;
     setLooseItems((ls) => ls.filter((i) => i.id !== itemId));
     setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
-    db.dbMoveVisionItem(itemId, boardId).catch(console.error);
+    db.dbMoveVisionItem(itemId, boardId).catch((e) => {
+      console.error(e);
+      setLooseItems(prevLoose); setBoards(prevBoards);
+      showToast("Couldn't save that — please try again");
+    });
   };
   const createBoard = (name, color) => {
     const temp = { id: uid(), name, color, coverUrl: null, items: [], position: Date.now() };
@@ -355,13 +369,17 @@ export default function LitApp() {
     }).catch(console.error);
   };
   const reorderBoards = (from, to) => {
-    setBoards((bs) => {
-      const arr = [...bs];
-      const [moved] = arr.splice(from, 1);
-      arr.splice(to, 0, moved);
-      const base = Date.now();
-      db.dbUpdateBoardPositions(arr.map((b, i) => ({ id: b.id, position: base + i }))).catch(console.error);
-      return arr;
+    const prev = boards;
+    const arr = [...boards];
+    const [moved] = arr.splice(from, 1);
+    arr.splice(to, 0, moved);
+    const base = Date.now();
+    const withPositions = arr.map((b, i) => ({ ...b, position: base + i }));
+    setBoards(withPositions);
+    db.dbUpdateBoardPositions(user.id, withPositions).catch((e) => {
+      console.error(e);
+      setBoards(prev);
+      showToast("Couldn't save the new order — please try again");
     });
   };
   const updateBoard = (id, patch) => {
@@ -390,27 +408,48 @@ export default function LitApp() {
     db.dbUpdateBoard(boardId, { cover_url: nextCover }).catch(console.error);
   };
   const reorderBoardItems = (boardId, from, to) => {
-    setBoards((bs) => bs.map((b) => {
-      if (b.id !== boardId) return b;
-      const items = [...b.items];
-      const [moved] = items.splice(from, 1);
-      items.splice(to, 0, moved);
-      const base = Date.now();
-      db.dbUpdateVisionItemPositions(items.map((it, i) => ({ id: it.id, position: base - i }))).catch(console.error);
-      return { ...b, items };
-    }));
+    const prev = boards;
+    const board = boards.find((b) => b.id === boardId);
+    if (!board) return;
+    const items = [...board.items];
+    const [moved] = items.splice(from, 1);
+    items.splice(to, 0, moved);
+    const base = Date.now();
+    const withPositions = items.map((it, i) => ({ ...it, position: base - i }));
+    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: withPositions } : b)));
+    db.dbUpdateVisionItemPositions(user.id, withPositions, boardId).catch((e) => {
+      console.error(e);
+      setBoards(prev);
+      showToast("Couldn't save the new order — please try again");
+    });
   };
+  /* moves an item between boards, or to/from the loose tray (targetBoardId
+     null = loose). Used by board-view drag/menu "move out" and "move to",
+     and by dragging an item onto the top "move out of this board" zone —
+     never by placeOnBoard, which stays the loose-tray-specific, simpler
+     path (no source board to find). */
   const moveVisionItem = (itemId, targetBoardId) => {
-    let item = null;
-    for (const b of boards) {
+    const boardsNow = boardsRef.current, looseNow = looseItemsRef.current;
+    let item = null, sourceBoardId = null;
+    for (const b of boardsNow) {
       const hit = b.items.find((i) => i.id === itemId);
-      if (hit) { item = hit; break; }
+      if (hit) { item = hit; sourceBoardId = b.id; break; }
     }
-    if (!item) return;
+    if (!item) item = looseNow.find((i) => i.id === itemId) || null;
+    if (!item || sourceBoardId === targetBoardId) return;
+    const prevBoards = boardsNow, prevLoose = looseNow;
     setBoards((bs) => bs.map((b) => ({ ...b, items: b.items.filter((i) => i.id !== itemId) })));
+    setLooseItems((ls) => ls.filter((i) => i.id !== itemId));
     if (targetBoardId) setBoards((bs) => bs.map((b) => (b.id === targetBoardId ? { ...b, items: [item, ...b.items] } : b)));
     else setLooseItems((ls) => [item, ...ls]);
-    db.dbMoveVisionItem(itemId, targetBoardId).catch(console.error);
+    const destLabel = targetBoardId ? (boardsNow.find((b) => b.id === targetBoardId)?.name || "board") : "Not on a board yet";
+    db.dbMoveVisionItem(itemId, targetBoardId).then(() => {
+      showToast(`Moved to ${destLabel} ·`, { duration: 5000, action: () => moveVisionItem(itemId, sourceBoardId) });
+    }).catch((e) => {
+      console.error(e);
+      setBoards(prevBoards); setLooseItems(prevLoose);
+      showToast("Couldn't save that — please try again");
+    });
   };
   const editVisionItem = (id, changes) => {
     setBoards((bs) => bs.map((b) => ({ ...b, items: b.items.map((i) => (i.id === id ? { ...i, ...changes } : i)) })));
