@@ -133,7 +133,26 @@ export default function LitApp() {
   const profile = { name: profileName, email: user?.email || "" };
 
   /* ----- derived ----- */
-  const dayTasks = tasks.filter((t) => t.dateKey === selectedDay);
+  /* a scheduled list's completion is derived straight from its items on
+     every render, never trusted from the stored tasks.done copy alone —
+     the ring and every main checkbox read this, so a list can't get stuck
+     "not done" because the sync write to the DB failed, was never run, or
+     the row predates this logic entirely (tasks.done is still written
+     whenever a list's items change — see applyListItemsChange — purely so
+     any other reader of the DB sees the same thing; the UI itself never
+     depends on that write having succeeded). A zero-item list has no
+     items to derive from, so it keeps whatever `done` is actually stored
+     — it's a plain, directly-toggled task at that point. */
+  const captureById = new Map(captures.map((c) => [c.id, c]));
+  const effectiveTasks = tasks.map((t) => {
+    if (!t.captureId) return t;
+    const capture = captureById.get(t.captureId);
+    if (capture?.type !== "list") return t;
+    const items = capture.items || [];
+    if (items.length === 0) return t;
+    return { ...t, done: isListDone(items) };
+  });
+  const dayTasks = effectiveTasks.filter((t) => t.dateKey === selectedDay);
   const top3 = dayTasks.filter((t) => t.top3).sort(byPeriodAndTime);
   const rest = dayTasks.filter((t) => !t.top3);
   const doneTop3 = top3.filter((t) => t.done).length;
@@ -154,7 +173,7 @@ export default function LitApp() {
   }, [doneTop3, top3.length, selectedDay, todayKey, clearedDays, dataLoaded, user]);
   const streak = clearedDays.length;
 
-  useNotifications(tasks);
+  useNotifications(effectiveTasks);
   useAppBadge(inboxCaptures.length);
 
   /* ----- task ops ----- */
@@ -653,7 +672,7 @@ export default function LitApp() {
     <div key={tabSlide ? tabSlide.k : tab}
       style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
       {tab === "today" && (
-        <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, captures, toggleListItem, onEditList: setEditingListCaptureId }} />
+        <TodayScreen {...{ tasks: effectiveTasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, captures, toggleListItem, onEditList: setEditingListCaptureId }} />
       )}
       {tab === "vision" && (
         <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
@@ -769,7 +788,7 @@ export default function LitApp() {
 
         {/* Task detail — read-only; editing lives behind its own button */}
         {detailId && (() => {
-          const t = tasks.find((x) => x.id === detailId);
+          const t = effectiveTasks.find((x) => x.id === detailId);
           if (!t) { return null; }
           return (
             <TaskDetailSheet task={t}
