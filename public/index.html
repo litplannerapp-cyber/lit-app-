@@ -454,6 +454,13 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
   .lit *,.lit *::before,.lit *::after{animation:none!important;transition:none!important}
   .scene .stab{opacity:1}
   .scene .stab.gone{opacity:0!important}
+  /* the chips' gentle continuous wobble is small, decorative motion, not
+     the disorienting kind (no parallax, no large-scale zoom, no flight
+     across the screen) — keep it even with Reduce Motion on, matching
+     how it behaves without Reduce Motion. The bigger effects (Ken Burns
+     zoom, the photo crossfade, the chip-flies-into-the-inbox animation)
+     stay off either way. */
+  .scene.in .stab{animation:jitter 3.4s ease-in-out infinite!important;animation-delay:calc(var(--i) * -0.37s)!important}
 }
 </style>
 </head>
