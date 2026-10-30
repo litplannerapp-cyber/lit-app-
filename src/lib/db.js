@@ -146,7 +146,18 @@ export async function dbInsertBoard(userId, board) {
 }
 export const dbUpdateBoard = (id, patch) => Promise.resolve(supabase.from("boards").update(patch).eq("id", id));
 export const dbDeleteBoard = (id) => Promise.resolve(supabase.from("boards").delete().eq("id", id));
-export const dbUpdateBoardPositions = (updates) => Promise.all(updates.map(({ id, position }) => supabase.from("boards").update({ position }).eq("id", id)));
+/* one upsert request for every affected board, not N parallel updates — a
+   reorder always touches every board between the old and new slot, so this
+   keeps a drag-and-drop a single round trip. Every NOT NULL column has to
+   ride along even though these rows already exist: Postgres validates the
+   INSERT side of "INSERT ... ON CONFLICT DO UPDATE" before it knows the
+   conflict will be hit, so a partial row (id + position only) would fail
+   that check even when it's really just an update. */
+export async function dbUpdateBoardPositions(userId, boards) {
+  const rows = boards.map((b) => ({ id: b.id, user_id: userId, name: b.name, color: b.color, cover_url: b.coverUrl ?? null, position: b.position }));
+  const { error } = await supabase.from("boards").upsert(rows, { onConflict: "id" });
+  if (error) throw error;
+}
 
 export async function dbInsertVisionItem(userId, item, boardId, position) {
   const { data, error } = await supabase.from("vision_items").insert(visionItemToRow(item, userId, boardId, position)).select().single();
@@ -155,7 +166,12 @@ export async function dbInsertVisionItem(userId, item, boardId, position) {
 }
 export const dbMoveVisionItem = (id, boardId) => Promise.resolve(supabase.from("vision_items").update({ board_id: boardId ?? null }).eq("id", id));
 export const dbUpdateVisionItem = (id, patch) => Promise.resolve(supabase.from("vision_items").update(patch).eq("id", id));
-export const dbUpdateVisionItemPositions = (updates) => Promise.all(updates.map(({ id, position }) => supabase.from("vision_items").update({ position }).eq("id", id)));
+/* same one-request upsert approach as dbUpdateBoardPositions, same reason */
+export async function dbUpdateVisionItemPositions(userId, items, boardId) {
+  const rows = items.map((it) => ({ id: it.id, user_id: userId, board_id: boardId ?? null, type: it.type, content: it.content, tags: it.tags || [], position: it.position }));
+  const { error } = await supabase.from("vision_items").upsert(rows, { onConflict: "id" });
+  if (error) throw error;
+}
 export const dbDeleteVisionItem = (id) => Promise.resolve(supabase.from("vision_items").delete().eq("id", id));
 
 /* ---------- goals & milestones ---------- */
