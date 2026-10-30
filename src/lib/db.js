@@ -126,6 +126,24 @@ export async function dbInsertCapture(userId, capture) {
 }
 export const dbUpdateCapture = (id, patch) => Promise.resolve(supabase.from("captures").update(patch).eq("id", id));
 export const dbDeleteCapture = (id) => Promise.resolve(supabase.from("captures").delete().eq("id", id));
+/* a scheduled list's items (on `captures`) and its derived done-state (on
+   the linked `tasks` row) have to land together — see migration
+   0008_list_done_sync.sql — so both calls below go through the one
+   `set_capture_items_and_sync_done` function instead of two separate
+   table writes that could disagree if one of them failed. */
+/* unlike the plain Promise.resolve(...) wrappers above, these explicitly
+   check for an error and throw — an RPC failure (e.g. the function being
+   missing, or an RLS rejection) has to actually reject the promise so the
+   caller's rollback runs instead of silently keeping the optimistic
+   update as if it had saved. */
+export async function dbSetListItems(captureId, items) {
+  const { error } = await supabase.rpc("set_capture_items_and_sync_done", { p_capture_id: captureId, p_items: items });
+  if (error) throw error;
+}
+export async function dbSaveListEdits(captureId, title, items) {
+  const { error } = await supabase.rpc("set_capture_items_and_sync_done", { p_capture_id: captureId, p_items: items, p_title: title });
+  if (error) throw error;
+}
 
 /* server-side Open Graph fetch for a "link" capture — the browser can't
    read another site's HTML itself (CORS), so this calls the link-preview

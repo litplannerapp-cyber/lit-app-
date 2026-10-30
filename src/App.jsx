@@ -24,7 +24,7 @@ import { NotificationBadge } from "./components/NotificationBadge";
 import { Spinner } from "./components/Spinner";
 import { toDateKey, uid } from "./utils/date";
 import { toMonthKey } from "./utils/finance";
-import { byPeriodAndTime } from "./utils/task";
+import { byPeriodAndTime, isListDone } from "./utils/task";
 import * as db from "./lib/db";
 
 const ONBOARDED_KEY = "lit_onboarded";
@@ -278,27 +278,56 @@ export default function LitApp() {
       },
     });
   };
+  /* a scheduled list's done-state is derived from its items, never set
+     directly — the main checkbox only ever reflects it (see TaskCard). So
+     every write that can change a list's items also recomputes its linked
+     task(s)' `done` here and carries both to the server in the one
+     set_capture_items_and_sync_done call, with one combined rollback if
+     that call fails. A capture with no task scheduled from it (still
+     sitting in the Inbox) has no linked task, so this is a no-op on the
+     tasks side for it — same items edit, same code path either way. */
+  const applyListItemsChange = (cid, items, { title } = {}) => {
+    const prevCapture = captures.find((c) => c.id === cid);
+    if (!prevCapture) return;
+    const linkedTasks = tasks.filter((t) => t.captureId === cid);
+    const prevDoneByTaskId = new Map(linkedTasks.map((t) => [t.id, t.done]));
+    /* a zero-item list has no derived state of its own — it's a normal
+       task, toggled directly — so going to zero items must leave whatever
+       `done` the task already had alone instead of forcing it open. */
+    const shouldSyncDone = items.length > 0 && linkedTasks.length > 0;
+    const nextDone = shouldSyncDone ? isListDone(items) : null;
+
+    setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items, ...(title !== undefined ? { title } : {}) } : c)));
+    if (shouldSyncDone) setTasks((ts) => ts.map((t) => (t.captureId === cid ? { ...t, done: nextDone } : t)));
+
+    const save = title !== undefined ? db.dbSaveListEdits(cid, title, items) : db.dbSetListItems(cid, items);
+    save.catch((e) => {
+      console.error(e);
+      setCaptures((cs) => cs.map((c) => (c.id === cid ? prevCapture : c)));
+      if (shouldSyncDone) setTasks((ts) => ts.map((t) => (prevDoneByTaskId.has(t.id) ? { ...t, done: prevDoneByTaskId.get(t.id) } : t)));
+      showToast("Couldn't save that change — please try again");
+    });
+  };
   const toggleListItem = (cid, ix) => {
     const capture = captures.find((c) => c.id === cid);
     if (!capture) return;
-    const prevItems = capture.items;
     const items = (capture.items || []).map((it, i) => {
       const obj = typeof it === "string" ? { text: it, done: false } : it;
       return i === ix ? { ...obj, done: !obj.done } : obj;
     });
-    setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items } : c)));
-    db.dbUpdateCapture(cid, { items }).catch((e) => {
-      console.error(e);
-      setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items: prevItems } : c)));
-      showToast("Couldn't save that change — please try again");
-    });
+    applyListItemsChange(cid, items);
   };
   const updateCapture = (id, changes) => {
     const prev = captures.find((c) => c.id === id);
+    if (!prev) return;
+    if (changes.items !== undefined) {
+      applyListItemsChange(id, changes.items, changes.title !== undefined ? { title: changes.title } : {});
+      return;
+    }
     setCaptures((cs) => cs.map((c) => (c.id === id ? { ...c, ...changes } : c)));
     db.dbUpdateCapture(id, changes).catch((e) => {
       console.error(e);
-      if (prev) setCaptures((cs) => cs.map((c) => (c.id === id ? prev : c)));
+      setCaptures((cs) => cs.map((c) => (c.id === id ? prev : c)));
       showToast("Couldn't save that change — please try again");
     });
   };

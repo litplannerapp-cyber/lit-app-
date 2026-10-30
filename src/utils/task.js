@@ -26,3 +26,17 @@ export const byPeriodAndTime = (a, b) => {
 };
 
 export const goalPct = (g) => (g.milestones.length ? Math.round((g.milestones.filter((m) => m.done).length / g.milestones.length) * 100) : 0);
+
+/* a scheduled list's items are stored as either plain strings (legacy) or
+   { text, done } objects — every reader normalizes through here so the two
+   shapes never have to be handled twice. */
+export const normalizeListItems = (items) => (items || []).map((it) => (typeof it === "string" ? { text: it, done: false } : it));
+
+/* a list with items is "done" only when every one of them is ticked; a list
+   with zero items has no derived state of its own (it behaves like a plain
+   task, toggled directly) — callers that need to distinguish the two check
+   items.length separately. */
+export const isListDone = (items) => {
+  const normalized = normalizeListItems(items);
+  return normalized.length > 0 && normalized.every((it) => it.done);
+};
