@@ -9,14 +9,39 @@ import { Check } from "./Check";
 const PRIORITY_OUTLINE = "linear-gradient(135deg, #F4B16B, #ED7B65 52%, #E35F87)";
 const CARD_RADIUS = 18;
 
-export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, openDetail, onPressDrag, dragging }) {
+const normalizeItems = (items) => (items || []).map((it) => (typeof it === "string" ? { text: it, done: false } : it));
+
+export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, openDetail, onPressDrag, dragging, captures, toggleListItem, onEditList }) {
   const [leaving, setLeaving] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const remove = () => { setLeaving(true); setTimeout(() => deleteTask(t.id), 260); };
+
+  /* a scheduled task can point back at the Inbox capture it came from
+     (t.captureId) — when it does, that capture is the one source of truth
+     for list items / link preview, never copied onto the task, so a
+     scheduled list or link still behaves exactly like it does in the
+     Inbox and can't drift out of sync with it. */
+  const capture = t.captureId ? captures?.find((c) => c.id === t.captureId) : null;
+  const isList = capture?.type === "list";
+  const isLink = capture?.type === "link";
+  const listItems = isList ? normalizeItems(capture.items) : [];
+  const doneCount = listItems.filter((i) => i.done).length;
+  const headerText = isList ? `${capture.title || "List"} · ${doneCount}/${listItems.length}` : t.text;
+
+  const handleContentClick = () => {
+    if (isList || isLink) setExpanded((e) => !e);
+    else openDetail(t.id);
+  };
+  const handlePencil = () => {
+    if (isList) onEditList(capture.id);
+    else setEditor({ initial: t });
+  };
+
   return (
     <div
       style={{
         position: "relative", zIndex: 0,
-        display: "flex", alignItems: "center", gap: 10, marginBottom: 10,
+        display: "flex", alignItems: expanded ? "flex-start" : "center", gap: 10, marginBottom: 10,
         userSelect: "none", WebkitUserSelect: "none",
         opacity: dragging ? 0.35 : 1, pointerEvents: dragging ? "none" : "auto",
         padding: "13px 14px",
@@ -50,13 +75,16 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
           <circle cx="2.5" cy="13.5" r="1.5" /><circle cx="7.5" cy="13.5" r="1.5" />
         </svg>
       </span>
-      <Check done={t.done} onToggle={() => toggleDone(t.id)} />
-      <div onClick={() => openDetail(t.id)} role="button" aria-label={`Open ${t.text}`}
+      {/* a scheduled list has no single "done" state of its own — each item
+          does — so it drops the task checkbox in favour of per-item ticks,
+          same as the Inbox */}
+      {!isList && <Check done={t.done} onToggle={() => toggleDone(t.id)} />}
+      <div onClick={handleContentClick} role="button" aria-label={`${(isList || isLink) ? (expanded ? "Collapse" : "Expand") : "Open"} ${headerText}`}
         style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
           {t.priority && !t.done && <span style={{ width: 6, height: 6, borderRadius: 3, background: T.coral, flexShrink: 0, marginTop: 7 }} aria-label="Priority" />}
           <span style={{ fontSize: big ? 16.5 : 15.5, fontWeight: big ? 600 : 500, color: t.done ? T.ink3 : T.ink, textDecoration: t.done ? "line-through" : "none", textDecorationColor: T.ink3, lineHeight: 1.45, overflowWrap: "break-word", minWidth: 0 }}>
-            {t.text}
+            {headerText}
           </span>
         </div>
         {(t.time || t.period) && (
@@ -71,11 +99,41 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
             )}
           </div>
         )}
+
+        {expanded && isList && (
+          <div style={{ margin: "10px 0 0" }} onClick={(e) => e.stopPropagation()}>
+            {listItems.map((it, ix) => (
+              <button key={ix} onClick={() => toggleListItem(capture.id, ix)}
+                style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, padding: "7px 2px", cursor: "pointer", textAlign: "left" }}>
+                <span style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, border: it.done ? "none" : `1.6px solid ${T.ink3}`, background: it.done ? T.coralGrad : "transparent", display: "grid", placeItems: "center", transition: "all .25s" }}>
+                  {it.done && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
+                </span>
+                <span style={{ fontSize: 13.5, fontWeight: 500, color: it.done ? T.ink3 : T.ink, textDecoration: it.done ? "line-through" : "none", textDecorationColor: T.ink3 }}>{it.text}</span>
+              </button>
+            ))}
+            {listItems.length === 0 && <p style={{ fontSize: 12.5, color: T.ink3, margin: "4px 2px" }}>No items yet.</p>}
+          </div>
+        )}
+
+        {expanded && isLink && (
+          <a href={capture.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+            style={{ display: "block", marginTop: 10, borderRadius: 12, overflow: "hidden", background: T.bg, textDecoration: "none" }}>
+            {capture.previewImage && (
+              <img src={capture.previewImage} alt="" style={{ width: "100%", display: "block", maxHeight: 140, objectFit: "cover" }} />
+            )}
+            <div style={{ padding: "10px 12px" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {capture.previewTitle || capture.url}
+              </div>
+              <div style={{ fontSize: 11, color: T.ink3, marginTop: 2 }}>{capture.previewSite || (capture.url || "").replace(/^https?:\/\//, "").split("/")[0]}</div>
+            </div>
+          </a>
+        )}
       </div>
       <div style={{ display: "flex", gap: 4 }}>
         {[
           { key: "star", el: Ic.star(t.top3, t.top3 ? T.coral : T.ink3), fn: () => setTop3(t.id, !t.top3), label: t.top3 ? "Remove from top 3" : "Add to top 3" },
-          { key: "edit", el: Ic.pencil(T.ink3), fn: () => setEditor({ initial: t }), label: "Edit task" },
+          { key: "edit", el: Ic.pencil(T.ink3), fn: handlePencil, label: isList ? "Edit list" : "Edit task" },
           { key: "del", el: Ic.x(T.ink3), fn: remove, label: "Delete task" },
         ].map((a) => (
           <button key={a.key} onClick={a.fn} aria-label={a.label} style={{ width: 30, height: 30, borderRadius: 10, display: "grid", placeItems: "center", cursor: "pointer" }}>

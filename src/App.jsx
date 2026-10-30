@@ -15,6 +15,7 @@ import { InboxSheet } from "./sheets/InboxSheet";
 import { TaskEditor } from "./sheets/TaskEditor";
 import { SettingsSheet } from "./sheets/SettingsSheet";
 import { TaskDetailSheet } from "./sheets/TaskDetailSheet";
+import { ListEditorSheet } from "./sheets/ListEditorSheet";
 import { CoachMarks } from "./onboarding/CoachMarks";
 import { useAuth } from "./hooks/useAuth";
 import { useNotifications } from "./hooks/useNotifications";
@@ -75,6 +76,7 @@ export default function LitApp() {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [editor, setEditor] = useState(null); // null | {initial?}
   const [detailId, setDetailId] = useState(null); // task id open in read-only detail
+  const [editingListCaptureId, setEditingListCaptureId] = useState(null); // capture id open in the list editor, reached from a scheduled task's pencil
   const [toast, setToast] = useState(null); // null | { msg, action? }
   const [boardOpen, setBoardOpen] = useState(null);
   const toastTimer = useRef();
@@ -126,6 +128,13 @@ export default function LitApp() {
   const rest = dayTasks.filter((t) => !t.top3);
   const doneTop3 = top3.filter((t) => t.done).length;
 
+  /* a capture stops showing up in the Inbox the moment some task links back
+     to it (t.captureId) — scheduled, not deleted. This is computed from the
+     link itself, never stored as a second "scheduled" flag on the capture,
+     so it can't drift out of sync with what's actually scheduled. */
+  const scheduledCaptureIds = new Set(tasks.filter((t) => t.captureId).map((t) => t.captureId));
+  const inboxCaptures = captures.filter((c) => !scheduledCaptureIds.has(c.id));
+
   /* streak: quiet, never resets — only pauses */
   useEffect(() => {
     if (dataLoaded && selectedDay === todayKey && top3.length === 3 && doneTop3 === 3 && !clearedDays.includes(todayKey)) {
@@ -136,7 +145,7 @@ export default function LitApp() {
   const streak = clearedDays.length;
 
   useNotifications(tasks);
-  useAppBadge(captures.length);
+  useAppBadge(inboxCaptures.length);
 
   /* ----- task ops ----- */
   const saveTask = (data, existingId) => {
@@ -540,7 +549,7 @@ export default function LitApp() {
     <div key={tabSlide ? tabSlide.k : tab}
       style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
       {tab === "today" && (
-        <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile }} />
+        <TodayScreen {...{ tasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, captures, toggleListItem, onEditList: setEditingListCaptureId }} />
       )}
       {tab === "vision" && (
         <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
@@ -575,7 +584,7 @@ export default function LitApp() {
           <button data-coach="inbox" data-drop="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
             style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
             {Ic.tray(T.ink2)}
-            <NotificationBadge count={captures.length} size={19} />
+            <NotificationBadge count={inboxCaptures.length} size={19} />
           </button>
 
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
@@ -590,7 +599,7 @@ export default function LitApp() {
           <TopBar dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
           {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
           {mainContent}
-          <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} unreadCount={captures.length} />
+          <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} unreadCount={inboxCaptures.length} />
         </div>
       )}
 
@@ -599,9 +608,17 @@ export default function LitApp() {
       <>
         {inboxOpen && (
           <InboxSheet
-            captures={captures} addCapture={addCapture} releaseCapture={deleteCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
+            captures={inboxCaptures} addCapture={addCapture} releaseCapture={deleteCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
             captureToVision={captureToVision} fetchLinkPreview={fetchLinkPreview}
-            onSchedule={(c) => { setInboxOpen(false); setEditor({ initial: { text: c.title || c.text }, fromCaptureId: c.id }); }}
+            onSchedule={(c) => {
+              setInboxOpen(false);
+              /* same fallback chain as the capture's own display label
+                 (CaptureRow) — a link capture usually has no title/text at
+                 all, only a url, and the pre-filled title must never come
+                 up empty: TaskEditor silently refuses to save an empty
+                 title, so Schedule would otherwise do nothing for it. */
+              setEditor({ initial: { text: c.title || c.text || c.url || "Image" }, fromCaptureId: c.id });
+            }}
             onClose={() => setInboxOpen(false)} showToast={showToast}
           />
         )}
@@ -611,15 +628,28 @@ export default function LitApp() {
           <TaskEditor
             initial={editor.initial} todayKey={todayKey}
             onSave={(data) => {
-              saveTask(data, editor.initial?.id);
-              if (editor.fromCaptureId) releaseCapture(editor.fromCaptureId);
+              /* Schedule: keep the capture as the task's single source of
+                 truth for list items / link preview — link to it instead of
+                 copying its title and deleting it. editor.initial?.captureId
+                 covers re-editing an already-scheduled task (clearing the
+                 date etc.), where the link must be preserved too. */
+              const captureId = editor.fromCaptureId ?? editor.initial?.captureId ?? null;
+              saveTask(captureId ? { ...data, captureId } : data, editor.initial?.id);
             }}
             onToInbox={(text) => {
-              addCapture({ type: "note", text, tags: [] });
-              /* editing an EXISTING task and clearing its date: the task
-                 becomes a capture, so the original scheduled task must go —
-                 otherwise it would exist twice (as a task and as a capture) */
-              if (editor.initial?.id) deleteTask(editor.initial.id);
+              if (editor.initial?.captureId) {
+                /* already backed by a capture — deleting the task severs the
+                   link, and the original capture (with its items/url intact)
+                   reappears in the Inbox on its own. Creating a second,
+                   title-only capture here would just duplicate it. */
+                deleteTask(editor.initial.id);
+              } else {
+                addCapture({ type: "note", text, tags: [] });
+                /* editing an EXISTING task and clearing its date: the task
+                   becomes a capture, so the original scheduled task must go —
+                   otherwise it would exist twice (as a task and as a capture) */
+                if (editor.initial?.id) deleteTask(editor.initial.id);
+              }
               setEditor(null);
               showToast("Moved to Inbox");
             }}
@@ -642,6 +672,19 @@ export default function LitApp() {
               onEdit={() => { setDetailId(null); setEditor({ initial: t }); }}
               onToggleDone={() => toggleDone(t.id)}
               onClose={() => setDetailId(null)} />
+          );
+        })()}
+
+        {/* Editing a scheduled list's items — same sheet and same updateCapture
+            the Inbox itself uses, operating on the one capture row that both
+            views share. */}
+        {editingListCaptureId && (() => {
+          const capture = captures.find((c) => c.id === editingListCaptureId);
+          if (!capture) { setEditingListCaptureId(null); return null; }
+          return (
+            <ListEditorSheet capture={capture}
+              onSave={(changes) => { updateCapture(editingListCaptureId, changes); setEditingListCaptureId(null); }}
+              onClose={() => setEditingListCaptureId(null)} />
           );
         })()}
 
