@@ -1076,10 +1076,11 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       scene.classList.add('in');
       scene.setAttribute('data-state', 'capturing');
       var visible = tabs.filter(function (t) { return t.offsetParent !== null; });
-      if (reduced) {
-        visible.forEach(function (t) { t.classList.add('gone'); addRow(t.dataset.type, t.dataset.title); });
-        return finish();
-      }
+      /* the chips flying into the Inbox is what gives this moment its life,
+         so it plays even with Reduce Motion on — it's a Web Animations API
+         call (t.animate(...) below), not a CSS animation/transition, so the
+         page's blanket Reduce Motion rule (which only targets CSS
+         animation/transition) never touches it either way. */
       var target = list.getBoundingClientRect();
       visible.forEach(function (t, i) {
         setTimeout(function () {
