@@ -275,6 +275,63 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 .sp-see{margin-top:14px;border:0;background:transparent;padding:0;cursor:pointer;font-size:14px;align-self:flex-start}
 @media (max-width:380px){.ph-frame{width:300px;height:640px}}
 
+/* ===== Section 2: the evening scene ===== */
+.scene{position:relative;margin:56px auto 0;max-width:1200px;aspect-ratio:3/2;border-radius:36px;overflow:hidden;background:#1A1412;box-shadow:0 50px 100px -50px rgba(70,35,20,.6);isolation:isolate}
+.scene-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:45% 50%;transform-origin:42% 42%;animation:kenburns 22s ease-in-out infinite alternate}
+@keyframes kenburns{from{transform:scale(1.06)}to{transform:scale(1)}}
+.scene-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,16,10,.62) 0%,rgba(26,16,10,.2) 32%,rgba(26,16,10,0) 55%,rgba(26,16,10,.42) 100%);transition:opacity 1.6s ease}
+.scene-warm{position:absolute;inset:0;background:radial-gradient(60% 55% at 42% 45%,rgba(255,196,150,.28),transparent 70%);opacity:0;transition:opacity 1.8s ease;mix-blend-mode:screen}
+.scene-candle{position:absolute;left:85.8%;top:77.6%;width:16%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,190,110,.55),rgba(255,160,90,0) 62%);mix-blend-mode:screen;animation:flicker 3.2s infinite steps(1,end)}
+@keyframes flicker{0%{opacity:.75}12%{opacity:.6}22%{opacity:.82}37%{opacity:.68}51%{opacity:.88}63%{opacity:.7}78%{opacity:.8}90%{opacity:.64}100%{opacity:.75}}
+.scene-time{position:absolute;left:3%;bottom:4.5%;display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(20,14,10,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:rgba(255,248,243,.9);font-size:13px;font-weight:500;letter-spacing:.02em;transition:opacity .6s}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:#ED7B65;animation:pulse 2.4s ease-out infinite}
+.scene-tabs{position:absolute;inset:0;pointer-events:none}
+.stab{position:absolute;padding:.62em 1em;border-radius:12px 12px 5px 5px;background:rgba(253,251,248,.9);color:#2A2420;font-size:clamp(10px,1.08vw,15px);font-weight:500;white-space:nowrap;box-shadow:0 10px 24px -12px rgba(0,0,0,.55);transform:rotate(var(--r));opacity:0}
+.stab:last-child{color:#B4452E}
+.scene.in .stab{animation:tabpop .6s cubic-bezier(.2,.9,.25,1.2) both,jitter 3.4s ease-in-out infinite;animation-delay:calc(var(--i) * 110ms + 200ms),calc(var(--i) * -0.37s)}
+@keyframes tabpop{from{opacity:0;transform:translateY(-14px) rotate(var(--r)) scale(.9)}to{opacity:1;transform:rotate(var(--r))}}
+.stab.gone{opacity:0!important;animation:none!important}
+.scene-caption{position:absolute;left:0;right:0;top:9%;margin:0;text-align:center;color:#FFF8F3;font-size:clamp(24px,3.4vw,48px);line-height:1.1;text-shadow:0 4px 30px rgba(0,0,0,.45);opacity:0;transform:translateY(12px);transition:opacity 1s ease .2s,transform 1s cubic-bezier(.2,.8,.2,1) .2s;pointer-events:none}
+.scene-caption em{color:#FFC2AE;font-weight:340}
+.scene-inbox{position:absolute;right:3%;bottom:4.5%;width:min(310px,34%);padding:14px;border-radius:22px;background:rgba(251,248,244,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 30px 60px -24px rgba(0,0,0,.55);opacity:0;transform:translateY(24px) scale(.96);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.si-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.si-count{font-size:12px;font-weight:600;color:#6F665F}
+.si-list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;min-height:40px}
+.si-list li{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;background:#FDFBF8;box-shadow:0 6px 16px -12px rgba(70,35,20,.45);font-size:13px;font-weight:500;color:#2A2420;animation:drop .6s cubic-bezier(.2,.9,.25,1.1) both}
+.si-list li .ib-badge{font-size:9.5px;padding:2px 7px}
+.si-list li span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-foot{max-height:0;overflow:hidden;opacity:0;margin-top:0;font-size:13px;font-weight:600;color:#B4452E;transition:max-height .6s ease,opacity .6s ease,margin-top .6s ease}
+.scene-btn{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:12px;min-height:56px;padding:0 26px 0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(26,20,18,.62);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#FFF8F3;font:600 16px 'Instrument Sans',system-ui,sans-serif;cursor:pointer;box-shadow:0 20px 40px -18px rgba(0,0,0,.6);transition:transform .45s cubic-bezier(.2,.8,.2,1),background .3s,opacity .4s}
+.scene-btn:hover{transform:translateX(-50%) translateY(-2px);background:rgba(26,20,18,.78)}
+.scene-btn-ring{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(255,248,243,.1)}
+.scene-btn-ring svg{width:22px;height:22px;animation:spinslow 9s linear infinite}
+@keyframes spinslow{to{transform:rotate(360deg)}}
+.scene-btn::after{content:"";position:absolute;inset:-6px;border-radius:999px;border:1.5px solid rgba(237,123,101,.55);animation:btnpulse 2.6s ease-out infinite;pointer-events:none}
+@keyframes btnpulse{0%{opacity:.9;transform:scale(.96)}100%{opacity:0;transform:scale(1.12)}}
+.scene-replay{position:absolute;left:3%;bottom:4.5%;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:0;background:rgba(253,251,248,.9);color:#2A2420;font:600 14px 'Instrument Sans',system-ui,sans-serif;cursor:pointer;box-shadow:0 12px 26px -14px rgba(0,0,0,.5)}
+.scene-replay:hover{background:#fff}
+.scene[data-state="capturing"] .scene-btn,.scene[data-state="calm"] .scene-btn{opacity:0;pointer-events:none}
+.scene[data-state="capturing"] .scene-inbox,.scene[data-state="calm"] .scene-inbox{opacity:1;transform:none}
+.scene[data-state="capturing"] .scene-time,.scene[data-state="calm"] .scene-time{opacity:0}
+.scene[data-state="calm"] .scene-shade{opacity:.45}
+.scene[data-state="calm"] .scene-warm{opacity:1}
+.scene[data-state="calm"] .scene-caption{opacity:1;transform:none}
+.scene[data-state="calm"] .si-foot{max-height:30px;opacity:1;margin-top:10px}
+@media (max-width:760px){
+  .scene{aspect-ratio:4/5;border-radius:28px;margin-top:40px}
+  .scene-img{object-position:40% 50%}
+  .scene-tabs{display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:6px;padding:14px 12px 0}
+  .stab{position:static;font-size:11.5px;padding:.55em .85em}
+  .stab.m-hide{display:none}
+  .scene-caption{top:18px;left:18px;right:118px;text-align:left;font-size:23px;line-height:1.15}
+  .scene-inbox{left:12px;right:12px;bottom:12px;width:auto}
+  .si-list li:nth-child(n+4){display:none}
+  .scene-candle{left:96%;width:30%}
+  .scene-time{display:none}
+  .scene-btn{bottom:22px;white-space:nowrap}
+  .scene-replay{left:auto;right:12px;bottom:auto;top:14px}
+}
+
 /* Motion */
 @keyframes rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -533,29 +590,48 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
   </div>
 </header>
 
-<!-- RECOGNITION -->
-<section aria-labelledby="rec-h" style="position:relative;padding:120px 0 130px">
-  <div class="wrap" style="text-align:center">
-    <div class="reveal" aria-hidden="true" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:920px;margin:0 auto 64px">
-      <span class="tab-chip glass" style="--r:-3deg">Reminders — 23 overdue</span>
-      <span class="tab-chip glass" style="--r:2deg">Notion: Life plan (2025)</span>
-      <span class="tab-chip glass" style="--r:-1deg">Lisbon ideas</span>
-      <span class="tab-chip glass" style="--r:4deg">IMG_4012.PNG</span>
-      <span class="tab-chip glass" style="--r:-4deg">budget_v4_FINAL.xlsx</span>
-      <span class="tab-chip glass" style="--r:1deg">Trip chat · 87 new</span>
-      <span class="tab-chip glass" style="--r:-2deg">Flat inspo</span>
-      <span class="tab-chip glass" style="--r:3deg">Gym plan (week 1)</span>
-      <span class="tab-chip glass" style="--r:-3deg">Things to buy</span>
-      <span class="tab-chip glass" style="--r:2deg;color:#A93C24">+ 14 more tabs</span>
+<!-- RECOGNITION: one evening, too many tabs (interactive scene) -->
+<section id="evening" aria-labelledby="rec-h" style="position:relative;padding:120px 0 120px">
+  <div class="wrap">
+    <div style="text-align:center;max-width:860px;margin:0 auto">
+      <div class="eyebrow reveal">Sound familiar?</div>
+      <h2 id="rec-h" class="serif reveal" style="margin:20px auto 0;font-size:clamp(38px,4.8vw,68px);line-height:1.04">Your brain has too many tabs open.</h2>
+      <p class="lead reveal" style="margin:24px auto 0;max-width:640px">Busy all day. Still behind at night. Not because you did too little — because it all lives in your head.</p>
     </div>
-    <h2 id="rec-h" class="serif reveal" style="margin:0 auto;max-width:900px;font-size:clamp(38px,4.8vw,68px);line-height:1.04">Your brain has too many tabs open.</h2>
-    <p class="lead reveal" style="margin:28px auto 0;max-width:680px">Busy all day. Still behind at night. Not because you did too little — because it all lives in your head.</p>
-    <div class="reveal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:1040px;margin:64px auto 0;text-align:left">
-      <figure class="glass" style="margin:0;padding:28px;border-radius:28px"><blockquote class="serif" style="margin:0;font-size:24px;line-height:1.25;font-style:italic;font-weight:340">“The mental load is insane.”</blockquote></figure>
-      <figure class="glass" style="margin:0;padding:28px;border-radius:28px"><blockquote class="serif" style="margin:0;font-size:24px;line-height:1.25;font-style:italic;font-weight:340">“I spend more time organising than actually doing.”</blockquote></figure>
-      <figure class="glass" style="margin:0;padding:28px;border-radius:28px"><blockquote class="serif" style="margin:0;font-size:24px;line-height:1.25;font-style:italic;font-weight:340">“I'm not lazy. I'm just tired.”</blockquote></figure>
+
+    <div class="scene reveal" id="scene" data-state="busy">
+      <img class="scene-img" src="/landing-img/evening-1600.jpg" srcset="/landing-img/evening-960.jpg 960w, /landing-img/evening-1600.jpg 1536w" sizes="(max-width: 1240px) 100vw, 1200px" width="1536" height="1024" loading="lazy" decoding="async" alt="Lily on her sofa late in the evening, chin in hand, worried, with the city lights outside the window">
+      <div class="scene-shade" aria-hidden="true"></div>
+      <div class="scene-warm" aria-hidden="true"></div>
+      <div class="scene-candle" aria-hidden="true"></div>
+      <div class="scene-time" aria-hidden="true"><span class="rec-dot"></span>Tuesday, 9:47pm</div>
+
+      <div class="scene-tabs" id="scene-tabs" aria-hidden="true">
+        <span class="stab" style="left:11.4%;top:6.6%;--r:-3deg;--i:0" data-type="TASK" data-title="Renew the parking permit">Reminders — 23 overdue</span>
+        <span class="stab m-hide" style="left:29.3%;top:7.2%;--r:2deg;--i:1" data-type="LIST" data-title="Life plan · 0/4">Notion: Life plan (2025)</span>
+        <span class="stab m-hide" style="left:48.0%;top:6.4%;--r:-1deg;--i:2" data-type="LINK" data-title="Lisbon in May — flights from €39">Lisbon ideas</span>
+        <span class="stab m-hide" style="left:60.0%;top:7.6%;--r:4deg;--i:3" data-type="IMAGE" data-title="Sofa inspo">IMG_4012.PNG</span>
+        <span class="stab" style="left:75.0%;top:7.0%;--r:-4deg;--i:4" data-type="TASK" data-title="Check what’s left this month">budget_v4_FINAL.xlsx</span>
+        <span class="stab" style="left:17.7%;top:15.4%;--r:1deg;--i:5" data-type="TASK" data-title="Book flights before Friday">Trip chat · 87 new</span>
+        <span class="stab m-hide" style="left:33.0%;top:15.0%;--r:-2deg;--i:6" data-type="IMAGE" data-title="Flat inspo">Flat inspo</span>
+        <span class="stab m-hide" style="left:44.0%;top:14.8%;--r:3deg;--i:7" data-type="LIST" data-title="Gym plan · 0/3">Gym plan (week 1)</span>
+        <span class="stab" style="left:59.0%;top:15.4%;--r:-3deg;--i:8" data-type="LIST" data-title="Things to buy · 0/5">Things to buy</span>
+        <span class="stab" style="left:74.5%;top:16.6%;--r:2deg;--i:9" data-type="TASK" data-title="…and 14 more, all safe">+ 14 more tabs</span>
+      </div>
+
+      <p class="scene-caption serif" aria-live="polite"><span>Out of her head.</span> <em>Into one calm place.</em></p>
+
+      <div class="scene-inbox" id="scene-inbox" aria-hidden="true">
+        <div class="si-head"><span class="logo" style="font-size:15px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"></path></svg><span>Inbox</span></span><span class="si-count" id="si-count">0 captured</span></div>
+        <ul class="si-list" id="si-list"></ul>
+        <div class="si-foot" id="si-foot">Now pick three for today.</div>
+      </div>
+
+      <button type="button" class="scene-btn" id="scene-go"><span class="scene-btn-ring"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"></path></svg></span><span>Empty her head</span></button>
+      <button type="button" class="scene-replay" id="scene-replay" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>Replay</button>
     </div>
-    <p class="serif reveal" style="margin:72px auto 0;font-size:clamp(28px,3vw,40px);line-height:1.2">You don't need another system. <br><span class="accent" style="font-style:italic">You need somewhere to put it all down.</span></p>
+
+    <p class="serif reveal" style="margin:64px auto 0;text-align:center;font-size:clamp(28px,3vw,40px);line-height:1.2">You don't need another system. <br><span class="accent" style="font-style:italic">You need somewhere to put it all down.</span></p>
   </div>
 </section>
 
@@ -960,6 +1036,65 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       phone.classList.remove('ph-flash'); void phone.offsetWidth; phone.classList.add('ph-flash');
     });
   });
+
+  /* ---------- Section 2: the evening scene ---------- */
+  (function () {
+    var scene = $('#scene'); if (!scene) return;
+    var tabs = $$('.stab', scene), list = $('#si-list'), count = $('#si-count'), go = $('#scene-go'), replay = $('#scene-replay');
+    var running = false, n = 0;
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { scene.classList.add('in'); io.disconnect(); } }); }, { threshold: 0.35 });
+      io.observe(scene);
+    } else { scene.classList.add('in'); }
+    function addRow(type, title) {
+      var li = document.createElement('li');
+      var b = document.createElement('span'); b.className = 'ib-badge'; b.textContent = type;
+      var t = document.createElement('span'); t.textContent = title;
+      li.appendChild(b); li.appendChild(t);
+      list.insertBefore(li, list.firstChild);
+      var rows = $$('li', list); if (rows.length > 5) list.removeChild(rows[rows.length - 1]);
+      n += 1; count.textContent = n + ' captured';
+    }
+    function finish() {
+      scene.setAttribute('data-state', 'calm');
+      replay.hidden = false; running = false;
+    }
+    function empty() {
+      if (running) return; running = true;
+      scene.classList.add('in');
+      scene.setAttribute('data-state', 'capturing');
+      var visible = tabs.filter(function (t) { return t.offsetParent !== null; });
+      if (reduced) {
+        visible.forEach(function (t) { t.classList.add('gone'); addRow(t.dataset.type, t.dataset.title); });
+        return finish();
+      }
+      var target = list.getBoundingClientRect();
+      visible.forEach(function (t, i) {
+        setTimeout(function () {
+          var r = t.getBoundingClientRect();
+          var dx = (target.left + 40) - r.left, dy = (target.top + 4) - r.top;
+          var anim = t.animate([
+            { transform: 'rotate(' + getComputedStyle(t).getPropertyValue('--r') + ') translate(0,0) scale(1)', opacity: 1 },
+            { transform: 'rotate(0deg) translate(' + dx + 'px,' + dy + 'px) scale(.45)', opacity: 0 }
+          ], { duration: 820, easing: 'cubic-bezier(.55,0,.2,1)', fill: 'forwards' });
+          anim.onfinish = function () {
+            t.classList.add('gone'); anim.cancel();
+            addRow(t.dataset.type, t.dataset.title);
+            if (i === visible.length - 1) setTimeout(finish, 500);
+          };
+        }, 300 + i * 260);
+      });
+    }
+    function reset() {
+      running = false; n = 0; list.innerHTML = ''; count.textContent = '0 captured';
+      tabs.forEach(function (t) { t.classList.remove('gone'); t.style.animation = 'none'; void t.offsetWidth; t.style.animation = ''; });
+      replay.hidden = true;
+      scene.setAttribute('data-state', 'busy');
+      go.focus({ preventScroll: true });
+    }
+    go.addEventListener('click', empty);
+    replay.addEventListener('click', reset);
+  })();
 
   /* ---------- Today ring ---------- */
   var STATES = [
