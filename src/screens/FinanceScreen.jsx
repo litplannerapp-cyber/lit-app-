@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Ic } from "../icons/Icons";
 import { T } from "../theme";
 import { Card } from "../components/Card";
 import { Eyebrow } from "../components/Eyebrow";
@@ -25,6 +26,19 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   const [billRecurring, setBillRecurring] = useState(true);
   const [expName, setExpName] = useState(""); const [expAmt, setExpAmt] = useState("");
   const [monthSlide, setMonthSlide] = useState(null); // {dir, k}
+  /* tap-to-edit income: the "Income €X" line turns into an input in place */
+  const [editingIncome, setEditingIncome] = useState(false);
+  const [incomeEdit, setIncomeEdit] = useState("");
+  /* "Carry on" explanation: hover/focus on desktop, first tap on touch */
+  const [carryTip, setCarryTip] = useState(false);
+  const carryRef = useRef(null);
+  const lastPointer = useRef("mouse"); // pointerType of the last press on "Carry on"
+  useEffect(() => {
+    if (!carryTip) return;
+    const close = (e) => { if (carryRef.current && !carryRef.current.contains(e.target)) setCarryTip(false); };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [carryTip]);
   const monthSwipe = useHSwipe((dir) => {
     setMk(shiftMonth(mk, dir));
     setMonthSlide({ dir, k: Date.now() });
@@ -86,6 +100,46 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   const addBtn = (fn) => (
     <button onPointerDown={(e) => { e.preventDefault(); fn(); }} style={{ padding: "0 15px", borderRadius: 13, background: T.ink, color: T.card, fontSize: 13, fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>Add</button>
   );
+  const saveIncome = () => {
+    const v = Number(incomeEdit);
+    if (incomeEdit !== "" && Number.isFinite(v) && v !== finance.income) onSetIncome(v);
+    setEditingIncome(false);
+  };
+
+  /* "Carry on": one button in the hero that takes what's left this month
+     (as extra income) and this month's day-to-day items into next month —
+     whatever of the two hasn't been carried yet. Undo = delete it there. */
+  const nextMk = shiftMonth(mk, 1);
+  const nextName = monthLabel(nextMk).split(" ")[0];
+  const savingsCarried = finance.extras.some((e) => e.monthKey === nextMk && e.carriedFrom === mk && e.kind === "savings");
+  const expensesCarried = finance.expenses.some((e) => e.monthKey === nextMk && e.carriedFrom === mk);
+  const canSavings = left > 0 && !savingsCarried;
+  const canExpenses = expenses.length > 0 && !expensesCarried;
+  const carry = (canSavings || canExpenses)
+    ? {
+        done: false,
+        text: `Takes ${[
+          canSavings && `the ${fmt(Math.round(left))} left this month (as extra income)`,
+          canExpenses && `your ${expenses.length} day-to-day item${expenses.length !== 1 ? "s" : ""}`,
+        ].filter(Boolean).join(" and ")} into ${nextName}. To undo, delete it there.`,
+      }
+    : (savingsCarried || expensesCarried)
+      ? { done: true, doneText: `Already in ${nextName}. To undo, delete it there.` }
+      : null;
+  const doCarry = () => {
+    if (canSavings) onAddExtra({ name: `Saved in ${monthLabel(mk).split(" ")[0]}`, amount: Math.round(left), monthKey: nextMk, carriedFrom: mk, kind: "savings" });
+    if (canExpenses) onCarryExpenses(expenses, nextMk, mk);
+    setCarryTip(false);
+  };
+  /* mouse/keyboard: the tooltip already showed on hover/focus, so a click
+     carries. touch: there's no hover, so the first tap shows the
+     explanation and the second tap (while it's open) carries. */
+  const onCarryClick = () => {
+    if (carry?.done) return;
+    if (lastPointer.current !== "mouse" && !carryTip) { setCarryTip(true); return; }
+    doCarry();
+  };
+
   const billsByCat = BILL_CATS.map((c) => [c, bills.filter((b) => b.category === c)]).filter(([, l]) => l.length);
   const suggested = billName.trim() ? suggestBillCategory(billName) : null;
 
@@ -135,35 +189,50 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
             </span>
           ))}
         </div>
-        <div style={{ marginTop: 14, fontSize: 12.5, color: T.ink3 }}>
-          Income {fmt(finance.income)}{extraSum > 0 && <> + extra {fmt(extraSum)}</>}
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+          {editingIncome ? (
+            <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: T.ink3 }}>
+              Income €
+              <input autoFocus value={incomeEdit} inputMode="decimal" enterKeyHint="done" aria-label="Monthly income in euros"
+                onChange={(e) => setIncomeEdit(e.target.value.replace(/[^\d.]/g, ""))}
+                onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { setIncomeEdit(""); setEditingIncome(false); } }}
+                onBlur={saveIncome}
+                style={{ width: 96, padding: "6px 10px", borderRadius: 10, border: `1.5px solid ${T.coral}`, outline: "none", background: T.bg, fontSize: 14, fontWeight: 600, color: T.ink }} />
+            </span>
+          ) : (
+            <button onClick={() => { setIncomeEdit(String(finance.income)); setEditingIncome(true); }} aria-label={`Income ${fmt(finance.income)}. Tap to edit`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: T.ink3, cursor: "pointer", padding: "4px 0" }}>
+              <span>Income <strong style={{ color: T.ink, fontWeight: 600 }}>{fmt(finance.income)}</strong>{extraSum > 0 && <> + extra {fmt(extraSum)}</>}</span>
+              {Ic.pencil(T.ink3)}
+            </button>
+          )}
+          {carry && (
+            <span ref={carryRef} style={{ position: "relative" }}
+              onPointerEnter={(e) => e.pointerType === "mouse" && setCarryTip(true)}
+              onPointerLeave={(e) => e.pointerType === "mouse" && setCarryTip(false)}>
+              <button onClick={onCarryClick}
+                onPointerDown={(e) => { lastPointer.current = e.pointerType; e.stopPropagation(); }}
+                onFocus={(e) => { if (e.currentTarget.matches(":focus-visible")) setCarryTip(true); }}
+                onBlur={() => setCarryTip(false)}
+                aria-describedby="carry-tip" disabled={carry.done}
+                style={{ padding: "7px 13px", borderRadius: 100, fontSize: 12.5, fontWeight: 700, cursor: carry.done ? "default" : "pointer",
+                  background: carry.done ? T.mintSoft : T.coralSoft, color: carry.done ? T.mint : T.coral, whiteSpace: "nowrap" }}>
+                {carry.done ? "Carried ✓" : "Carry on →"}
+              </button>
+              {carryTip && (
+                <span id="carry-tip" role="tooltip" style={{
+                  position: "absolute", right: 0, bottom: "calc(100% + 8px)", width: 236, zIndex: 5,
+                  background: T.ink, color: T.card, fontSize: 12, lineHeight: 1.45, fontWeight: 500,
+                  padding: "10px 12px", borderRadius: 12, boxShadow: T.shadow, animation: "fadeIn .15s ease", textAlign: "left",
+                }}>
+                  {carry.done ? carry.doneText : carry.text}
+                  {!carry.done && lastPointer.current !== "mouse" && <strong style={{ display: "block", marginTop: 6 }}>Tap again to carry.</strong>}
+                </span>
+              )}
+            </span>
+          )}
         </div>
       </Card>
-
-      {/* take into next month (optional) */}
-      {(() => {
-        const nextMk = shiftMonth(mk, 1);
-        const savingsCarried = finance.extras.some((e) => e.monthKey === nextMk && e.carriedFrom === mk && e.kind === "savings");
-        const expensesCarried = finance.expenses.some((e) => e.monthKey === nextMk && e.carriedFrom === mk);
-        const canSavings = left > 0 && !savingsCarried;
-        const canExpenses = expenses.length > 0 && !expensesCarried;
-        if (!canSavings && !canExpenses && !savingsCarried && !expensesCarried) return null;
-        const carrySavings = () => onAddExtra({ name: `Saved in ${monthLabel(mk).split(" ")[0]}`, amount: Math.round(left), monthKey: nextMk, carriedFrom: mk, kind: "savings" });
-        const carryExpenses = () => onCarryExpenses(expenses, nextMk, mk);
-        const rowBtn = (done, can, label, fn) => (
-          <button onClick={can ? fn : undefined} disabled={!can}
-            style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center", padding: "11px 2px", cursor: can ? "pointer" : "default", borderBottom: `1px solid ${T.hairline}` }}>
-            <span style={{ fontSize: 13.5, fontWeight: 500, color: done ? T.ink3 : T.ink }}>{label}</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: done ? T.mint : T.coral }}>{done ? "Carried ✓" : "Carry →"}</span>
-          </button>
-        );
-        return (
-          <Section title={`Take into ${monthLabel(nextMk).split(" ")[0]}`} hint="Optional — one tap, undo by deleting there">
-            {(canSavings || savingsCarried) && rowBtn(savingsCarried, canSavings, `Savings · ${fmt(Math.max(0, Math.round(left)))} as extra income`, carrySavings)}
-            {(canExpenses || expensesCarried) && rowBtn(expensesCarried, canExpenses, `Day-to-day expenses · ${expenses.length} item${expenses.length !== 1 ? "s" : ""}`, carryExpenses)}
-          </Section>
-        );
-      })()}
 
       {/* extra income */}
       <Section title="Extra income" hint="Gigs, bonuses, gifts — this month only">
