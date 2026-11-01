@@ -7,6 +7,17 @@ export function GlobalStyle() {
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
       html { scroll-behavior: smooth; }
       html, body { margin: 0; padding: 0; background: ${T.pageBg}; }
+      /* the app root sets its own color/font-family inline, which every
+         normal child inherits — but a sheet rendered via createPortal(...,
+         document.body) (every modal/sheet that needs to sit above the
+         animated screen wrapper, see VisionScreen/BoardView/BoardEditSheet)
+         mounts as a DOM sibling of that root, not a descendant, so CSS
+         inheritance skips it entirely and it falls back to the browser's
+         UA defaults — black serif text — regardless of theme. Setting the
+         same color/font here, on body itself, gives every portalled sheet
+         (and anything else appended straight to body) the correct,
+         theme-reactive fallback too. */
+      body { color: ${T.ink}; font-family: 'Inter','SF Pro Text',system-ui,sans-serif; }
       body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
       input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
       button { transition: transform .16s cubic-bezier(.34,1.4,.5,1), opacity .18s ease, background .2s ease, box-shadow .2s ease, color .2s ease; }
