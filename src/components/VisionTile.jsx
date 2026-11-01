@@ -2,8 +2,9 @@ import { useRef, useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { LinkPreview } from "./LinkPreview";
+import { VisionList } from "./VisionList";
 
-export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, onTap, isCover, boardColor, dragHandle, onMenu }) {
+export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags, onTap, isCover, boardColor, dragHandle, onMenu, onUpdateList, autoFocusList }) {
   const [confirm, setConfirm] = useState(false);
   const [addingTag, setAddingTag] = useState(false);
   const [tagDraft, setTagDraft] = useState("");
@@ -64,6 +65,10 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
       {item.type === "text" && (
         <p className="fr" onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); canEdit && onEdit(); }}
           style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.5, margin: 0, padding: (dragHandle || onDelete || onMenu) ? "46px 16px 16px" : "18px 16px 16px", color: T.ink, cursor: canEdit ? "pointer" : "default", overflowWrap: "break-word" }}>{item.content}</p>
+      )}
+      {item.type === "list" && (
+        <VisionList content={item.content} onChange={onUpdateList} autoFocusAdd={autoFocusList} accent={boardColor || T.coral}
+          topPad={(dragHandle || onDelete || onMenu) ? 46 : 16} />
       )}
       {item.type === "link" && (
         <div onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); e.preventDefault(); canEdit && onEdit(); }}>
