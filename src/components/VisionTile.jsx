@@ -55,7 +55,7 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
           style={{
             position: "absolute", top: 8, left: 8, zIndex: 1, width: 26, height: 26, borderRadius: 9,
             background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center",
-            color: T.ink2, cursor: dragHandle.isDragging ? "grabbing" : "grab", touchAction: "none",
+            color: "#5A524C", cursor: dragHandle.isDragging ? "grabbing" : "grab", touchAction: "none",
           }}>
           {Ic.grip("currentColor")}
         </button>
@@ -63,7 +63,7 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
       {item.type === "image" && <img src={item.content} alt="" style={{ width: "100%", display: "block" }} />}
       {item.type === "text" && (
         <p className="fr" onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); canEdit && onEdit(); }}
-          style={{ fontStyle: "italic", fontSize: 15, lineHeight: 1.55, margin: 0, padding: "18px 16px", color: T.ink, cursor: canEdit ? "pointer" : "default" }}>{item.content}</p>
+          style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.5, margin: 0, padding: (dragHandle || onDelete || onMenu) ? "46px 16px 16px" : "18px 16px 16px", color: T.ink, cursor: canEdit ? "pointer" : "default", overflowWrap: "break-word" }}>{item.content}</p>
       )}
       {item.type === "link" && (
         <div onClick={handleContentTap} onDoubleClick={(e) => { e.stopPropagation(); e.preventDefault(); canEdit && onEdit(); }}>
@@ -96,19 +96,20 @@ export function VisionTile({ item, subtitle, onDelete, onPin, onEdit, onEditTags
         <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 5 }}>
           {onMenu && (
             <button onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Item options" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
-              {Ic.more(T.ink2)}
+              {Ic.more("#5A524C")}
             </button>
           )}
           {item.type === "image" && onPin && (
             <button onClick={(e) => { e.stopPropagation(); onPin(); }} aria-label="Set as board cover" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
-              {Ic.pin(isCover, isCover ? T.coral : T.ink2)}
+              {Ic.pin(isCover, isCover ? T.coral : "#5A524C")}
             </button>
           )}
           {confirm ? (
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} style={{ height: 26, padding: "0 10px", borderRadius: 9, background: T.ink, color: T.card, fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Remove?</button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} onBlur={() => setConfirm(false)} autoFocus
+              style={{ height: 28, padding: "0 11px", borderRadius: 9, background: T.ink, color: T.card, fontSize: 11.5, fontWeight: 600, cursor: "pointer" }}>Delete?</button>
           ) : (
-            <button onClick={(e) => { e.stopPropagation(); setConfirm(true); }} aria-label="Delete item" style={{ width: 26, height: 26, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
-              {Ic.x(T.ink2, 13)}
+            <button onClick={(e) => { e.stopPropagation(); setConfirm(true); }} aria-label="Delete item" style={{ width: 28, height: 28, borderRadius: 9, background: "rgba(253,250,245,.9)", display: "grid", placeItems: "center", cursor: "pointer" }}>
+              {Ic.trash("#5A524C", 15)}
             </button>
           )}
         </div>

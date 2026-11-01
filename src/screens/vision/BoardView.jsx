@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   DndContext, PointerSensor, TouchSensor, KeyboardSensor,
   useSensor, useSensors, useDndContext, useDroppable,
@@ -159,7 +160,9 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
       {board.items.length === 0 && (
         <p className="fr" style={{ fontStyle: "italic", color: T.ink2, textAlign: "center", padding: "40px 0" }}>An empty board is a quiet invitation.</p>
       )}
-      {moveItem && (
+      {/* sheets are portalled to <body> so the animated (.rise) wrapper can't
+          become their containing block and push them off-screen */}
+      {moveItem && createPortal(
         <div onClick={() => setMoveItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
           <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
             <Eyebrow style={{ marginBottom: 12 }}>Move to</Eyebrow>
@@ -173,9 +176,10 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
             </button>
             <button onClick={() => setMoveItem(null)} style={{ marginTop: 14, fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer" }}>Keep it here</button>
           </Card>
-        </div>
+        </div>,
+        document.body,
       )}
-      {editingItem && (
+      {editingItem && createPortal(
         <div onClick={() => setEditingItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
           <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
             <Eyebrow style={{ marginBottom: 12 }}>Edit {editingItem.type}</Eyebrow>
@@ -193,7 +197,8 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
               <button onClick={() => setEditingItem(null)} style={{ padding: "10px 18px", borderRadius: 100, background: T.bg, color: T.ink2, fontWeight: 600, fontSize: 13.5, cursor: "pointer" }}>Cancel</button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
