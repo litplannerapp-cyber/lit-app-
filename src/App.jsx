@@ -617,13 +617,6 @@ export default function LitApp() {
     }));
     db.dbUpdateBillPaid(bill.id, bill.recurring, patch).catch(console.error);
   };
-  const addExtra = (extra) => {
-    const temp = { id: uid(), ...extra };
-    setFinance((f) => ({ ...f, extras: [...f.extras, temp] }));
-    db.dbInsertExtra(user.id, temp).then((real) => {
-      setFinance((f) => ({ ...f, extras: f.extras.map((e) => (e.id === temp.id ? real : e)) }));
-    }).catch(console.error);
-  };
   const addBill = (bill) => {
     const temp = { id: uid(), ...bill, ...(bill.recurring ? { paidMonths: {} } : { paid: false }) };
     setFinance((f) => ({ ...f, bills: [...f.bills, temp] }));
@@ -631,28 +624,28 @@ export default function LitApp() {
       setFinance((f) => ({ ...f, bills: f.bills.map((b) => (b.id === temp.id ? real : b)) }));
     }).catch(console.error);
   };
-  const addExpense = (expense) => {
-    const key = expense.name.trim().toLowerCase();
-    const existing = finance.expenses.find((e) => e.monthKey === expense.monthKey && e.name.toLowerCase() === key);
-    if (existing) {
-      const updated = { ...existing, amount: existing.amount + expense.amount, count: (existing.count || 1) + 1 };
-      setFinance((f) => ({ ...f, expenses: f.expenses.map((e) => (e.id === existing.id ? updated : e)) }));
-      db.dbUpdateExpense(existing.id, { amount: updated.amount, count: updated.count }).catch(console.error);
-    } else {
-      const temp = { id: uid(), ...expense, count: 1 };
-      setFinance((f) => ({ ...f, expenses: [...f.expenses, temp] }));
-      db.dbInsertExpense(user.id, temp).then((real) => {
-        setFinance((f) => ({ ...f, expenses: f.expenses.map((e) => (e.id === temp.id ? real : e)) }));
-      }).catch(console.error);
-    }
+  /* extra money that came in this month only (a bonus, a gig, a gift) —
+     added on top of the income for that one month, removable with one tap.
+     (Day-to-day expenses and carry-over were removed from Finance; their
+     rows stay in the DB, unused.) */
+  const addExtra = (extra) => {
+    const temp = { id: uid(), ...extra };
+    setFinance((f) => ({ ...f, extras: [...f.extras, temp] }));
+    db.dbInsertExtra(user.id, temp).then((real) => {
+      setFinance((f) => ({ ...f, extras: f.extras.map((e) => (e.id === temp.id ? real : e)) }));
+    }).catch((e) => {
+      console.error(e);
+      setFinance((f) => ({ ...f, extras: f.extras.filter((x) => x.id !== temp.id) }));
+      showToast("Couldn't save that — please try again");
+    });
   };
-  const carryExpenses = (expensesToCarry, nextMk, fromMk) => {
-    const temps = expensesToCarry.map((e) => ({ ...e, id: uid(), monthKey: nextMk, carriedFrom: fromMk }));
-    setFinance((f) => ({ ...f, expenses: [...f.expenses, ...temps] }));
-    temps.forEach((t) => {
-      db.dbInsertExpense(user.id, t).then((real) => {
-        setFinance((f) => ({ ...f, expenses: f.expenses.map((e) => (e.id === t.id ? real : e)) }));
-      }).catch(console.error);
+  const deleteExtra = (id) => {
+    const prev = finance.extras.find((e) => e.id === id);
+    setFinance((f) => ({ ...f, extras: f.extras.filter((e) => e.id !== id) }));
+    db.dbDeleteExtra(id).then(({ error } = {}) => { if (error) throw error; }).catch((e) => {
+      console.error(e);
+      if (prev) setFinance((f) => ({ ...f, extras: [...f.extras, prev] }));
+      showToast("Couldn't delete that — please try again");
     });
   };
 
@@ -702,8 +695,7 @@ export default function LitApp() {
       )}
       {tab === "finance" && (
         <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,
-          onSetIncome: setIncome, onTogglePaid: togglePaid, onAddExtra: addExtra, onAddBill: addBill,
-          onAddExpense: addExpense, onCarryExpenses: carryExpenses }} />
+          onSetIncome: setIncome, onTogglePaid: togglePaid, onAddBill: addBill, onAddExtra: addExtra, onDeleteExtra: deleteExtra }} />
       )}
       {tab === "goals" && (
         <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onCreateGoal: createGoal, onDeleteGoal: deleteGoal, setEditor }} />
