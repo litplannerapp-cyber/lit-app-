@@ -164,11 +164,21 @@ export default function LitApp() {
   const scheduledCaptureIds = new Set(tasks.filter((t) => t.captureId).map((t) => t.captureId));
   const inboxCaptures = captures.filter((c) => !scheduledCaptureIds.has(c.id));
 
-  /* streak: quiet, never resets — only pauses */
+  /* streak: quiet, never resets — only pauses. Today counts as cleared
+     only while all three of today's priorities are actually done: if one
+     is unticked (or moved off today / un-starred) after the day was
+     cleared, today comes back out of the streak until the three are done
+     again. Past days are never touched — only today can change. */
   useEffect(() => {
-    if (dataLoaded && selectedDay === todayKey && top3.length === 3 && doneTop3 === 3 && !clearedDays.includes(todayKey)) {
+    if (!dataLoaded || selectedDay !== todayKey) return;
+    const complete = top3.length === 3 && doneTop3 === 3;
+    const counted = clearedDays.includes(todayKey);
+    if (complete && !counted) {
       setClearedDays((c) => [...c, todayKey]);
       db.dbInsertClearedDay(user.id, todayKey).catch(console.error);
+    } else if (!complete && counted) {
+      setClearedDays((c) => c.filter((d) => d !== todayKey));
+      db.dbDeleteClearedDay(user.id, todayKey).catch(console.error);
     }
   }, [doneTop3, top3.length, selectedDay, todayKey, clearedDays, dataLoaded, user]);
   const streak = clearedDays.length;
@@ -335,6 +345,16 @@ export default function LitApp() {
       const obj = typeof it === "string" ? { text: it, done: false } : it;
       return i === ix ? { ...obj, done: !obj.done } : obj;
     });
+    applyListItemsChange(cid, items);
+  };
+  /* the scheduled list's main checkbox: tick (or untick) every item in one
+     write, so completing or reopening a whole list is one tap and goes
+     through the exact same sync + rollback path as a single item tick. */
+  const setAllListItems = (cid, done) => {
+    const capture = captures.find((c) => c.id === cid);
+    if (!capture) return;
+    const items = (capture.items || []).map((it) => ({ ...(typeof it === "string" ? { text: it } : it), done }));
+    if (items.length === 0) return;
     applyListItemsChange(cid, items);
   };
   const updateCapture = (id, changes) => {
@@ -672,7 +692,7 @@ export default function LitApp() {
     <div key={tabSlide ? tabSlide.k : tab}
       style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
       {tab === "today" && (
-        <TodayScreen {...{ tasks: effectiveTasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, captures, toggleListItem, onEditList: setEditingListCaptureId }} />
+        <TodayScreen {...{ tasks: effectiveTasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, captures, toggleListItem, setAllListItems, onEditList: setEditingListCaptureId }} />
       )}
       {tab === "vision" && (
         <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,

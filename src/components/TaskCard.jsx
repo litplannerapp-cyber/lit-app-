@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Check } from "./Check";
@@ -9,17 +9,10 @@ import { normalizeListItems } from "../utils/task";
    themes (see the spec this was built to). */
 const PRIORITY_OUTLINE = "linear-gradient(135deg, #F4B16B, #ED7B65 52%, #E35F87)";
 const CARD_RADIUS = 18;
-const HINT_MS = 2500;
-const HIGHLIGHT_MS = 900;
 
-export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, openDetail, onPressDrag, dragging, captures, toggleListItem, onEditList }) {
+export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, openDetail, onPressDrag, dragging, captures, toggleListItem, setAllListItems, onEditList }) {
   const [leaving, setLeaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [hintVisible, setHintVisible] = useState(false);
-  const [highlightOpen, setHighlightOpen] = useState(false);
-  const hintTimer = useRef(null);
-  const highlightTimer = useRef(null);
-  useEffect(() => () => { clearTimeout(hintTimer.current); clearTimeout(highlightTimer.current); }, []);
   const remove = () => { setLeaving(true); setTimeout(() => deleteTask(t.id), 260); };
 
   /* a scheduled task can point back at the Inbox capture it came from
@@ -34,7 +27,6 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
   const hasItems = listItems.length > 0;
   const doneCount = listItems.filter((i) => i.done).length;
   const headerText = isList ? `${capture.title || "List"} · ${doneCount}/${listItems.length}` : t.text;
-  const hintId = `list-hint-${t.id}`;
 
   const handleContentClick = () => {
     if (isList || isLink) setExpanded((e) => !e);
@@ -44,23 +36,17 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
     if (isList) onEditList(capture.id);
     else setEditor({ initial: t });
   };
-  /* the list's main checkbox only ever reflects what its items say — it
-     can't complete the list on its own (that's a tick away from being a
-     real "done", so letting a tap fake it would make the ring lie), and it
-     can't reopen one either (unticking an item is the only way back, so a
-     slip of the thumb on an already-finished list can't undo it). A
-     zero-item list has no items to defer to, so it's just a normal task
+  /* the list's main checkbox is a real two-way toggle, like every other
+     checkbox in the app: on an open list it ticks every item (so the list,
+     its x/y count and the Today ring all agree it's done), and on a done
+     list it unticks every item to reopen it. The list's done-state is
+     still derived from its items — this just writes all of them at once
+     through the same setAllListItems → applyListItemsChange path a single
+     item tick uses. A zero-item list has no items, so it's a plain task
      checkbox. */
   const handleListCheck = () => {
     if (!hasItems) { toggleDone(t.id); return; }
-    if (t.done) return;
-    setExpanded(true);
-    setHighlightOpen(true);
-    clearTimeout(highlightTimer.current);
-    highlightTimer.current = setTimeout(() => setHighlightOpen(false), HIGHLIGHT_MS);
-    setHintVisible(true);
-    clearTimeout(hintTimer.current);
-    hintTimer.current = setTimeout(() => setHintVisible(false), HINT_MS);
+    setAllListItems(capture.id, !t.done);
   };
 
   return (
@@ -103,8 +89,7 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
       </span>
       {isList ? (
         <Check done={t.done} onToggle={handleListCheck}
-          ariaDescribedBy={hintVisible ? hintId : undefined}
-          ariaLabel={!hasItems ? undefined : t.done ? "List complete. Untick an item to reopen it." : "Tick all items to finish this list"} />
+          ariaLabel={!hasItems ? undefined : t.done ? "Reopen list (untick all items)" : "Complete list (tick all items)"} />
       ) : (
         <Check done={t.done} onToggle={() => toggleDone(t.id)} />
       )}
@@ -131,21 +116,10 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
 
         {expanded && isList && (
           <div style={{ margin: "10px 0 0" }} onClick={(e) => e.stopPropagation()}>
-            {hintVisible && (
-              <div id={hintId} role="status" aria-live="polite" style={{
-                background: T.ink, color: T.card, fontSize: 11.5, fontWeight: 600, lineHeight: 1.3,
-                padding: "7px 11px", borderRadius: 10, marginBottom: 8, display: "inline-block",
-                animation: "fadeIn .18s ease",
-              }}>
-                Tick all items to finish this list
-              </div>
-            )}
             {listItems.map((it, ix) => (
               <button key={ix} onClick={() => toggleListItem(capture.id, ix)}
                 style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, padding: "7px 2px", borderRadius: 9, cursor: "pointer", textAlign: "left",
-                  background: highlightOpen && !it.done ? T.coralSoft : "transparent",
-                  animation: highlightOpen && !it.done ? "listItemHighlight .9s ease" : undefined,
-                  transition: "background .3s ease" }}>
+                  background: "transparent" }}>
                 <span style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, border: it.done ? "none" : `1.6px solid ${T.ink3}`, background: it.done ? T.coralGrad : "transparent", display: "grid", placeItems: "center", transition: "all .25s" }}>
                   {it.done && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
                 </span>
