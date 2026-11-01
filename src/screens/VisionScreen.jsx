@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   DndContext, DragOverlay, PointerSensor, TouchSensor, KeyboardSensor,
   useSensor, useSensors, useDndContext, useDraggable,
@@ -27,7 +28,8 @@ const LOOSE_PREFIX = "loose:";
    useDroppable, so one hook covers both jobs; useDndContext reads which
    id is globally being dragged/hovered so the tile can show the right
    highlight without the parent threading that down by hand. */
-function BoardTile({ board, onOpen, onNameTap, onNameDoubleTap, reducedMotion }) {
+function BoardTile({ board, onOpen, onEdit, onDelete, reducedMotion }) {
+  const [confirmDel, setConfirmDel] = useState(false);
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: board.id });
   const { active, over } = useDndContext();
   const isDropTarget = !!active && active.id !== board.id && over?.id === board.id;
@@ -52,8 +54,7 @@ function BoardTile({ board, onOpen, onNameTap, onNameDoubleTap, reducedMotion })
         {cover && <img src={cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: cover ? "linear-gradient(180deg,transparent 40%,rgba(0,0,0,.45))" : "none" }} />
         <div style={{ position: "absolute", left: 14, bottom: 12, right: 14 }}>
-          <div className="fr" onClick={onNameTap} onDoubleClick={onNameDoubleTap}
-            style={{ fontSize: 17, fontWeight: 600, color: cover ? "#fff" : T.ink, cursor: "pointer" }}>{board.name}</div>
+          <div className="fr" style={{ fontSize: 18, fontWeight: 600, color: cover ? "#fff" : T.ink }}>{board.name}</div>
           <div style={{ fontSize: 11.5, color: cover ? "rgba(255,255,255,.8)" : T.ink2, marginTop: 2 }}>{board.items.length} item{board.items.length !== 1 ? "s" : ""}</div>
         </div>
       </button>
@@ -66,34 +67,75 @@ function BoardTile({ board, onOpen, onNameTap, onNameDoubleTap, reducedMotion })
         }}>
         {Ic.grip("currentColor")}
       </button>
+      {/* edit (name + colour) and delete — always visible, top-right */}
+      <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6 }}>
+        {confirmDel ? (
+          <button autoFocus onClick={() => { setConfirmDel(false); onDelete(); }} onBlur={() => setConfirmDel(false)}
+            style={{ height: 30, padding: "0 12px", borderRadius: 10, background: T.ink, color: T.card, fontSize: 12, fontWeight: 600, cursor: "pointer", boxShadow: T.shadowSm }}>
+            Delete board?
+          </button>
+        ) : (
+          <>
+            <button onClick={onEdit} aria-label={`Edit ${board.name}`} style={tileIconBtn}>{Ic.pencil("#5A524C")}</button>
+            <button onClick={() => setConfirmDel(true)} aria-label={`Delete ${board.name}`} style={tileIconBtn}>{Ic.trash("#5A524C", 16)}</button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
+const tileIconBtn = {
+  width: 30, height: 30, borderRadius: 10, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center",
+  cursor: "pointer", boxShadow: "0 2px 8px -3px rgba(0,0,0,.25)",
+};
 
 /* a loose item waiting to be placed — plain draggable (not sortable, the
    tray itself isn't reorderable), and still a normal click target for the
    existing tap-to-place sheet: a short tap never moves far/long enough to
    cross the sensors' activation constraints below, so both keep working
    on the same element. */
-function LooseDraggableItem({ item, onTap }) {
+function LooseDraggableItem({ item, onTap, onDelete }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: LOOSE_PREFIX + item.id });
+  const [confirmDel, setConfirmDel] = useState(false);
   return (
+    <div style={{ position: "relative", flexShrink: 0 }}>
     <div ref={setNodeRef} {...listeners} {...attributes} onClick={onTap}
       aria-label={`${item.type === "image" ? "Image" : item.type === "link" ? "Link" : "Note"}. Press space to pick up and drag to a board, arrow keys to move, space to drop, escape to cancel. Or activate to choose a board.`}
       style={{
-        flexShrink: 0, width: 138, borderRadius: 16, overflow: "hidden", background: T.card, boxShadow: T.shadowSm,
+        width: 160, minHeight: 84, borderRadius: 16, overflow: "hidden", background: T.card, boxShadow: T.shadowSm,
         cursor: "pointer", border: `1.4px dashed ${T.ink3}`, touchAction: "manipulation",
         opacity: isDragging ? 0.4 : 1,
         transform: CSS.Translate.toString(transform),
       }}>
       {item.type === "image" && <img src={item.content} alt="" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />}
       {item.type === "text" && (
-        <p className="fr" style={{ fontStyle: "italic", fontSize: 12.5, lineHeight: 1.45, margin: 0, padding: "12px 12px", color: T.ink, display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.content}</p>
+        <p style={LOOSE_TEXT}>{item.content}</p>
       )}
       {item.type === "link" && <div style={{ pointerEvents: "none" }}><LinkPreview url={item.content} /></div>}
     </div>
+      {/* delete — outside the draggable so a tap never starts a drag */}
+      <div style={{ position: "absolute", top: 6, right: 6 }}>
+        {confirmDel ? (
+          <button autoFocus onClick={() => { setConfirmDel(false); onDelete(); }} onBlur={() => setConfirmDel(false)}
+            style={{ height: 28, padding: "0 10px", borderRadius: 9, background: T.ink, color: T.card, fontSize: 11.5, fontWeight: 600, cursor: "pointer" }}>Delete?</button>
+        ) : (
+          <button onClick={() => setConfirmDel(true)} aria-label="Delete item"
+            style={{ width: 28, height: 28, borderRadius: 9, background: "rgba(253,250,245,.92)", display: "grid", placeItems: "center", cursor: "pointer", boxShadow: "0 2px 8px -3px rgba(0,0,0,.25)" }}>
+            {Ic.trash("#5A524C", 15)}
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
+
+/* loose notes read like the rest of the app — upright, body size —
+   with room on the right for the trash button */
+const LOOSE_TEXT = {
+  fontSize: 15, fontWeight: 500, lineHeight: 1.4, margin: 0, padding: "14px 40px 14px 14px", color: T.ink,
+  display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden", overflowWrap: "break-word",
+};
 
 /* Loose-first: anything you add lands unassigned. Drag it (any device —
    mouse, touch or keyboard) or tap it to place it on a board. Boards are
@@ -104,13 +146,11 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const [quick, setQuick] = useState("");
-  const [newBoard, setNewBoard] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [newBoard, setNewBoard] = useState(false); // "New board" sheet open
   const [tagFilter, setTagFilter] = useState(null);
   const [placing, setPlacing] = useState(null); // loose item being placed (tap flow)
   const [editingBoard, setEditingBoard] = useState(null); // board id in edit sheet
   const [activeDragId, setActiveDragId] = useState(null);
-  const boardNameTap = useRef({}); // per-board last-tap timestamp, for double-tap-to-rename
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
     onAddLooseItem({ id: uid(), type: "image", content: dataUrl, tags: [] });
     showToast("Image added — place it on a board");
@@ -143,10 +183,15 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
     showToast(`Placed on ${boards.find((b) => b.id === boardId)?.name || "board"}`);
   };
 
-  const createBoard = () => {
-    const v = newName.trim(); if (!v) return;
-    onCreateBoard(v, PALETTE[boards.length % PALETTE.length]);
-    setNewName(""); setNewBoard(false);
+  const createBoard = (name, color) => {
+    onCreateBoard(name, color);
+    setNewBoard(false);
+    showToast(`Board "${name}" created`);
+  };
+  const deleteBoard = (id) => {
+    const b = boards.find((x) => x.id === id);
+    onDeleteBoard(id);
+    showToast(b?.items.length ? "Board deleted — its items are back in “Not on a board yet”" : "Board deleted");
   };
 
   const handleDragStart = (e) => setActiveDragId(e.active.id);
@@ -166,16 +211,6 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
     const oldIndex = boards.findIndex((b) => b.id === active.id);
     const newIndex = boards.findIndex((b) => b.id === over.id);
     if (oldIndex !== -1 && newIndex !== -1) onReorderBoards(oldIndex, newIndex);
-  };
-
-  /* double-tap/double-click the board's own name opens the edit sheet —
-     same pattern as everywhere else, no separate pencil button needed */
-  const handleBoardNameTap = (bid) => (e) => {
-    e.stopPropagation();
-    const now = Date.now();
-    const last = boardNameTap.current[bid] || 0;
-    if (now - last < 320) { boardNameTap.current[bid] = 0; setEditingBoard(bid); }
-    else { boardNameTap.current[bid] = now; }
   };
 
   if (boardOpen) {
@@ -245,7 +280,8 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
               </div>
               <div data-noswipe style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
                 {looseItems.map((item) => (
-                  <LooseDraggableItem key={item.id} item={item} onTap={() => setPlacing(item)} />
+                  <LooseDraggableItem key={item.id} item={item} onTap={() => setPlacing(item)}
+                    onDelete={() => { onDeleteVisionItem(item.id); showToast("Deleted"); }} />
                 ))}
               </div>
             </div>
@@ -254,26 +290,29 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
           {/* boards grid — 2 columns on desktop, 1 on mobile; every board is
               sortable among the others (drag its grip handle, in any
               direction) and a drop target for a loose item dragged in */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 26, marginBottom: 12 }}>
+            <Eyebrow>Your boards</Eyebrow>
+            <button onClick={() => setNewBoard(true)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 100, background: T.coralGrad, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: T.shadowSm }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+              New board
+            </button>
+          </div>
+          {boards.length === 0 && (
+            <button onClick={() => setNewBoard(true)}
+              style={{ width: "100%", padding: "26px 18px", borderRadius: T.r, border: `1.6px dashed ${T.ink3}`, cursor: "pointer", textAlign: "center", color: T.ink2 }}>
+              <div className="fr" style={{ fontSize: 19, fontWeight: 600, color: T.ink }}>Create your first board</div>
+              <div style={{ fontSize: 13, marginTop: 6 }}>A trip, a home, a goal — give it a name and a colour.</div>
+            </button>
+          )}
           <SortableContext items={boards.map((b) => b.id)} strategy={rectSortingStrategy}>
-            <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr", gap: 12, marginTop: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr", gap: 12 }}>
               {boards.map((b) => (
                 <BoardTile key={b.id} board={b} reducedMotion={reducedMotion}
                   onOpen={() => setBoardOpen(b.id)}
-                  onNameTap={handleBoardNameTap(b.id)}
-                  onNameDoubleTap={(e) => { e.stopPropagation(); setEditingBoard(b.id); }} />
+                  onEdit={() => setEditingBoard(b.id)}
+                  onDelete={() => deleteBoard(b.id)} />
               ))}
-              {newBoard ? (
-                <div style={{ aspectRatio: "1", borderRadius: T.r, border: `1.6px dashed ${T.ink3}`, display: "flex", flexDirection: "column", justifyContent: "center", padding: 14, gap: 8 }}>
-                  <input autoFocus value={newName} onChange={(e) => setNewName(e.target.value)} enterKeyHint="done"
-                    onKeyDown={(e) => e.key === "Enter" && createBoard()}
-                    placeholder="Board name" style={{ border: "none", outline: "none", background: "transparent", fontSize: 14, fontWeight: 600 }} />
-                  <button onClick={createBoard} style={{ fontSize: 12.5, fontWeight: 600, color: T.coral, cursor: "pointer", textAlign: "left" }}>Create</button>
-                </div>
-              ) : (
-                <button onClick={() => setNewBoard(true)} style={{ aspectRatio: "1", borderRadius: T.r, border: `1.6px dashed ${T.ink3}`, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink2, fontSize: 13.5, fontWeight: 600 }}>
-                  + New board
-                </button>
-              )}
             </div>
           </SortableContext>
 
@@ -287,9 +326,9 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
               </div>
             )}
             {activeLooseItem && (
-              <div style={{ width: 138, borderRadius: 16, overflow: "hidden", background: T.card, boxShadow: "0 20px 44px -16px rgba(46,42,38,.4)" }}>
+              <div style={{ width: 160, borderRadius: 16, overflow: "hidden", background: T.card, boxShadow: "0 20px 44px -16px rgba(46,42,38,.4)" }}>
                 {activeLooseItem.type === "image" && <img src={activeLooseItem.content} alt="" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />}
-                {activeLooseItem.type === "text" && <p className="fr" style={{ fontStyle: "italic", fontSize: 12.5, lineHeight: 1.45, margin: 0, padding: "12px 12px", color: T.ink }}>{activeLooseItem.content}</p>}
+                {activeLooseItem.type === "text" && <p style={LOOSE_TEXT}>{activeLooseItem.content}</p>}
                 {activeLooseItem.type === "link" && <div style={{ pointerEvents: "none" }}><LinkPreview url={activeLooseItem.content} /></div>}
               </div>
             )}
@@ -298,21 +337,26 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
       )}
 
       {/* tap-to-place sheet (mobile-friendly alternative to drag) */}
-      {placing && (
+      {placing && createPortal(
         <div onClick={() => setPlacing(null)} style={{ position: "fixed", inset: 0, background: "rgba(46,42,38,.3)", zIndex: 90, display: "grid", placeItems: isDesktop ? "center center" : "end center" }}>
           <Card onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: isDesktop ? 420 : 440, borderRadius: isDesktop ? 22 : "24px 24px 0 0", padding: 22, boxShadow: isDesktop ? "0 30px 80px rgba(0,0,0,.28)" : undefined, animation: isDesktop ? "modalIn .28s cubic-bezier(.3,.9,.4,1)" : undefined }}>
             <Eyebrow style={{ marginBottom: 12 }}>Place on a board</Eyebrow>
+            {boards.length === 0 && <p style={{ fontSize: 13.5, color: T.ink2, margin: "0 0 6px" }}>No boards yet — create one first.</p>}
             {boards.map((b) => (
               <button key={b.id} onClick={() => placeOnBoard(placing.id, b.id)} style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 4px", fontSize: 15, fontWeight: 500, cursor: "pointer", borderBottom: `1px solid ${T.hairline}` }}>
                 <span style={{ width: 10, height: 10, borderRadius: 5, background: b.color }} />{b.name}
               </button>
             ))}
+            <button onClick={() => { setPlacing(null); setNewBoard(true); }} style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 4px", fontSize: 15, fontWeight: 600, color: T.coral, cursor: "pointer", borderBottom: `1px solid ${T.hairline}` }}>
+              + New board
+            </button>
             <div style={{ display: "flex", gap: 16, marginTop: 14 }}>
-              <button onClick={() => { onDeleteVisionItem(placing.id); setPlacing(null); }} style={{ fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer" }}>Release it</button>
+              <button onClick={() => { onDeleteVisionItem(placing.id); setPlacing(null); showToast("Deleted"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, color: T.ink2, fontWeight: 600, cursor: "pointer" }}>{Ic.trash(T.ink2, 15)}Delete</button>
               <button onClick={() => setPlacing(null)} style={{ fontSize: 13.5, color: T.ink3, fontWeight: 600, cursor: "pointer" }}>Leave it loose</button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* board edit sheet */}
@@ -320,13 +364,16 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
         <BoardEditSheet
           board={boards.find((b) => b.id === editingBoard)}
           onSave={(name, color) => { onUpdateBoard(editingBoard, { name, color }); setEditingBoard(null); }}
-          onDelete={() => {
-            const b = boards.find((x) => x.id === editingBoard);
-            onDeleteBoard(editingBoard);
-            setEditingBoard(null);
-            showToast(b?.items.length ? "Board removed — its items are loose again" : "Board removed");
-          }}
+          onDelete={() => { deleteBoard(editingBoard); setEditingBoard(null); }}
           onClose={() => setEditingBoard(null)}
+        />
+      )}
+
+      {/* new board sheet — name + colour */}
+      {newBoard && (
+        <BoardEditSheet isNew board={null} initialColor={PALETTE[boards.length % PALETTE.length]}
+          onSave={createBoard}
+          onClose={() => setNewBoard(false)}
         />
       )}
     </div>
