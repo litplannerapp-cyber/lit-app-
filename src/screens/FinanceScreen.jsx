@@ -19,7 +19,7 @@ const RepeatIcon = ({ c, s = 15 }) => (
 /* Finance is deliberately simple: what comes in (monthly income, plus any
    extra that came in this month) and what goes out (bills — repeating, or
    one-off for this month). What's left is the one honest number. */
-export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, onAddBill, onAddExtra, onDeleteExtra }) {
+export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, onAddBill, onDeleteBill, onAddExtra, onDeleteExtra }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
   const realMk = toMonthKey();
   const [incomeDraft, setIncomeDraft] = useState("");
@@ -262,8 +262,9 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
             {list.map((b) => {
               const paid = isPaid(b);
               return (
-                <button key={b.id} onClick={() => togglePaid(b)}
-                  style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center", padding: "10px 2px", cursor: "pointer", borderBottom: `1px solid ${T.hairline}` }}>
+                <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 4, borderBottom: `1px solid ${T.hairline}` }}>
+                <button onClick={() => togglePaid(b)} aria-label={`${b.name}, ${fmt(b.amount)}. ${paid ? "Paid — tap to mark unpaid" : "Tap to mark paid"}`}
+                  style={{ display: "flex", flex: 1, minWidth: 0, justifyContent: "space-between", alignItems: "center", padding: "10px 2px", cursor: "pointer" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
                     <span style={{ fontSize: 14, fontWeight: 500, color: paid ? T.ink3 : T.ink, textDecoration: paid ? "line-through" : "none" }}>{b.name}</span>
                     {b.recurring && <RepeatIcon c={T.ink3} s={13} />}
@@ -273,6 +274,11 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
                     <span style={{ fontSize: 14, fontWeight: 600, color: T.sky }}>{fmt(b.amount)}</span>
                   </span>
                 </button>
+                <button onClick={() => onDeleteBill(b.id)} aria-label={`Delete ${b.name}`} title="Delete bill"
+                  style={{ width: 32, height: 32, borderRadius: 10, display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0 }}>
+                  {Ic.trash(T.ink3, 16)}
+                </button>
+                </div>
               );
             })}
           </div>

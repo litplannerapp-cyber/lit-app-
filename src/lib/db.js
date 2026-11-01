@@ -227,6 +227,7 @@ export async function dbInsertBill(userId, bill) {
   if (error) throw error;
   return billFromRow(data);
 }
+export const dbDeleteBill = (id) => Promise.resolve(supabase.from("finance_bills").delete().eq("id", id)).then(({ error } = {}) => { if (error) throw error; });
 export const dbUpdateBillPaid = (id, recurring, patch) => Promise.resolve(supabase.from("finance_bills").update(patch).eq("id", id));
 
 export const dbDeleteExtra = (id) => Promise.resolve(supabase.from("finance_extras").delete().eq("id", id));
