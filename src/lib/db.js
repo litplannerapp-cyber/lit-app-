@@ -229,6 +229,7 @@ export async function dbInsertBill(userId, bill) {
 }
 export const dbUpdateBillPaid = (id, recurring, patch) => Promise.resolve(supabase.from("finance_bills").update(patch).eq("id", id));
 
+export const dbDeleteExtra = (id) => Promise.resolve(supabase.from("finance_extras").delete().eq("id", id));
 export async function dbInsertExtra(userId, extra) {
   const { data, error } = await supabase.from("finance_extras").insert({
     user_id: userId, name: extra.name, amount: extra.amount, month_key: extra.monthKey,
