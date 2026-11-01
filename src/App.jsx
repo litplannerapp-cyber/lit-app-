@@ -289,7 +289,7 @@ export default function LitApp() {
      mis-tap isn't destructive. If a second delete happens while one is
      still pending, the first one is committed immediately rather than
      silently dropped — there's only ever one toast on screen at a time. */
-  const deleteCapture = (c) => {
+  const deleteCapture = (c, message = "Deleted ·") => {
     if (deleteUndoRef.current) {
       clearTimeout(deleteUndoRef.current.timer);
       db.dbDeleteCapture(deleteUndoRef.current.capture.id).catch(console.error);
@@ -300,7 +300,7 @@ export default function LitApp() {
       db.dbDeleteCapture(c.id).catch(console.error);
     }, 5000);
     deleteUndoRef.current = { capture: c, timer };
-    showToast("Deleted ·", {
+    showToast(message, {
       duration: 5000,
       action: () => {
         clearTimeout(timer);
@@ -774,7 +774,7 @@ export default function LitApp() {
       <>
         {inboxOpen && (
           <InboxSheet
-            captures={inboxCaptures} addCapture={addCapture} releaseCapture={deleteCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
+            captures={inboxCaptures} addCapture={addCapture} releaseCapture={deleteCapture} completeCapture={(c) => deleteCapture(c, "Done — off your mind ·")} toggleListItem={toggleListItem} updateCapture={updateCapture}
             captureToVision={captureToVision} fetchLinkPreview={fetchLinkPreview}
             onSchedule={(c) => {
               setInboxOpen(false);
