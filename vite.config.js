@@ -43,7 +43,9 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: 'icon-512.png',
+            // full-bleed version with the ring inside the 80% safe zone, so
+            // Android's circle/squircle mask never crops it
+            src: 'icon-maskable-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
