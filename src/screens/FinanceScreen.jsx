@@ -78,9 +78,12 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   const togglePaid = (b) => onTogglePaid(b);
 
   const addBill = () => {
-    if (!billName.trim() || !billAmt) return;
+    /* the amount is what matters — the name is optional ("Bill" if left
+       empty), and the category falls back to the one picked or suggested */
+    const amount = Number(billAmt);
+    if (!billAmt || !Number.isFinite(amount) || amount <= 0) return;
     onAddBill({
-      name: billName.trim(), amount: Number(billAmt),
+      name: billName.trim() || "Bill", amount,
       category: billCat || suggestBillCategory(billName),
       recurring: billRecurring,
       ...(billRecurring ? {} : { monthKey: mk }),
@@ -121,12 +124,13 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   };
 
   const inputStyle = { flex: 1, minWidth: 0, padding: "11px 14px", borderRadius: 13, border: "none", outline: "none", background: T.bg, fontSize: 13.5 };
-  const amtStyle = { ...inputStyle, flex: "0 0 84px" };
+  const amtStyle = { ...inputStyle, flex: "0 0 84px", fontWeight: 600 };
   const addBtn = (fn) => (
     <button onPointerDown={(e) => { e.preventDefault(); fn(); }} style={{ padding: "0 15px", borderRadius: 13, background: T.ink, color: T.card, fontSize: 13, fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>Add</button>
   );
   const billsByCat = BILL_CATS.map((c) => [c, bills.filter((b) => b.category === c)]).filter(([, l]) => l.length);
-  const suggested = billName.trim() ? suggestBillCategory(billName) : null;
+  /* category chips appear as soon as there's a name or an amount */
+  const suggested = (billName.trim() || billAmt) ? suggestBillCategory(billName) : null;
 
   return (
     <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={monthSwipe.onPointerDown}>
@@ -274,10 +278,11 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
           </div>
         ))}
         <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-          <input value={billName} onChange={(e) => { setBillName(e.target.value); setBillCat(null); }} placeholder="e.g. Rent, Netflix…" style={inputStyle}
-            onKeyDown={(e) => e.key === "Enter" && addBill()} />
+          {/* amount first (that's what people think of first), name optional */}
           <input value={billAmt} onChange={(e) => setBillAmt(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" placeholder="€" style={amtStyle}
-            onKeyDown={(e) => e.key === "Enter" && addBill()} />
+            aria-label="Bill amount in euros" onKeyDown={(e) => e.key === "Enter" && addBill()} />
+          <input value={billName} onChange={(e) => { setBillName(e.target.value); setBillCat(null); }} placeholder="Optional" style={inputStyle}
+            aria-label="Bill name (optional)" onKeyDown={(e) => e.key === "Enter" && addBill()} />
           <button onClick={() => setBillRecurring(!billRecurring)} aria-label={billRecurring ? "Repeats every month" : "This month only"}
             title={billRecurring ? "Repeats every month" : "This month only"}
             style={{ width: 42, borderRadius: 13, background: billRecurring ? T.skySoft : T.bg, display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0, transition: "background .2s" }}>
