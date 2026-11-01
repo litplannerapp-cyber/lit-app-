@@ -82,6 +82,7 @@ export default function LitApp() {
   const toastTimer = useRef();
   const deleteUndoRef = useRef(null); // { capture, timer } while a deleted Inbox item's Undo window is open
   const goalDeleteUndoRef = useRef(null); // { goal, timer } while a deleted goal's Undo window is open
+  const billDeleteUndoRef = useRef(null); // { bill, timer } while a deleted bill's Undo window is open
   /* moveVisionItem's toast "Undo" button calls moveVisionItem again, but
      only after the user reads the toast — by then several renders may have
      passed. A plain closure over `boards`/`looseItems` from the render that
@@ -605,6 +606,36 @@ export default function LitApp() {
     setFinance((f) => ({ ...f, income }));
     db.dbSetIncome(user.id, income).catch(console.error);
   };
+  /* same grace-window delete as goals / the Inbox trash: the bill leaves
+     the screen (and the month's numbers) immediately, but the Supabase
+     delete only fires once the 5s "Undo" toast expires. A recurring bill
+     is removed from every month — it's one row. */
+  const deleteBill = (id) => {
+    const bill = finance.bills.find((b) => b.id === id);
+    if (!bill) return;
+    if (billDeleteUndoRef.current) {
+      clearTimeout(billDeleteUndoRef.current.timer);
+      db.dbDeleteBill(billDeleteUndoRef.current.bill.id).catch(console.error);
+    }
+    setFinance((f) => ({ ...f, bills: f.bills.filter((b) => b.id !== id) }));
+    const timer = setTimeout(() => {
+      billDeleteUndoRef.current = null;
+      db.dbDeleteBill(id).catch((e) => {
+        console.error(e);
+        setFinance((f) => ({ ...f, bills: [...f.bills, bill] }));
+        showToast("Couldn't delete that bill — please try again");
+      });
+    }, 5000);
+    billDeleteUndoRef.current = { bill, timer };
+    showToast(`${bill.name} deleted ·`, {
+      duration: 5000,
+      action: () => {
+        clearTimeout(timer);
+        billDeleteUndoRef.current = null;
+        setFinance((f) => ({ ...f, bills: [...f.bills, bill] }));
+      },
+    });
+  };
   const togglePaid = (bill) => {
     const patch = bill.recurring
       ? { paid_months: { ...(bill.paidMonths || {}), [financeMonth]: !bill.paidMonths?.[financeMonth] } }
@@ -695,7 +726,7 @@ export default function LitApp() {
       )}
       {tab === "finance" && (
         <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,
-          onSetIncome: setIncome, onTogglePaid: togglePaid, onAddBill: addBill, onAddExtra: addExtra, onDeleteExtra: deleteExtra }} />
+          onSetIncome: setIncome, onTogglePaid: togglePaid, onAddBill: addBill, onDeleteBill: deleteBill, onAddExtra: addExtra, onDeleteExtra: deleteExtra }} />
       )}
       {tab === "goals" && (
         <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onCreateGoal: createGoal, onDeleteGoal: deleteGoal, setEditor }} />
