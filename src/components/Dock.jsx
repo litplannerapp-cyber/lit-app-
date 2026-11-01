@@ -62,7 +62,7 @@ export function Dock({ tab, setTab, openInbox, unreadCount = 0 }) {
         {item("vision", "Vision", iconVision)}
         <button data-coach="inbox" data-drop="inbox" onClick={openInbox} aria-label="Open Inbox"
           style={{ position: "relative", width: 54, height: 54, borderRadius: 20, background: T.coralGrad, display: "grid", placeItems: "center", cursor: "pointer", margin: "0 8px", boxShadow: "0 8px 22px rgba(255,107,94,.4)", flexShrink: 0, transform: "translateY(-14px)" }}>
-          {Ic.tray("#fff")}
+          {Ic.thought("#fff")}
           <NotificationBadge count={unreadCount} size={21} />
         </button>
         {item("finance", "Finance", iconFinance)}

@@ -2,9 +2,11 @@ import { T } from "../theme";
 import { HALO_ARCS } from "../constants";
 
 export const Ic = {
-  tray: (c = T.ink) => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 13h4l2 3h4l2-3h4" /><path d="M4 13V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6" /><path d="M4 13v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
+  /* the capture ("Inbox") icon: a thought bubble, not an email tray —
+     Lit is where thoughts go to leave your head, not a pile of pending mail */
+  thought: (c = T.ink) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M8 16.5H7a4.5 4.5 0 0 1-.6-8.96A5.6 5.6 0 0 1 17.3 6.6 4.95 4.95 0 0 1 17 16.5Z" /><circle cx="6.3" cy="19.6" r="1.25" /><circle cx="3.4" cy="21.8" r=".75" />
     </svg>),
   feather: (c = T.ink3) => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
