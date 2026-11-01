@@ -749,7 +749,7 @@ export default function LitApp() {
               collides with a screen's own header row (e.g. Vision's board view). */}
           <button data-coach="inbox" data-drop="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
             style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
-            {Ic.tray(T.ink2)}
+            {Ic.thought(T.ink2)}
             <NotificationBadge count={inboxCaptures.length} size={19} />
           </button>
 
