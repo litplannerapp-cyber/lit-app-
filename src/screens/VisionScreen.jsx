@@ -110,7 +110,7 @@ function LooseDraggableItem({ item, onTap, onDelete }) {
       }}>
       {item.type === "image" && <img src={item.content} alt="" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />}
       {item.type === "text" && (
-        <p style={LOOSE_TEXT}>{item.content}</p>
+        <p className="fr" style={{ ...LOOSE_TEXT, color: T.ink }}>{item.content}</p>
       )}
       {item.type === "link" && <div style={{ pointerEvents: "none" }}><LinkPreview url={item.content} /></div>}
     </div>
@@ -130,10 +130,15 @@ function LooseDraggableItem({ item, onTap, onDelete }) {
   );
 }
 
-/* loose notes read like the rest of the app — upright, body size —
-   with room on the right for the trash button */
+/* loose notes read like the rest of the app — same Fraunces font as every
+   other vision item, upright (not italic) and at body size for legibility,
+   with room on the right for the trash button. `color` is deliberately not
+   baked in here: T is a module-level binding the app reassigns on every
+   theme change, and this object is created once at import time, so a color
+   captured here would freeze at whatever theme was active on first load —
+   each caller below reads T.ink live instead. */
 const LOOSE_TEXT = {
-  fontSize: 15, fontWeight: 500, lineHeight: 1.4, margin: 0, padding: "14px 40px 14px 14px", color: T.ink,
+  fontSize: 15, fontWeight: 500, lineHeight: 1.4, margin: 0, padding: "14px 40px 14px 14px",
   display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden", overflowWrap: "break-word",
 };
 
@@ -328,7 +333,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
             {activeLooseItem && (
               <div style={{ width: 160, borderRadius: 16, overflow: "hidden", background: T.card, boxShadow: "0 20px 44px -16px rgba(46,42,38,.4)" }}>
                 {activeLooseItem.type === "image" && <img src={activeLooseItem.content} alt="" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />}
-                {activeLooseItem.type === "text" && <p style={LOOSE_TEXT}>{activeLooseItem.content}</p>}
+                {activeLooseItem.type === "text" && <p className="fr" style={{ ...LOOSE_TEXT, color: T.ink }}>{activeLooseItem.content}</p>}
                 {activeLooseItem.type === "link" && <div style={{ pointerEvents: "none" }}><LinkPreview url={activeLooseItem.content} /></div>}
               </div>
             )}
