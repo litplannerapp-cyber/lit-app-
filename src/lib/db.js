@@ -251,3 +251,4 @@ export const dbUpdateExpense = (id, patch) => Promise.resolve(supabase.from("fin
 /* ---------- streak ---------- */
 
 export const dbInsertClearedDay = (userId, dateKey) => Promise.resolve(supabase.from("cleared_days").insert({ user_id: userId, date_key: dateKey }));
+export const dbDeleteClearedDay = (userId, dateKey) => Promise.resolve(supabase.from("cleared_days").delete().eq("user_id", userId).eq("date_key", dateKey));
