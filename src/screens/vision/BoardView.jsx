@@ -15,6 +15,8 @@ import { VisionTile } from "../../components/VisionTile";
 import { useImagePicker } from "../../hooks/useImagePicker";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { uid } from "../../utils/date";
+import { ListIcon } from "../../components/VisionList";
+import { visionListContent } from "../../utils/visionList";
 
 const MOVE_OUT_ID = "move-out-of-board";
 
@@ -56,6 +58,9 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
   const [editingItem, setEditingItem] = useState(null);
   const [editDraft, setEditDraft] = useState("");
   const [quick, setQuick] = useState("");
+  /* list mode: the quick-add input names a new list instead of adding a note */
+  const [listMode, setListMode] = useState(false);
+  const [newListId, setNewListId] = useState(null); // focus "Add item" on the list just created
   const [openPicker, pickerInput] = useImagePicker((dataUrl) => {
     onAddImage(board.id, dataUrl);
     showToast(`Image added to ${board.name}`);
@@ -70,7 +75,16 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
   /* add a quote or link directly into this board — same auto-detect as the
      top-level Vision quick-capture, but it lands here instead of loose */
   const addQuickToBoard = () => {
-    const v = quick.trim(); if (!v) return;
+    const v = quick.trim();
+    if (listMode) {
+      const item = { id: uid(), type: "list", content: visionListContent({ title: v || "New list", items: [] }), tags: [] };
+      onAddItem(board.id, item);
+      setNewListId(item.id);
+      setQuick(""); setListMode(false);
+      showToast("List added — now add its items");
+      return;
+    }
+    if (!v) return;
     const tags = (v.match(/#[\w-]+/g) || []).map((t) => t.slice(1));
     const content = v.replace(/#[\w-]+/g, "").trim();
     const isLink = /^https?:\/\/\S+$/i.test(v);
@@ -124,8 +138,14 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
         <input value={quick} onChange={(e) => setQuick(e.target.value)} enterKeyHint="done"
           onKeyDown={(e) => e.key === "Enter" && addQuickToBoard()}
-          placeholder="Add a quote or paste a link…"
+          placeholder={listMode ? "List name, e.g. Italy to-dos" : "Add a quote or paste a link…"}
+          aria-label={listMode ? "New list name" : "Add a quote or paste a link"}
           style={{ flex: 1, minWidth: 0, padding: "13px 16px", borderRadius: 15, border: "none", outline: "none", background: T.bg, fontSize: 14 }} />
+        <button onClick={() => setListMode((m) => !m)} aria-pressed={listMode} aria-label={listMode ? "Back to quote or link" : "New list"} title="New list"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0 12px", borderRadius: 15, flexShrink: 0, cursor: "pointer", fontSize: 13, fontWeight: 600,
+            background: listMode ? T.coralSoft : T.bg, color: listMode ? T.coral : T.ink2, border: listMode ? `1.5px solid ${T.coral}` : "1.5px solid transparent" }}>
+          <ListIcon c={listMode ? T.coral : T.ink2} /> List
+        </button>
         <button onPointerDown={(e) => { e.preventDefault(); addQuickToBoard(); }}
           style={{ padding: "0 16px", borderRadius: 15, background: T.coralGrad, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", flexShrink: 0 }}>
           Add
@@ -146,7 +166,9 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
                     isCover={board.coverUrl === item.content}
                     onEdit={(item.type === "text" || item.type === "link") ? () => startEdit(item) : null}
                     onEditTags={(changes) => onEditItem(item.id, changes)}
-                    onTap={() => item.type !== "link" && setMoveItem(item)}
+                    onUpdateList={item.type === "list" ? (content) => onEditItem(item.id, { content }) : undefined}
+                    autoFocusList={item.id === newListId}
+                    onTap={() => item.type !== "link" && item.type !== "list" && setMoveItem(item)}
                     onMenu={() => setMoveItem(item)}
                     boardColor={board.color}
                   />

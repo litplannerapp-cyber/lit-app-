@@ -18,6 +18,7 @@ import { useMediaQuery } from "../hooks/useMediaQuery";
 import { uid } from "../utils/date";
 import { PALETTE } from "../constants";
 import { BoardView } from "./vision/BoardView";
+import { VisionList } from "../components/VisionList";
 import { BoardEditSheet } from "./vision/BoardEditSheet";
 
 const LOOSE_PREFIX = "loose:";
@@ -101,7 +102,7 @@ function LooseDraggableItem({ item, onTap, onDelete }) {
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
     <div ref={setNodeRef} {...listeners} {...attributes} onClick={onTap}
-      aria-label={`${item.type === "image" ? "Image" : item.type === "link" ? "Link" : "Note"}. Press space to pick up and drag to a board, arrow keys to move, space to drop, escape to cancel. Or activate to choose a board.`}
+      aria-label={`${item.type === "image" ? "Image" : item.type === "link" ? "Link" : item.type === "list" ? "List" : "Note"}. Press space to pick up and drag to a board, arrow keys to move, space to drop, escape to cancel. Or activate to choose a board.`}
       style={{
         width: 160, minHeight: 84, borderRadius: 16, overflow: "hidden", background: T.card, boxShadow: T.shadowSm,
         cursor: "pointer", border: `1.4px dashed ${T.ink3}`, touchAction: "manipulation",
@@ -113,6 +114,7 @@ function LooseDraggableItem({ item, onTap, onDelete }) {
         <p className="fr" style={{ ...LOOSE_TEXT, color: T.ink }}>{item.content}</p>
       )}
       {item.type === "link" && <div style={{ pointerEvents: "none" }}><LinkPreview url={item.content} /></div>}
+      {item.type === "list" && <VisionList compact content={item.content} />}
     </div>
       {/* delete — outside the draggable so a tap never starts a drag */}
       <div style={{ position: "absolute", top: 6, right: 6 }}>
@@ -335,6 +337,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
                 {activeLooseItem.type === "image" && <img src={activeLooseItem.content} alt="" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />}
                 {activeLooseItem.type === "text" && <p className="fr" style={{ ...LOOSE_TEXT, color: T.ink }}>{activeLooseItem.content}</p>}
                 {activeLooseItem.type === "link" && <div style={{ pointerEvents: "none" }}><LinkPreview url={activeLooseItem.content} /></div>}
+                {activeLooseItem.type === "list" && <VisionList compact content={activeLooseItem.content} />}
               </div>
             )}
           </DragOverlay>
