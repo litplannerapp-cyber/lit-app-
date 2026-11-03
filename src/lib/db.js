@@ -72,7 +72,7 @@ export async function fetchAll(userId) {
   milestonesRes.data.forEach((m) => {
     (milestonesByGoal[m.goal_id] = milestonesByGoal[m.goal_id] || []).push({ id: m.id, text: m.text, done: m.done });
   });
-  const goals = goalsRes.data.map((g) => ({ id: g.id, title: g.title, targetDate: g.target_date, milestones: milestonesByGoal[g.id] || [] }));
+  const goals = goalsRes.data.map((g) => ({ id: g.id, title: g.title, targetDate: g.target_date, completedAt: g.completed_at || null, milestones: milestonesByGoal[g.id] || [] }));
 
   return {
     profile: profileRes.data ? { name: profileRes.data.name, onboarded: profileRes.data.onboarded } : null,
@@ -208,6 +208,8 @@ export async function dbInsertMilestone(userId, goalId, text) {
   if (error) throw error;
   return { id: data.id, text: data.text, done: data.done };
 }
+export const dbUpdateGoal = (id, patch) => Promise.resolve(supabase.from("goals").update(patch).eq("id", id)).then(({ error } = {}) => { if (error) throw error; });
+export const dbDeleteMilestone = (id) => Promise.resolve(supabase.from("milestones").delete().eq("id", id)).then(({ error } = {}) => { if (error) throw error; });
 export const dbUpdateMilestone = (id, patch) => Promise.resolve(supabase.from("milestones").update(patch).eq("id", id));
 /* milestones.goal_id is "on delete cascade" (migration 0001), so deleting
    the goal row removes its milestones too — no separate call needed. */
