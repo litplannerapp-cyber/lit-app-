@@ -450,6 +450,18 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
   .float-chip{display:none!important}
 }
 
+/* Vision section (#vision) — the animated board stage itself lives in a shadow root (see the script) */
+.vz-tabs{display:flex;gap:8px;margin-top:30px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px}
+.vz-tabs::-webkit-scrollbar{display:none}
+.vz-tab{flex:none;min-height:44px;border:1.5px solid #E2D9CF;background:transparent;padding:0 17px;border-radius:999px;font:600 14.5px 'Instrument Sans',system-ui,sans-serif;color:#6B625B;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s,border-color .25s}
+.vz-tab:hover{border-color:#CFC4B8;color:var(--ink)}
+.vz-tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8F3}
+.vz-points{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:6px}
+.vz-points li{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 14px;border-radius:18px;opacity:.55;transition:background .4s,opacity .4s,box-shadow .4s}
+.vz-points li.on{opacity:1;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.04),0 10px 26px -14px rgba(46,42,38,.22)}
+.vz-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;background:#CFC6BC;transition:background .4s}
+.vz-points li.on .vz-n{background:linear-gradient(135deg,#F4B16B,#ED7B65 52%,#E35F87)}
+.vz-points b{display:block;font-size:16px}.vz-points span:not(.vz-n){font-size:14.5px;color:#6B625B;line-height:1.45}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   .lit *,.lit *::before,.lit *::after{animation:none!important;transition:none!important}
@@ -740,6 +752,33 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
         <div id="fourth-hint" style="font-size:14px;color:#6B625B">Try it — tick your three, or try adding a fourth.</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- VISION: BOARDS FOR THE BIGGER PLANS -->
+<section id="vision" class="section" aria-labelledby="vision-h">
+  <div class="wrap" style="position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:64px">
+    <div style="flex:1 1 440px;min-width:0">
+      <div class="eyebrow reveal">Vision · For the bigger plans</div>
+      <p class="serif reveal" style="margin:22px 0 0;font-size:19px;line-height:1.5;font-style:italic;color:#6B625B">Screenshots in your camera roll. Links in a chat with yourself. Fourteen tabs about one trip.</p>
+      <h2 id="vision-h" class="serif h2 reveal">Your plans deserve better than <em class="accent" style="font-weight:340">fourteen open tabs.</em></h2>
+      <p class="lead reveal" style="margin:24px 0 0;max-width:520px">Make a board for anything you're working towards — a trip, a new home, a wedding, Christmas, the right pair of running shoes. Save the links, photos and notes. Add the list that gets it done.</p>
+      <div class="vz-tabs reveal" role="tablist" aria-label="Board examples">
+        <button type="button" class="vz-tab" role="tab" aria-selected="true" data-story="trip">Trip</button>
+        <button type="button" class="vz-tab" role="tab" aria-selected="false" data-story="xmas">Christmas</button>
+        <button type="button" class="vz-tab" role="tab" aria-selected="false" data-story="move">New home</button>
+        <button type="button" class="vz-tab" role="tab" aria-selected="false" data-story="wed">Wedding</button>
+        <button type="button" class="vz-tab" role="tab" aria-selected="false" data-story="buy">Shopping</button>
+      </div>
+      <ol class="vz-points reveal" id="vz-points">
+        <li data-p="1"><span class="vz-n">1</span><div><b>Save it from anywhere.</b><span>Links, Pinterest finds, photos, a quick note.</span></div></li>
+        <li data-p="2"><span class="vz-n">2</span><div><b>See it all in one place.</b><span>Every link becomes a card, with its picture and title.</span></div></li>
+        <li data-p="3"><span class="vz-n">3</span><div><b>Turn it into a plan.</b><span>A checklist right on the board — book the hotel, reserve the table.</span></div></li>
+      </ol>
+      <p class="reveal" style="margin:20px 0 0;font-size:16px;color:#5E5650">When it's time, send it to <b style="color:var(--ink)">Today</b>. Your board keeps the rest.</p>
+      <div class="reveal" style="margin-top:22px"><a class="link-cta" href="/app" data-cta><span class="u">Make your first board — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+    </div>
+    <div class="reveal" id="vz-host" role="img" aria-label="An animated Lit board: scattered links, photos and notes fly onto one board, a checklist gets ticked off, and one item is sent to Today." style="flex:1 1 460px;min-width:0"></div>
   </div>
 </section>
 
@@ -1108,6 +1147,223 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     }
     go.addEventListener('click', empty);
     replay.addEventListener('click', reset);
+  })();
+
+  /* ---------- Vision section: animated board stories ---------- */
+  (function () {
+    var host = document.getElementById('vz-host'); if (!host || !host.attachShadow) return;
+    var root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = '<style>:host{display:block}*{box-sizing:border-box}:host{--card:#FDFAF5;--ink:#1F1A17;--ink2:#6D655E;--ink3:#A39A91;--coral:#ED7B65;--mint:#4FB896;--mintSoft:rgba(79,184,150,.14);--grad:linear-gradient(135deg,#F4B16B,#ED7B65 52%,#E35F87);--sh:0 1px 2px rgba(46,42,38,.04),0 10px 26px -12px rgba(46,42,38,.22);font-family:\'Instrument Sans\',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}/* stage */ .stage{position:relative;height:640px;border-radius:32px;background:linear-gradient(160deg,#EFE6DC,#E9DED2);box-shadow:inset 0 0 0 1px rgba(0,0,0,.03);overflow:hidden} .board{position:absolute;inset:26px 26px 30px;border-radius:24px;background:var(--card);box-shadow:var(--sh);padding:20px 20px 16px;display:flex;flex-direction:column} .bhead{display:flex;align-items:center;gap:10px} .dot{width:12px;height:12px;border-radius:50%} .btitle{font-family:\'Fraunces\',serif;font-size:24px;font-weight:500;letter-spacing:-.01em} .bcount{margin-left:auto;font-size:12px;color:var(--ink3);font-weight:600} .grid{position:relative;flex:1;margin-top:14px;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:min-content;gap:10px;align-content:start} .slot{border-radius:16px;border:1.5px dashed #E2D9CF;min-height:70px} .c{border-radius:16px;background:#fff;box-shadow:var(--sh);overflow:hidden;opacity:0;transform:scale(.92)} .c.in{opacity:1;transform:none;transition:opacity .45s ease,transform .55s cubic-bezier(.2,1.2,.3,1)} .c img,.c .ph{display:block;width:100%;height:78px;object-fit:cover} .c .meta{padding:9px 11px 10px}.c .t{font-size:13px;font-weight:600;line-height:1.25}.c .s{font-size:11px;color:var(--ink3);margin-top:2px} .tag{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--mint);background:var(--mintSoft);padding:2px 7px;border-radius:100px;opacity:0;transform:translateY(3px);transition:all .35s} .tag.in{opacity:1;transform:none} .note{padding:12px 12px 6px;font-size:12.5px;line-height:1.42;min-height:78px} .note .nl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px} .list{grid-column:1/-1;padding:12px 14px 10px} .lh{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}.lh .cnt{margin-left:auto;font-size:11.5px;color:var(--ink3)} .row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;font-weight:500;position:relative} .ck{width:20px;height:20px;border-radius:7px;border:1.6px solid var(--ink3);display:grid;place-items:center;flex:none;transition:all .25s;position:relative} .ck svg{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .3s ease .05s} .row.done .ck{border-color:transparent;background:var(--grad)}.row.done .ck svg{stroke-dashoffset:0} .row.done .lt{color:var(--ink3);text-decoration:line-through} .lt{transition:color .3s} .burst{position:absolute;left:-4px;top:2px;width:28px;height:28px;border-radius:50%;border:2px solid var(--coral);opacity:0;pointer-events:none} .today{position:absolute;right:38px;bottom:44px;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border-radius:18px;background:#fff;box-shadow:0 20px 40px -18px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);transition:all .45s ease} .today.in{opacity:1;transform:none} .today b{font-size:13px;display:block}.today span{font-size:11.5px;color:var(--ink3)} .frag{position:absolute;z-index:5;border-radius:14px;background:#fff;box-shadow:0 16px 36px -14px rgba(0,0,0,.35);will-change:transform} .frag.photo{width:118px;height:150px;overflow:hidden;padding:5px 5px 18px}.frag.photo img{width:100%;height:100%;object-fit:cover;border-radius:9px} .frag.chip{padding:9px 12px;font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap;display:flex;gap:7px;align-items:center} .frag.chip i{font-style:normal;width:16px;height:16px;border-radius:5px;background:#E9E2DA;display:grid;place-items:center;font-size:9px} .frag.bubble{padding:10px 13px;font-size:12.5px;border-radius:16px 16px 16px 5px;background:#E7F6EE;color:#1E4D3B;max-width:190px;line-height:1.35} .frag.shot{width:150px;padding:10px;font-size:11.5px}.frag.shot .st{font-weight:700;font-size:12.5px}.stars{color:#E9A23B;letter-spacing:1px} .cap{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-family:\'Fraunces\',serif;font-style:italic;font-size:15px;color:var(--ink2);opacity:0;transition:opacity .5s} .cap.in{opacity:1} .shoe{height:78px;display:grid;place-items:center}.shoe svg{height:46px} @media (max-width:900px){   .stage{height:640px;border-radius:26px}.c .meta{padding:8px 9px 9px}.c .t{font-size:12.5px}.board{inset:14px;padding:16px 14px 12px}   .frag.photo{width:96px;height:124px}.today{right:24px;bottom:30px} }</style>' +
+      '<div class="stage" id="vz-stage"><div class="board"><div class="bhead"><span class="dot" id="vz-bdot"></span><span class="btitle" id="vz-btitle"></span><span class="bcount" id="vz-bcount"></span></div><div class="grid" id="vz-grid"></div></div>' +
+      '<div class="today" id="vz-today"><svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="#EDE6DE" stroke-width="5"/><circle id="vz-ring" cx="20" cy="20" r="15" fill="none" stroke="url(#vzg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="94.25" stroke-dashoffset="94.25" transform="rotate(-90 20 20)" style="transition:stroke-dashoffset .8s ease"/><defs><linearGradient id="vzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4B16B"/><stop offset=".52" stop-color="#ED7B65"/><stop offset="1" stop-color="#E35F87"/></linearGradient></defs></svg><div><b>Added to Today</b><span id="vz-todayS"></span></div></div>' +
+      '<div class="cap" id="vz-cap"></div></div>';
+    const IMG={flat:'/landing-img/vision-flat.jpg',garland:'/landing-img/vision-garland.jpg',tree:'/landing-img/vision-tree.jpg',liguria:'/landing-img/vision-liguria.jpg',run:'/landing-img/vision-run.jpg'};
+
+    const CHECK='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+const LISTICON='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ED7B65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>';
+const shoe=(c)=>`<div class="shoe" style="background:${c}22"><svg width="104" height="56" viewBox="0 0 104 56"><path d="M6 40c0-6 3-10 8-12l14-6c4-2 7-6 9-11l2-5c1-2 3-3 5-2l8 4c3 1 4 4 4 7v3c0 3 2 5 5 6l22 6c8 2 15 7 15 14v4H10c-2 0-4-2-4-4z" fill="${c}"/><path d="M6 44h92v4c0 3-2 5-5 5H11c-3 0-5-2-5-5z" fill="#fff" stroke="${c}" stroke-width="1.5"/><path d="M40 16l6 4M37 21l6 4M34 26l6 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>`;
+const wreath=`<div class="shoe" style="background:#2F5D4A22"><svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" fill="none" stroke="#3F7A5E" stroke-width="11"/><circle cx="32" cy="32" r="20" fill="none" stroke="#5E9C7C" stroke-width="4" stroke-dasharray="3 6"/>${[0,60,120,180,240,300].map(a=>`<circle cx="${32+20*Math.cos(a*Math.PI/180)}" cy="${32+20*Math.sin(a*Math.PI/180)}" r="2.6" fill="#D2463B"/>`).join('')}<path d="M32 46l-7 9 7-3 7 3z" fill="#D2463B"/><circle cx="32" cy="47" r="3.2" fill="#B7352C"/></svg></div>`;
+const lights=`<div class="shoe" style="background:#F4B16B22"><svg width="120" height="50" viewBox="0 0 120 50"><path d="M4 10 Q 34 34 60 14 T 116 12" fill="none" stroke="#6D655E" stroke-width="1.6"/>${[[12,17,'#F4B16B'],[26,25,'#ED7B65'],[40,26,'#F2D06B'],[54,18,'#E35F87'],[68,12,'#F4B16B'],[82,16,'#ED7B65'],[96,20,'#F2D06B'],[110,14,'#E35F87']].map(([x,y,c])=>`<circle cx="${x}" cy="${y+8}" r="8" fill="${c}" opacity=".25"/><rect x="${x-3}" y="${y}" width="6" height="10" rx="3" fill="${c}"/>`).join('')}</svg></div>`;
+const sofa=`<div class="shoe" style="background:#C9B49A33"><svg width="110" height="56" viewBox="0 0 110 56"><rect x="14" y="10" width="82" height="24" rx="9" fill="#C98F6B"/><rect x="6" y="22" width="98" height="20" rx="8" fill="#B7795A"/><rect x="6" y="20" width="16" height="22" rx="7" fill="#A86B4E"/><rect x="88" y="20" width="16" height="22" rx="7" fill="#A86B4E"/><rect x="14" y="42" width="5" height="9" rx="2" fill="#6D655E"/><rect x="91" y="42" width="5" height="9" rx="2" fill="#6D655E"/><rect x="30" y="16" width="20" height="12" rx="5" fill="#EFD9C2"/></svg></div>`;
+const van=`<div class="shoe" style="background:#9FB3C833"><svg width="110" height="56" viewBox="0 0 110 56"><rect x="8" y="12" width="62" height="30" rx="5" fill="#6E8399"/><path d="M70 22h18l12 12v8H70z" fill="#879CB2"/><path d="M74 25h12l8 8H74z" fill="#DCE6EE"/><circle cx="26" cy="44" r="7" fill="#2E2925"/><circle cx="26" cy="44" r="3" fill="#C9C2BA"/><circle cx="84" cy="44" r="7" fill="#2E2925"/><circle cx="84" cy="44" r="3" fill="#C9C2BA"/><path d="M18 26h36" stroke="#DCE6EE" stroke-width="3" stroke-linecap="round"/></svg></div>`;
+const rings=`<div class="shoe" style="background:#F4B16B22"><svg width="90" height="56" viewBox="0 0 90 56"><circle cx="36" cy="32" r="15" fill="none" stroke="#E2B04A" stroke-width="5"/><circle cx="54" cy="32" r="15" fill="none" stroke="#F0C870" stroke-width="5"/><path d="M50 13l4-6 4 6-4 4z" fill="#BFE3F2" stroke="#8CC3DA" stroke-width="1"/></svg></div>`;
+const bouquet=`<div class="shoe" style="background:#E35F8718"><svg width="80" height="60" viewBox="0 0 80 60"><path d="M36 34l-6 22h20l-6-22z" fill="#8AA88F"/><path d="M33 40h14" stroke="#F3EEE8" stroke-width="2"/>${[[28,20,'#F4A7B9'],[40,14,'#ED7B65'],[52,20,'#F7C6CF'],[34,28,'#F7C6CF'],[46,27,'#F4A7B9']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="8" fill="${c}"/><circle cx="${x}" cy="${y}" r="3" fill="#fff" opacity=".5"/>`).join('')}<circle cx="22" cy="30" r="4" fill="#8AA88F"/><circle cx="58" cy="30" r="4" fill="#8AA88F"/></svg></div>`;
+const tile=(bg,label)=>`<div class="ph" style="background:${bg};display:grid;place-items:center;color:#fff;font:600 12px 'Instrument Sans';letter-spacing:.04em">${label}</div>`;
+const STORIES={
+ trip:{title:'Italy · May',color:'#ED7B65',
+  frags:[
+   {cls:'photo',html:`<img src="${IMG.liguria}" alt="">`,x:.06,y:.08,r:-8},
+   {cls:'chip',html:'<i>🔗</i>hotelvillaroma.it/rooms…',x:.48,y:.07,r:4},
+   {cls:'shot',html:'<div class="st">Trattoria Lucia</div><div class="stars">★★★★★</div><div style="color:#A39A91">Via dei Serragli · €€</div>',x:.55,y:.36,r:-5},
+   {cls:'bubble',html:'you HAVE to try this place 🍝',x:.12,y:.5,r:3},
+   {cls:'chip',html:'<i>🔗</i>uffizi.it/tickets',x:.2,y:.72,r:-3},
+  ],
+  cards:[
+   `<img src="${IMG.liguria}" alt=""><div class="meta"><div class="t">Cinque Terre at sunset</div><div class="s">pinterest · saved</div><span class="tag">#italy</span></div>`,
+   `${tile('linear-gradient(135deg,#D9A07A,#B9674A)','HOTEL')}<div class="meta"><div class="t">Villa Roma — rooms</div><div class="s">hotelvillaroma.it</div><span class="tag">#italy</span></div>`,
+   `${tile('linear-gradient(135deg,#C7835F,#8E4B37)','TRATTORIA')}<div class="meta"><div class="t">Trattoria Lucia</div><div class="s">"you HAVE to try this place"</div><span class="tag">#italy</span></div>`,
+   `${tile('linear-gradient(135deg,#9FB3C8,#6E8399)','MUSEUM')}<div class="meta"><div class="t">Uffizi — tickets</div><div class="s">uffizi.it</div><span class="tag">#italy</span></div>`,
+  ],
+  list:{title:'To book',items:['Hotel in Rome','Dinner at Trattoria Lucia','Train to Florence']},
+  today:'Train to Florence', cap:'From fourteen tabs to one board.'},
+ xmas:{title:'Christmas at home',color:'#D2463B',
+  frags:[
+   {cls:'photo',html:`<img src="${IMG.garland}" alt="">`,x:.07,y:.07,r:-6},
+   {cls:'chip',html:'<i>🔗</i>homestore.ie/eucalyptus-wreath',x:.42,y:.09,r:4},
+   {cls:'chip',html:'<i>🔗</i>warm-white fairy lights · 20m',x:.46,y:.33,r:-4},
+   {cls:'bubble',html:'front door is 92cm wide — get the big wreath!',x:.08,y:.46,r:2},
+   {cls:'photo',html:`<img src="${IMG.tree}" alt="">`,x:.6,y:.56,r:6},
+  ],
+  cards:[
+   `<img src="${IMG.garland}" alt=""><div class="meta"><div class="t">Garland and red bows</div><div class="s">pinterest · saved</div><span class="tag">#christmas</span></div>`,
+   `${wreath}<div class="meta"><div class="t">Eucalyptus wreath</div><div class="s">€45 · homestore.ie</div><span class="tag">#christmas</span></div>`,
+   `${lights}<div class="meta"><div class="t">Warm-white fairy lights</div><div class="s">€24 · 20m</div><span class="tag">#christmas</span></div>`,
+   `<div class="note"><div class="nl">Note</div><span id="vz-typed"></span></div><div class="meta" style="padding-top:0"><span class="tag">#christmas</span></div>`,
+  ],
+  note:'Front door 92cm — big wreath. Real tree this year: measure the living room first (2.4m ceiling).',
+  list:{title:'Before 1 December',items:['Buy fairy lights','Order the wreath','Book the tree delivery']},
+  today:'Book the tree delivery', cap:'Every idea for the season, in one calm place.'},
+ move:{title:'New home · Rathmines',color:'#B7795A',
+  frags:[
+   {cls:'photo',html:`<img src="${IMG.flat}" alt="">`,x:.06,y:.08,r:-5},
+   {cls:'chip',html:'<i>🔗</i>easymove.ie · quote €480',x:.44,y:.08,r:4},
+   {cls:'bubble',html:'landlord: meter readings on the 1st, bins go out Tuesday',x:.5,y:.32,r:-3},
+   {cls:'chip',html:'<i>🔗</i>3-seater sofa · oat linen',x:.1,y:.5,r:3},
+   {cls:'chip',html:'<i>🔗</i>broadband deals · 1Gb',x:.42,y:.66,r:-4},
+  ],
+  cards:[
+   `<img src="${IMG.flat}" alt=""><div class="meta"><div class="t">Cosy reading corner</div><div class="s">inspiration</div><span class="tag">#newhome</span></div>`,
+   `${van}<div class="meta"><div class="t">Removals quote</div><div class="s">€480 · easymove.ie</div><span class="tag">#newhome</span></div>`,
+   `${sofa}<div class="meta"><div class="t">3-seater sofa, oat linen</div><div class="s">€899 · homestore.ie</div><span class="tag">#newhome</span></div>`,
+   `<div class="note"><div class="nl">Note</div><span id="vz-typed"></span></div><div class="meta" style="padding-top:0"><span class="tag">#newhome</span></div>`,
+  ],
+  note:'Meter readings on the 1st. Bins: Tuesday. Living room wall 3.1m — the sofa fits.',
+  list:{title:'Before the move',items:['Change address with the bank','Set up broadband','Book the van']},
+  today:'Book the van', cap:'A whole move, out of your head and onto one board.'},
+ wed:{title:'Our wedding · June',color:'#E35F87',
+  frags:[
+   {cls:'chip',html:'<i>🔗</i>glenviewhouse.ie/the-barn',x:.08,y:.08,r:-4},
+   {cls:'bubble',html:'peonies or garden roses?? 🌸',x:.5,y:.1,r:4},
+   {cls:'chip',html:'<i>🔗</i>wildbloom florist · €650',x:.52,y:.36,r:-3},
+   {cls:'chip',html:'<i>🔗</i>photographer · portfolio',x:.08,y:.42,r:3},
+   {cls:'bubble',html:'guest list: 82 so far 😅',x:.2,y:.68,r:-2},
+  ],
+  cards:[
+   `${tile('linear-gradient(135deg,#D9B99A,#A97E5F)','THE BARN')}<div class="meta"><div class="t">Glenview House — the barn</div><div class="s">glenviewhouse.ie</div><span class="tag">#wedding</span></div>`,
+   `${bouquet}<div class="meta"><div class="t">Peonies & garden roses</div><div class="s">€650 · wildbloom</div><span class="tag">#wedding</span></div>`,
+   `${rings}<div class="meta"><div class="t">Rings — resize by May</div><div class="s">jeweller · booked</div><span class="tag">#wedding</span></div>`,
+   `<div class="note"><div class="nl">Note</div><span id="vz-typed"></span></div><div class="meta" style="padding-top:0"><span class="tag">#wedding</span></div>`,
+  ],
+  note:'Guest list: 82 so far. Ask the venue about a rain plan. Mum wants peonies.',
+  list:{title:'This month',items:['Book the photographer','Taste the cakes','Send save-the-dates']},
+  today:'Send save-the-dates', cap:'All the plans, none of the panic.'},
+ buy:{title:'New running shoes',color:'#4FB896',
+  frags:[
+   {cls:'chip',html:'<i>🔗</i>runstore.com/tempo-lite',x:.08,y:.08,r:-4},
+   {cls:'chip',html:'<i>🔗</i>stride-pro · review',x:.5,y:.12,r:5},
+   {cls:'photo',html:`<img src="${IMG.run}" alt="">`,x:.6,y:.38,r:6},
+   {cls:'bubble',html:'"runs half a size small" — 212 reviews',x:.08,y:.42,r:-2},
+   {cls:'chip',html:'<i>🔗</i>cloudrun-4 · €129',x:.18,y:.7,r:3},
+  ],
+  cards:[
+   `${shoe('#ED7B65')}<div class="meta"><div class="t">Tempo Lite</div><div class="s">€119 · runstore.com</div><span class="tag">#running</span></div>`,
+   `${shoe('#8AA88F')}<div class="meta"><div class="t">Stride Pro</div><div class="s">€139 · review</div><span class="tag">#running</span></div>`,
+   `<div class="note"><div class="nl">Note</div><span id="vz-typed"></span></div><div class="meta" style="padding-top:0"><span class="tag">#running</span></div>`,
+   `<img src="${IMG.run}" alt=""><div class="meta"><div class="t">Morning runs by the water</div><div class="s">inspiration</div><span class="tag">#running</span></div>`,
+  ],
+  note:'Tempo Lite — lighter, less cushion. Runs half a size small: try a 39.',
+  list:{title:'Try in store',items:['Tempo Lite (size 39)','Stride Pro','Ask about returns']},
+  today:'Try Tempo Lite in store', cap:'Do the research once. Find it when you need it.'},
+};
+
+    var $ = function (s, r) { return (r || root).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || root).querySelectorAll(s)); };
+    var stage = $('#vz-stage'), grid = $('#vz-grid');
+    var pts = Array.prototype.slice.call(document.querySelectorAll('#vz-points li'));
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('#vision .vz-tab'));
+    var ORDER = ['trip', 'xmas', 'move', 'wed', 'buy'];
+    var timers = [], cur = 'trip', frags = [], visible = false, userPicked = false;
+    var later = function (ms, fn) { timers.push(setTimeout(fn, ms)); };
+    var point = function (n) { pts.forEach(function (li) { li.classList.toggle('on', +li.dataset.p === n); }); };
+    function reset() {
+      timers.forEach(clearTimeout); timers = [];
+      frags.forEach(function (f) { f.remove(); }); frags = [];
+      grid.innerHTML = ''; $('#vz-today').classList.remove('in'); $('#vz-ring').style.strokeDashoffset = 94.25; $('#vz-cap').classList.remove('in');
+    }
+    function build(S) {
+      $('#vz-btitle').textContent = S.title; $('#vz-bdot').style.background = S.color; $('#vz-bcount').textContent = '';
+      var cards = S.cards.map(function (h) { var d = document.createElement('div'); d.className = 'c'; d.innerHTML = h; grid.appendChild(d); return d; });
+      var L = document.createElement('div'); L.className = 'c list';
+      L.innerHTML = '<div class="lh">' + LISTICON + S.list.title + '<span class="cnt">0/' + S.list.items.length + '</span></div>' +
+        S.list.items.map(function (t) { return '<div class="row"><span class="burst"></span><span class="ck">' + CHECK + '</span><span class="lt">' + t + '</span></div>'; }).join('');
+      grid.appendChild(L);
+      return { cards: cards, L: L };
+    }
+    /* reduced motion: show each story's finished board, no flights, no auto-rotation */
+    function still(key) {
+      reset(); cur = key; var S = STORIES[key];
+      tabs.forEach(function (t) { t.setAttribute('aria-selected', t.dataset.story === key); });
+      var b = build(S);
+      b.cards.forEach(function (c) { c.classList.add('in'); }); b.L.classList.add('in');
+      $$('.tag', grid).forEach(function (t) { t.classList.add('in'); });
+      var rows = $$('.row', b.L); rows.slice(0, -1).forEach(function (r) { r.classList.add('done'); });
+      $('.cnt', b.L).textContent = (rows.length - 1) + '/' + rows.length;
+      var ty = $('#vz-typed'); if (ty && S.note) ty.textContent = S.note;
+      $('#vz-bcount').textContent = (b.cards.length + 1) + ' items';
+      $('#vz-todayS').textContent = S.today; $('#vz-today').classList.add('in'); $('#vz-ring').style.strokeDashoffset = 94.25 * (2 / 3);
+      $('#vz-cap').textContent = S.cap; $('#vz-cap').classList.add('in'); point(3);
+    }
+    /* keep the active tab visible in the (horizontally scrolling) tab row — scrolls the row only, never the page */
+    function showTab(key) {
+      var row = tabs[0] && tabs[0].parentNode, t = tabs.filter(function (x) { return x.dataset.story === key; })[0];
+      if (!row || !t || row.scrollWidth <= row.clientWidth) return;
+      var l = t.offsetLeft - row.offsetLeft, r = l + t.offsetWidth;
+      if (l < row.scrollLeft) row.scrollTo({ left: l - 8, behavior: 'smooth' });
+      else if (r > row.scrollLeft + row.clientWidth) row.scrollTo({ left: r - row.clientWidth + 8, behavior: 'smooth' });
+    }
+    function run(key) {
+      if (reduced) { still(key); showTab(key); return; }
+      reset(); cur = key; var S = STORIES[key];
+      tabs.forEach(function (t) { t.setAttribute('aria-selected', t.dataset.story === key); });
+      showTab(key);
+      var b = build(S), cards = b.cards, L = b.L;
+      point(1);
+      var sr = stage.getBoundingClientRect();
+      S.frags.forEach(function (f, i) {
+        var el = document.createElement('div'); el.className = 'frag ' + f.cls; el.innerHTML = f.html;
+        el.style.left = (f.x * sr.width) + 'px'; el.style.top = ((f.y * 0.84 + 0.13) * sr.height) + 'px';
+        stage.appendChild(el); frags.push(el);
+        el.animate([{ transform: 'translateY(18px) rotate(' + f.r + 'deg) scale(.9)', opacity: 0 }, { transform: 'rotate(' + f.r + 'deg)', opacity: 1 }], { duration: 450, delay: i * 140, easing: 'cubic-bezier(.2,1.2,.3,1)', fill: 'both' });
+      });
+      later(2200, function () {
+        point(2);
+        frags.forEach(function (el, i) {
+          var target = cards[Math.min(i, cards.length - 1)], a = el.getBoundingClientRect(), t = target.getBoundingClientRect();
+          var dx = t.left + t.width / 2 - (a.left + a.width / 2), dy = t.top + t.height / 2 - (a.top + a.height / 2);
+          el.animate([{ opacity: 1 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.55)', opacity: 0 }], { duration: 620, delay: i * 110, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' });
+        });
+        cards.forEach(function (c, i) { later(420 + i * 130, function () { c.classList.add('in'); }); });
+        later(420 + cards.length * 130 + 200, function () {
+          $$('.tag', grid).forEach(function (t, i) { later(i * 90, function () { t.classList.add('in'); }); });
+          $('#vz-bcount').textContent = (cards.length + 1) + ' items';
+        });
+        if (S.note) later(1100, function () {
+          var el = $('#vz-typed'), k = 0;
+          var tick = function () { if (!el) return; el.textContent = S.note.slice(0, ++k); if (k < S.note.length) later(22, tick); };
+          tick();
+        });
+      });
+      later(4300, function () {
+        point(3); L.classList.add('in');
+        $$('.row', L).forEach(function (r, i) {
+          later(700 + i * 620, function () {
+            if (i === S.list.items.length - 1) return;
+            r.classList.add('done'); $('.cnt', L).textContent = (i + 1) + '/' + S.list.items.length;
+            $('.ck', r).animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.3,1.5,.5,1)' });
+            $('.burst', r).animate([{ transform: 'scale(.6)', opacity: .9 }, { transform: 'scale(2.2)', opacity: 0 }], { duration: 600, easing: 'ease-out' });
+          });
+        });
+      });
+      later(6600, function () {
+        var rows = $$('.row', L), last = rows[rows.length - 1];
+        last.animate([{ background: 'transparent' }, { background: 'rgba(237,123,101,.14)' }, { background: 'transparent' }], { duration: 900 });
+        $('#vz-todayS').textContent = S.today; $('#vz-today').classList.add('in');
+        later(250, function () { $('#vz-ring').style.strokeDashoffset = 94.25 * (2 / 3); });
+        $('#vz-cap').textContent = S.cap; $('#vz-cap').classList.add('in');
+      });
+      /* auto-advance to the next story, unless the visitor picked one themselves */
+      later(10200, function () { if (!userPicked) run(ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length]); });
+    }
+    tabs.forEach(function (t) { t.addEventListener('click', function () { userPicked = true; run(t.dataset.story); }); });
+    /* only animate while the section is on screen */
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting && !visible) { visible = true; run(cur); }
+          else if (!e.isIntersecting && visible) { visible = false; if (!reduced) reset(); }
+        });
+      }, { threshold: 0.3 }).observe(host);
+    } else { run(cur); }
   })();
 
   /* ---------- Today ring ---------- */
