@@ -592,8 +592,16 @@ export default function LitApp() {
     const goal = goals.find((g) => g.id === goalId);
     const ms = goal?.milestones.find((m) => m.id === mid);
     if (!ms) return;
-    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.map((m) => (m.id === mid ? { ...m, done: !m.done } : m)) } : g)));
+    const milestones = goal.milestones.map((m) => (m.id === mid ? { ...m, done: !m.done } : m));
+    /* completed_at: stamped when the last milestone is ticked, cleared when
+       one is unticked — it orders the stars in the Goals sky. Best-effort:
+       if the column doesn't exist yet (migration 0009 not run), the sky
+       still works for this session, it just isn't remembered. */
+    const complete = milestones.length > 0 && milestones.every((m) => m.done);
+    const completedAt = complete ? (goal.completedAt || new Date().toISOString()) : null;
+    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones, completedAt } : g)));
     db.dbUpdateMilestone(mid, { done: !ms.done }).catch(console.error);
+    if ((goal.completedAt || null) !== completedAt) db.dbUpdateGoal(goalId, { completed_at: completedAt }).catch(console.error);
   };
   const addMilestone = (goalId, text) => {
     const temp = { id: uid(), text, done: false };
@@ -605,6 +613,38 @@ export default function LitApp() {
   const editMilestone = (goalId, mid, text) => {
     setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.map((m) => (m.id === mid ? { ...m, text } : m)) } : g)));
     db.dbUpdateMilestone(mid, { text }).catch(console.error);
+  };
+  /* rename a goal / change its target date — optimistic, rolled back with a
+     toast if Supabase refuses */
+  const updateGoal = (goalId, { title, targetDate }) => {
+    const prev = goals.find((g) => g.id === goalId);
+    if (!prev) return;
+    const next = { ...prev, ...(title !== undefined ? { title } : {}), ...(targetDate !== undefined ? { targetDate } : {}) };
+    setGoals((gs) => gs.map((g) => (g.id === goalId ? next : g)));
+    const patch = {};
+    if (title !== undefined) patch.title = title;
+    if (targetDate !== undefined) patch.target_date = targetDate || null;
+    db.dbUpdateGoal(goalId, patch).catch((e) => {
+      console.error(e);
+      setGoals((gs) => gs.map((g) => (g.id === goalId ? prev : g)));
+      showToast("Couldn't save that — please try again");
+    });
+  };
+  const deleteMilestone = (goalId, mid) => {
+    const goal = goals.find((g) => g.id === goalId);
+    const ix = goal?.milestones.findIndex((m) => m.id === mid) ?? -1;
+    if (ix === -1) return;
+    const m = goal.milestones[ix];
+    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.filter((x) => x.id !== mid) } : g)));
+    db.dbDeleteMilestone(mid).catch((e) => {
+      console.error(e);
+      setGoals((gs) => gs.map((g) => {
+        if (g.id !== goalId) return g;
+        const ms = [...g.milestones]; ms.splice(Math.min(ix, ms.length), 0, m);
+        return { ...g, milestones: ms };
+      }));
+      showToast("Couldn't delete that — please try again");
+    });
   };
   const createGoal = ({ title, targetDate, milestones }) => {
     const temp = { id: uid(), title, targetDate, milestones: milestones.map((text) => ({ id: uid(), text, done: false })) };
@@ -777,7 +817,7 @@ export default function LitApp() {
           onSetIncome: setIncome, onTogglePaid: togglePaid, onAddBill: addBill, onDeleteBill: deleteBill, onAddExtra: addExtra, onDeleteExtra: deleteExtra }} />
       )}
       {tab === "goals" && (
-        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onCreateGoal: createGoal, onDeleteGoal: deleteGoal, setEditor }} />
+        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onDeleteMilestone: deleteMilestone, onUpdateGoal: updateGoal, onCreateGoal: createGoal, onDeleteGoal: deleteGoal, setEditor }} />
       )}
     </div>
   );
