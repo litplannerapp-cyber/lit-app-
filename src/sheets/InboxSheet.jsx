@@ -168,7 +168,7 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
             {visible.map((c) => (
               <CaptureRow key={c.id} c={c} expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
                 onVision={() => captureToVision(c)} onSchedule={() => onSchedule(c)} onRelease={() => releaseCapture(c)} onDone={() => completeCapture(c)}
-                onToggleItem={(ix) => toggleListItem(c.id, ix)} onEdit={(changes) => updateCapture(c.id, changes)}
+                onToggleItem={(ix) => toggleListItem(c.id, ix)} onEdit={(changes) => { updateCapture(c.id, changes); if (changes.url && changes.url !== c.url) fetchLinkPreview(c.id, changes.url); }}
                 onEditList={() => setEditingListId(c.id)} />
             ))}
             {visible.length === 0 && <p style={{ fontSize: 13, color: T.ink3, textAlign: "center", padding: "20px 0" }}>No captures match.</p>}
