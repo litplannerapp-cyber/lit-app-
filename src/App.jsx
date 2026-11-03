@@ -24,7 +24,7 @@ import { NotificationBadge } from "./components/NotificationBadge";
 import { Spinner } from "./components/Spinner";
 import { toDateKey, uid } from "./utils/date";
 import { toMonthKey } from "./utils/finance";
-import { byPeriodAndTime, isListDone } from "./utils/task";
+import { byPeriodAndTime, isListDone, normalizeListItems } from "./utils/task";
 import * as db from "./lib/db";
 
 const ONBOARDED_KEY = "lit_onboarded";
@@ -223,8 +223,22 @@ export default function LitApp() {
     db.dbUpdateTask(id, { done: !t.done }).catch(console.error);
   };
   const deleteTask = (id) => {
-    setTasks((ts) => ts.filter((t) => t.id !== id));
+    const t = tasks.find((x) => x.id === id);
+    setTasks((ts) => ts.filter((x) => x.id !== id));
     db.dbDeleteTask(id).catch(console.error);
+    /* a FINISHED task that came from the Inbox takes its capture with it
+       when deleted — otherwise the capture would pop back into the Inbox
+       (a capture shows there whenever no task links to it), which makes no
+       sense for something already done. An unfinished scheduled item keeps
+       the old behaviour: delete the task and the capture returns to Inbox. */
+    if (t?.captureId) {
+      const wasDone = effectiveTasks.find((x) => x.id === id)?.done;
+      const otherLinks = tasks.some((x) => x.id !== id && x.captureId === t.captureId);
+      if (wasDone && !otherLinks) {
+        setCaptures((cs) => cs.filter((c) => c.id !== t.captureId));
+        db.dbDeleteCapture(t.captureId).catch(console.error);
+      }
+    }
   };
   const setTop3 = (id, val) => {
     const target = tasks.find((t) => t.id === id);
@@ -306,6 +320,40 @@ export default function LitApp() {
         clearTimeout(timer);
         deleteUndoRef.current = null;
         setCaptures((cs) => [c, ...cs]);
+      },
+    });
+  };
+  /* the Inbox "done" check: the item isn't deleted — it becomes a task on
+     TODAY that's already ticked, linked back to its capture (so a link keeps
+     its preview and a list keeps its items, now all ticked). Linking it is
+     also what takes it out of the Inbox. Nothing is lost: Undo (5s) removes
+     that task again and the item is back in the Inbox exactly as it was;
+     after that it lives in Today, where it can be unticked or deleted. */
+  const completeCapture = (c) => {
+    const isList = c.type === "list" && (c.items || []).length > 0;
+    const prevItems = c.items || [];
+    const text = (c.type === "list" ? c.title : null) || c.title || c.text || c.url || (c.type === "image" ? "Image" : "Done");
+    const temp = { id: uid(), text, dateKey: todayKey, done: true, top3: false, captureId: c.id };
+    const state = { realId: null, cancelled: false };
+    setTasks((ts) => [...ts, temp]);
+    if (isList) applyListItemsChange(c.id, normalizeListItems(prevItems).map((it) => ({ ...it, done: true })));
+    db.dbInsertTask(user.id, temp).then((real) => {
+      state.realId = real.id;
+      if (state.cancelled) { db.dbDeleteTask(real.id).catch(console.error); return; }
+      setTasks((ts) => ts.map((t) => (t.id === temp.id ? real : t)));
+    }).catch((e) => {
+      console.error(e);
+      setTasks((ts) => ts.filter((t) => t.id !== temp.id));
+      if (isList) applyListItemsChange(c.id, prevItems);
+      showToast("Couldn't save that — please try again");
+    });
+    showToast("Done ✓ — saved in Today ·", {
+      duration: 5000,
+      action: () => {
+        state.cancelled = true;
+        setTasks((ts) => ts.filter((t) => t.id !== temp.id && t.id !== state.realId));
+        if (state.realId) db.dbDeleteTask(state.realId).catch(console.error);
+        if (isList) applyListItemsChange(c.id, prevItems);
       },
     });
   };
@@ -774,7 +822,7 @@ export default function LitApp() {
       <>
         {inboxOpen && (
           <InboxSheet
-            captures={inboxCaptures} addCapture={addCapture} releaseCapture={deleteCapture} completeCapture={(c) => deleteCapture(c, "Done — off your mind ·")} toggleListItem={toggleListItem} updateCapture={updateCapture}
+            captures={inboxCaptures} addCapture={addCapture} releaseCapture={deleteCapture} completeCapture={completeCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
             captureToVision={captureToVision} fetchLinkPreview={fetchLinkPreview}
             onSchedule={(c) => {
               setInboxOpen(false);

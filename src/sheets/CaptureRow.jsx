@@ -93,8 +93,11 @@ export function CaptureRow({ c, expanded, onToggle, onVision, onSchedule, onRele
 
   const [leaving, setLeaving] = useState(false);
   const [editing, setEditing] = useState(false);
-  const editableField = c.type === "task" ? "title" : "text";
+  /* what the pencil edits, per type: a note's text, a task's title, an
+     image's caption, a link's title + URL (lists use their own sheet) */
+  const editableField = c.type === "note" ? "text" : "title";
   const [draft, setDraft] = useState(c[editableField] || "");
+  const [draftUrl, setDraftUrl] = useState(c.url || "");
   const lastTapRef = useRef(0);
   const release = () => { setLeaving(true); setTimeout(onRelease, 260); };
   const listItems = (c.items || []).map((i) => (typeof i === "string" ? { text: i, done: false } : i));
@@ -102,26 +105,37 @@ export function CaptureRow({ c, expanded, onToggle, onVision, onSchedule, onRele
     ? `${c.title} · ${listItems.filter((i) => i.done).length}/${listItems.length}`
     : c.title || c.text || c.url || "Image";
   const canVision = ["note", "image", "link", "text"].includes(c.type);
-  /* freeform text and lists — images/links edit differently */
-  const canEdit = c.type === "note" || c.type === "task" || c.type === "list";
+  /* every capture type can be edited — see editableField above */
+  const canEdit = true;
   const act = (txt, fn, color = T.ink2, bg = T.bg) => (
     <button onClick={fn} style={{ padding: "7px 12px", borderRadius: 100, fontSize: 12, fontWeight: 600, background: bg, color, cursor: "pointer" }}>{txt}</button>
   );
 
-  /* lists open their own full editor sheet — same pattern as a task
-     (tap to view, Edit opens a dedicated screen) — everything else
-     (plain notes/tasks) still edits inline, it's just one line of text */
+  /* lists open their own full editor sheet; everything else edits inline */
   const startEdit = () => {
     if (c.type === "list") { onEditList(); return; }
     setDraft(c[editableField] || "");
+    setDraftUrl(c.url || "");
     setEditing(true);
     if (!expanded) onToggle();
   };
   const saveEdit = () => {
     const v = draft.trim();
-    if (v) onEdit({ [editableField]: v });
+    if (c.type === "note" || c.type === "task") {
+      if (v && v !== (c[editableField] || "")) onEdit({ [editableField]: v });
+    } else if (c.type === "image") {
+      if (v !== (c.title || "")) onEdit({ title: v || null });           // caption is optional
+    } else if (c.type === "link") {
+      const u = draftUrl.trim();
+      const changes = {};
+      if (v !== (c.title || "")) changes.title = v || null;
+      if (u && u !== c.url) changes.url = /^https?:\/\//i.test(u) ? u : `https://${u}`;
+      if (Object.keys(changes).length) onEdit(changes);
+    }
     setEditing(false);
   };
+  const fieldStyle = { width: "100%", padding: "10px 12px", borderRadius: 12, border: "none", outline: "none", background: T.bg, fontSize: 13.5, color: T.ink };
+  const onFieldKey = (e) => { if (e.key === "Enter") { e.preventDefault(); saveEdit(); } if (e.key === "Escape") setEditing(false); };
 
   /* single tap expands/collapses (onToggle); a second tap within 320ms on a
      note/task capture opens edit directly instead — dblclick alone isn't
@@ -172,19 +186,31 @@ export function CaptureRow({ c, expanded, onToggle, onVision, onSchedule, onRele
           </span>
           {!expanded && (c.tags || []).slice(0, 2).map((t) => <span key={t} style={{ fontSize: 11, color: T.mint }}>#{t}</span>)}
         </button>
-        {c.type === "list" && (
-          <button onClick={onEditList} aria-label="Edit list" className="hoverable"
-            style={{ width: 26, height: 26, borderRadius: 9, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink3, flexShrink: 0 }}>
+        {!done && (
+          <button onClick={startEdit} aria-label={`Edit ${c.type}`} title="Edit" className="hoverable"
+            style={{ width: 30, height: 30, borderRadius: 10, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink3, flexShrink: 0 }}>
             {Ic.pencil(T.ink3)}
           </button>
         )}
       </div>
 
       {expanded && editing && c.type !== "list" && (
-        <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
-          <textarea autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} rows={3}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "none", outline: "none", resize: "none", background: T.bg, fontSize: 13.5, lineHeight: 1.5, color: T.ink }} />
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+        <div style={{ marginTop: 10, display: "grid", gap: 8 }} onClick={(e) => e.stopPropagation()}>
+          {c.type === "note" ? (
+            <textarea autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} aria-label="Note"
+              onKeyDown={(e) => { if (e.key === "Escape") setEditing(false); }}
+              style={{ ...fieldStyle, resize: "none", lineHeight: 1.5 }} />
+          ) : (
+            <input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={onFieldKey} enterKeyHint="done"
+              aria-label={c.type === "task" ? "Task" : c.type === "image" ? "Caption (optional)" : "Title (optional)"}
+              placeholder={c.type === "task" ? "Task" : c.type === "image" ? "Caption (optional)" : "Title (optional)"}
+              style={fieldStyle} />
+          )}
+          {c.type === "link" && (
+            <input value={draftUrl} onChange={(e) => setDraftUrl(e.target.value)} onKeyDown={onFieldKey} enterKeyHint="done"
+              inputMode="url" aria-label="Link URL" placeholder="https://…" style={fieldStyle} />
+          )}
+          <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
             {act("Save", saveEdit, "#fff", T.coralGrad)}
             {act("Cancel", () => setEditing(false))}
           </div>
