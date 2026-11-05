@@ -2,6 +2,7 @@ import { useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Check } from "./Check";
+import { ListSections } from "./ListSections";
 import { normalizeListItems } from "../utils/task";
 
 /* the brand gradient used for the "this is one of your three" outline —
@@ -116,7 +117,7 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
 
         {expanded && isList && (
           <div style={{ margin: "10px 0 0" }} onClick={(e) => e.stopPropagation()}>
-            {listItems.map((it, ix) => (
+            <ListSections items={listItems} title={capture.title} renderItem={(it, ix) => (
               <button key={ix} onClick={() => toggleListItem(capture.id, ix)}
                 style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, padding: "7px 2px", borderRadius: 9, cursor: "pointer", textAlign: "left",
                   background: "transparent" }}>
@@ -125,7 +126,7 @@ export function TaskCard({ t, big, toggleDone, deleteTask, setTop3, setEditor, o
                 </span>
                 <span style={{ fontSize: 13.5, fontWeight: 500, color: it.done ? T.ink3 : T.ink, textDecoration: it.done ? "line-through" : "none", textDecorationColor: T.ink3 }}>{it.text}</span>
               </button>
-            ))}
+            )} />
             {listItems.length === 0 && <p style={{ fontSize: 12.5, color: T.ink3, margin: "4px 2px" }}>No items yet.</p>}
           </div>
         )}

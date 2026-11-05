@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { T } from "../theme";
 import { parseVisionList, visionListContent } from "../utils/visionList";
+import { ListSections } from "./ListSections";
 
 /* the body of a "list" vision item: title + progress, tickable rows, and
    an always-there "Add item" input (Enter keeps focus so several items can
@@ -60,7 +61,7 @@ export function VisionList({ content, onChange, autoFocusAdd, accent = T.coral, 
         {list.items.length > 0 && <span style={{ fontSize: 11.5, fontWeight: 600, color: done === list.items.length ? T.mint : T.ink3, flexShrink: 0 }}>{done}/{list.items.length}</span>}
       </div>
 
-      {list.items.map((it, ix) => (
+      <ListSections items={list.items} title={list.title} gap={8} renderItem={(it, ix) => (
         <div key={ix} style={{ display: "flex", alignItems: "center", gap: 9, padding: "5px 0" }}>
           <button onClick={() => onChange && toggle(ix)} aria-label={`${it.done ? "Untick" : "Tick"} ${it.text}`} disabled={!onChange}
             style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, cursor: onChange ? "pointer" : "default", display: "grid", placeItems: "center",
@@ -74,7 +75,7 @@ export function VisionList({ content, onChange, autoFocusAdd, accent = T.coral, 
             </button>
           )}
         </div>
-      ))}
+      )} />
 
       {onChange && (
         <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
