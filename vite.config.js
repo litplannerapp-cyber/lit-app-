@@ -20,7 +20,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'apple-touch-icon-v2.png'],
+      /* push-handler.js (public/) adds the web-push 'push' and
+         'notificationclick' listeners to the generated service worker */
+      workbox: {
+        importScripts: ['/push-handler.js'],
+      },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'apple-touch-icon-v2.png', 'push-handler.js'],
       scope: '/app/',
       manifest: {
         name: 'Lit: Calm Daily Planner',
