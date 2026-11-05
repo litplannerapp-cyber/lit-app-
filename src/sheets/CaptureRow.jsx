@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { T } from "../theme";
+import { ListSections } from "../components/ListSections";
 import { Ic } from "../icons/Icons";
 
 const DOUBLE_TAP_MS = 320;
@@ -221,9 +222,7 @@ export function CaptureRow({ c, expanded, onToggle, onVision, onSchedule, onRele
       {c.type === "link" && c.url && expanded && <LinkCard url={c.url} title={c.previewTitle} image={c.previewImage} site={c.previewSite} />}
       {c.type === "list" && expanded && (
         <div style={{ margin: "10px 0 0" }}>
-          {(c.items || []).map((raw, ix) => {
-            const it = typeof raw === "string" ? { text: raw, done: false } : raw;
-            return (
+          <ListSections items={listItems} title={c.title} renderItem={(it, ix) => (
               <button key={ix} onClick={() => onToggleItem(ix)}
                 style={{ display: "flex", width: "100%", alignItems: "center", gap: 10, padding: "7px 2px", cursor: "pointer", textAlign: "left" }}>
                 <span style={{ width: 20, height: 20, borderRadius: 7, flexShrink: 0, border: it.done ? "none" : `1.6px solid ${T.ink3}`, background: it.done ? T.coralGrad : "transparent", display: "grid", placeItems: "center", transition: "all .25s" }}>
@@ -231,8 +230,7 @@ export function CaptureRow({ c, expanded, onToggle, onVision, onSchedule, onRele
                 </span>
                 <span style={{ fontSize: 13.5, fontWeight: 500, color: it.done ? T.ink3 : T.ink, textDecoration: it.done ? "line-through" : "none", textDecorationColor: T.ink3 }}>{it.text}</span>
               </button>
-            );
-          })}
+          )} />
         </div>
       )}
       {expanded && !editing && (c.tags || []).length > 0 && (
