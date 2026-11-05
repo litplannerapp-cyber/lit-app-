@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Capacitor } from "@capacitor/core";
+import { pushIsOn } from "../lib/push";
 
 const isNative = Capacitor.isNativePlatform();
 
@@ -27,9 +28,10 @@ export async function requestNotificationPermission() {
     const { LocalNotifications } = await import("@capacitor/local-notifications");
     const { display } = await LocalNotifications.checkPermissions();
     if (display !== "granted") await LocalNotifications.requestPermissions();
-  } else if ("Notification" in window && Notification.permission === "default") {
-    await Notification.requestPermission();
   }
+  /* web: never prompt on load — iPhone ignores a prompt that doesn't come
+     from a tap, and other browsers file it as spam. The web prompt lives
+     behind Settings → Reminders → "Turn on reminders" (lib/push.js). */
 }
 
 /* the Inbox's current unread count, mirrored here so every notification we
@@ -48,14 +50,16 @@ async function showWebNotification(title, body) {
   }
 }
 
-/* Web has no true background scheduling without a push server, so this only
-   fires while the tab stays open — native uses @capacitor/local-notifications
-   instead, which keeps firing even with the app closed. */
+/* In-tab fallback for web: only fires while the tab stays open. When this
+   device has web push on (Settings → Reminders), the send-reminders
+   function delivers instead — even with Lit closed — so these stand down
+   to avoid a double notification. Native uses @capacitor/local-notifications. */
 const webTimers = new Map(); // id -> timeoutId
 const MAX_TIMEOUT = 2 ** 31 - 1;
 
 function scheduleWeb(id, when, title, body) {
   cancelWeb(id);
+  if (pushIsOn()) return;
   const ms = when.getTime() - Date.now();
   if (ms <= 0 || ms > MAX_TIMEOUT) return;
   const timer = setTimeout(() => { webTimers.delete(id); showWebNotification(title, body); }, ms);
@@ -77,7 +81,7 @@ function scheduleNextGenericWeb(hour, minute, title, body, id) {
   cancelWeb(id);
   const timer = setTimeout(() => {
     webTimers.delete(id);
-    showWebNotification(title, body);
+    if (!pushIsOn()) showWebNotification(title, body);
     scheduleNextGenericWeb(hour, minute, title, body, id); // chain into the next day
   }, when.getTime() - Date.now());
   webTimers.set(id, timer);

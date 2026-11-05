@@ -913,7 +913,7 @@ export default function LitApp() {
 
         {/* Profile & settings */}
         {profileOpen && (
-          <SettingsSheet profile={profile} onSaveName={saveProfileName} onSignOut={signOut} onDeleteAccount={deleteAccount} theme={theme} setTheme={setTheme}
+          <SettingsSheet profile={profile} userId={user?.id} onSaveName={saveProfileName} onSignOut={signOut} onDeleteAccount={deleteAccount} theme={theme} setTheme={setTheme}
             onClose={() => setProfileOpen(false)} showToast={showToast} />
         )}
 
