@@ -240,7 +240,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
     : null;
 
   return (
-    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
+    <div style={{ padding: isDesktop ? "0" : "84px 22px 0" }} className="rise">
       {pickerInput}
       <Eyebrow>Why you're doing all of this</Eyebrow>
       <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 20px" }}>Vision</h1>
@@ -313,7 +313,7 @@ export function VisionScreen({ boards, looseItems, boardOpen, setBoardOpen, show
             </button>
           )}
           <SortableContext items={boards.map((b) => b.id)} strategy={rectSortingStrategy}>
-            <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "repeat(auto-fill, minmax(250px, 1fr))" : "1fr", gap: isDesktop ? 18 : 12 }}>
               {boards.map((b) => (
                 <BoardTile key={b.id} board={b} reducedMotion={reducedMotion}
                   onOpen={() => setBoardOpen(b.id)}

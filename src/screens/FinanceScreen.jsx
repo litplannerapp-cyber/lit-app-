@@ -21,6 +21,8 @@ const RepeatIcon = ({ c, s = 15 }) => (
    one-off for this month). What's left is the one honest number. */
 export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, onAddBill, onDeleteBill, onAddExtra, onDeleteExtra }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
+  /* wide desktop: the month's number on the left, the bills beside it */
+  const wide = useMediaQuery("(min-width: 1200px)");
   const realMk = toMonthKey();
   const [incomeDraft, setIncomeDraft] = useState("");
   const [billName, setBillName] = useState(""); const [billAmt, setBillAmt] = useState(""); const [billCat, setBillCat] = useState(null);
@@ -52,7 +54,7 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   /* opt-in: not configured → only the invitation, nothing else */
   if (finance.income == null) {
     return (
-      <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
+      <div style={{ padding: isDesktop ? "0" : "84px 22px 0", maxWidth: isDesktop ? 560 : undefined }} className="rise">
         <Eyebrow>An honest number about your month</Eyebrow>
         <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 24px" }}>Finance</h1>
         <Card data-coach="finance" style={{ padding: 26, textAlign: "center" }}>
@@ -133,12 +135,15 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
   const suggested = (billName.trim() || billAmt) ? suggestBillCategory(billName) : null;
 
   return (
-    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0", touchAction: "pan-y" }} className="rise" onPointerDown={monthSwipe.onPointerDown}>
+    <div style={{ padding: isDesktop ? "0" : "84px 22px 0", touchAction: "pan-y", maxWidth: isDesktop && !wide ? 760 : undefined, margin: isDesktop && !wide ? "0 auto" : undefined }} className="rise" onPointerDown={monthSwipe.onPointerDown}>
+      <div style={wide ? { display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 26 } : undefined}>
+      <div>
       <Eyebrow>An honest number about your month</Eyebrow>
-      <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 14px" }}>Finance</h1>
+      <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: wide ? "6px 0 0" : "6px 0 14px" }}>Finance</h1>
+      </div>
 
       {/* month navigation */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: wide ? 0 : 16, width: wide ? 320 : undefined, flexShrink: 0 }}>
         <button onClick={() => setMk(shiftMonth(mk, -1))} aria-label="Previous month"
           style={{ width: 38, height: 38, borderRadius: 13, background: T.card, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.ink2} strokeWidth="2" strokeLinecap="round"><path d="M15 6l-6 6 6 6" /></svg>
@@ -157,15 +162,18 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
         </button>
       </div>
 
+      </div>
+
       <div key={monthSlide ? monthSlide.k : "month"} style={{
         transform: monthSwipe.dragging ? `translateX(${monthSwipe.x}px)` : undefined,
         transition: monthSwipe.dragging ? "none" : "transform .25s ease",
         animation: monthSlide && !monthSwipe.dragging ? `${monthSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined,
       }}>
+      <div style={wide ? { display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 24, alignItems: "start" } : undefined}>
       {/* hero */}
-      <Card style={{ padding: 24 }}>
+      <Card style={{ padding: wide ? 32 : 24, ...(wide ? { position: "sticky", top: 32 } : null) }}>
         <Eyebrow>You can save this month</Eyebrow>
-        <div className="fr tnum" style={{ fontSize: 44, fontWeight: 600, margin: "8px 0 16px", letterSpacing: "-0.02em" }}>{fmt(left)}</div>
+        <div className="fr tnum" style={{ fontSize: wide ? 56 : 44, fontWeight: 600, margin: wide ? "10px 0 22px" : "8px 0 16px", letterSpacing: "-0.02em" }}>{fmt(left)}</div>
         <div style={{ display: "flex", height: 12, borderRadius: 6, overflow: "hidden", background: T.bg }}>
           <div style={{ width: `${pct(billSum)}%`, background: T.sky, transition: "width .5s ease" }} />
           <div style={{ width: `${pct(Math.max(0, left))}%`, background: T.mint, transition: "width .5s ease" }} />
@@ -255,7 +263,7 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
       </Card>
 
       {/* bills */}
-      <Section title="Bills" hint="Tap to mark as paid">
+      <Section title="Bills" hint="Tap to mark as paid" style={wide ? { marginTop: 0, padding: "24px 22px 20px" } : undefined}>
         {billsByCat.map(([cat, list]) => (
           <div key={cat} style={{ marginBottom: 8 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: T.ink3, margin: "8px 0 4px" }}>{cat}</div>
@@ -312,6 +320,7 @@ export function FinanceScreen({ finance, mk, setMk, onSetIncome, onTogglePaid, o
           </div>
         )}
       </Section>
+      </div>
 
       </div>
     </div>

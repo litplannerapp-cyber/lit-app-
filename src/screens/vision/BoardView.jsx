@@ -53,6 +53,7 @@ function SortableVisionTile({ item, reducedMotion, children }) {
 
 export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem, onReorderItems, onMoveItem, onAddImage, onPinCover, onEditItem, onAddItem }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
+  const wide = useMediaQuery("(min-width: 1200px)");
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const [moveItem, setMoveItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
@@ -121,7 +122,7 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
   };
 
   return (
-    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
+    <div style={{ padding: isDesktop ? "0" : "84px 22px 0" }} className="rise">
       {pickerInput}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <button onClick={onBack} style={{ fontSize: 13.5, fontWeight: 600, color: T.ink2, cursor: "pointer" }}>← Boards</button>
@@ -155,7 +156,7 @@ export function BoardView({ board, boards, onBack, showToast, onDeleteVisionItem
       <DndContext sensors={sensors} collisionDetection={pointerWithinOrClosestCenter} onDragEnd={handleDragEnd}>
         <MoveOutZone />
         <SortableContext items={board.items.map((i) => i.id)} strategy={rectSortingStrategy}>
-          <div style={{ columnCount: 2, columnGap: 12 }}>
+          <div style={{ columnCount: wide ? 4 : isDesktop ? 3 : 2, columnGap: isDesktop ? 16 : 12 }}>
             {board.items.map((item) => (
               <SortableVisionTile key={item.id} item={item} reducedMotion={reducedMotion}>
                 {({ setActivatorNodeRef, listeners, attributes, isDragging }) => (

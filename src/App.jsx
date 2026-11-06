@@ -5,7 +5,6 @@ import { Dock } from "./components/Dock";
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { useMediaQuery } from "./hooks/useMediaQuery";
-import { Ic } from "./icons/Icons";
 import { TodayScreen } from "./screens/TodayScreen";
 import { VisionScreen } from "./screens/VisionScreen";
 import { FinanceScreen } from "./screens/FinanceScreen";
@@ -20,7 +19,6 @@ import { CoachMarks } from "./onboarding/CoachMarks";
 import { useAuth } from "./hooks/useAuth";
 import { useNotifications } from "./hooks/useNotifications";
 import { useAppBadge } from "./hooks/useAppBadge";
-import { NotificationBadge } from "./components/NotificationBadge";
 import { Spinner } from "./components/Spinner";
 import { toDateKey, uid } from "./utils/date";
 import { toMonthKey } from "./utils/finance";
@@ -789,6 +787,25 @@ export default function LitApp() {
     setTabSlide({ dir, k: Date.now() });
   };
 
+  /* desktop keyboard shortcuts — C capture, N new task, 1–4 spaces. Only
+     when nothing is open and the focus isn't in a field, so typing is
+     never hijacked. */
+  useEffect(() => {
+    if (!isDesktop || !user) return;
+    const onKey = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      const el = document.activeElement;
+      if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+      if (inboxOpen || editor || detailId || profileOpen || editingListCaptureId) return;
+      const k = e.key.toLowerCase();
+      if (k === "c") { e.preventDefault(); setInboxOpen(true); }
+      else if (k === "n") { e.preventDefault(); goTab("today"); setEditor({ initial: { dateKey: selectedDay } }); }
+      else if (["1", "2", "3", "4"].includes(k)) { e.preventDefault(); goTab(TAB_ORDER[Number(k) - 1]); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   /* ============================== auth gate ============================== */
   /* GlobalStyle has to be mounted here too, not just in the main return below —
      these are the screens shown BEFORE that return is ever reached, and without
@@ -827,26 +844,20 @@ export default function LitApp() {
       <GlobalStyle />
 
       {isDesktop ? (
-        <div style={{ display: "flex", width: "100%", maxWidth: 1160, minHeight: "100vh" }}>
+        /* full-bleed desktop frame: the rail is pinned to the window's left
+           edge and the content uses the rest of the width (each screen sets
+           its own comfortable maximum and lays out in columns when wide) */
+        <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
           <Sidebar tab={tab} setTab={goTab}
-            dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
+            dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)}
+            openInbox={() => setInboxOpen(true)} inboxCount={inboxCaptures.length} />
 
-          {/* Capture: a small, quiet icon in the corner — not a glowing pill
-              fighting the sidebar for attention. Fixed to the viewport corner,
-              sitting in the content column's own top padding, so it never
-              collides with a screen's own header row (e.g. Vision's board view). */}
-          <button data-coach="inbox" data-drop="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
-            style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
-            {Ic.thought(T.ink2)}
-            <NotificationBadge count={inboxCaptures.length} size={19} />
-          </button>
-
-          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            <div style={{ maxWidth: 720, margin: "0 auto", padding: "56px 48px 80px" }}>
+          <main style={{ flex: 1, minWidth: 0, position: "relative" }}>
+            <div style={{ maxWidth: 1320, margin: "0 auto", padding: "40px clamp(32px, 4vw, 64px) 96px" }}>
               {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
               {mainContent}
             </div>
-          </div>
+          </main>
         </div>
       ) : (
         <div style={{ width: "100%", maxWidth: 440, minHeight: "100vh", position: "relative", padding: "0 0 110px" }}>
