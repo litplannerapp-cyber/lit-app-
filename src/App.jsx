@@ -1,961 +1,249 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { T, applyTheme } from "./theme";
-import { GlobalStyle } from "./components/GlobalStyle";
-import { Dock } from "./components/Dock";
-import { TopBar } from "./components/TopBar";
-import { Sidebar } from "./components/Sidebar";
-import { useMediaQuery } from "./hooks/useMediaQuery";
-import { Ic } from "./icons/Icons";
-import { TodayScreen } from "./screens/TodayScreen";
-import { VisionScreen } from "./screens/VisionScreen";
-import { FinanceScreen } from "./screens/FinanceScreen";
-import { GoalsScreen } from "./screens/GoalsScreen";
-import { SignInScreen } from "./screens/SignInScreen";
-import { InboxSheet } from "./sheets/InboxSheet";
-import { TaskEditor } from "./sheets/TaskEditor";
-import { SettingsSheet } from "./sheets/SettingsSheet";
-import { TaskDetailSheet } from "./sheets/TaskDetailSheet";
-import { ListEditorSheet } from "./sheets/ListEditorSheet";
-import { CoachMarks } from "./onboarding/CoachMarks";
-import { useAuth } from "./hooks/useAuth";
-import { useNotifications } from "./hooks/useNotifications";
-import { useAppBadge } from "./hooks/useAppBadge";
-import { NotificationBadge } from "./components/NotificationBadge";
-import { Spinner } from "./components/Spinner";
-import { toDateKey, uid } from "./utils/date";
-import { toMonthKey } from "./utils/finance";
-import { byPeriodAndTime, isListDone, normalizeListItems } from "./utils/task";
-import * as db from "./lib/db";
+import { useState, useEffect, useRef, useCallback } from "react";
 
-const ONBOARDED_KEY = "lit_onboarded";
-const THEME_KEY = "lit_theme";
+const CORAL="#F08060",CORALD="#D96040";
+const LIGHT={bg:"#E8E8EE",bgDeep:"#DDDDE6",neu:"8px 8px 20px #C8C8D4,-8px -8px 20px #FFFFFF",neuSm:"4px 4px 10px #C8C8D4,-4px -4px 10px #FFFFFF",neuLg:"12px 12px 28px #B8B8C8,-12px -12px 28px #FFFFFF",neuIn:"inset 4px 4px 10px #C8C8D4,inset -4px -4px 10px #FFFFFF",neuInSm:"inset 2px 2px 6px #C8C8D4,inset -2px -2px 6px #FFFFFF",glass:"rgba(255,255,255,0.60)",glassMid:"rgba(255,255,255,0.88)",specular:"inset 0 2px 4px rgba(255,255,255,0.90),inset 0 -1px 2px rgba(0,0,0,0.06)",border:"rgba(255,255,255,0.70)",borderLow:"rgba(200,200,210,0.40)",text:"#2A2A3E",text2:"#6A6A84",text3:"#AAAABE",accent:CORAL,accentD:CORALD,accentBg:"rgba(240,128,96,0.10)",accentGlow:"rgba(240,128,96,0.30)",green:"#40B880",greenBg:"rgba(64,184,128,0.10)",blue:"#4090E0",blueBg:"rgba(64,144,224,0.10)",red:"#E05050",redBg:"rgba(224,80,80,0.10)",navBg:"rgba(232,232,238,0.94)",dark:false};
+const DARK={bg:"#1A1A2E",bgDeep:"#141422",neu:"8px 8px 20px #0E0E1E,-8px -8px 20px #262640",neuSm:"4px 4px 10px #0E0E1E,-4px -4px 10px #262640",neuLg:"12px 12px 28px #080816,-12px -12px 28px #2C2C4A",neuIn:"inset 4px 4px 10px #0E0E1E,inset -4px -4px 10px #262640",neuInSm:"inset 2px 2px 6px #0E0E1E,inset -2px -2px 6px #262640",glass:"rgba(255,255,255,0.05)",glassMid:"rgba(255,255,255,0.09)",specular:"inset 0 2px 4px rgba(255,255,255,0.12),inset 0 -1px 2px rgba(0,0,0,0.30)",border:"rgba(255,255,255,0.10)",borderLow:"rgba(255,255,255,0.05)",text:"#EEEEF8",text2:"#8888A8",text3:"#4A4A68",accent:CORAL,accentD:CORALD,accentBg:"rgba(240,128,96,0.14)",accentGlow:"rgba(240,128,96,0.28)",green:"#40B880",greenBg:"rgba(64,184,128,0.12)",blue:"#4090E0",blueBg:"rgba(64,144,224,0.12)",red:"#E06060",redBg:"rgba(224,96,96,0.10)",navBg:"rgba(20,20,36,0.96)",dark:true};
 
-/* a real loading indicator, not the brand mark — the halo alone reads as a
-   spinner before it reads as a logo, which is exactly the mixup to avoid */
-function LoadingScreen() {
-  return (
-    <div className="full-screen-center" style={{ background: T.pageBg, display: "grid", placeItems: "center" }}>
-      <div className="rise"><Spinner size={28} /></div>
+const todayStr=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+const offsetStr=n=>{const d=new Date();d.setDate(d.getDate()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+const fmtDate=ds=>new Date(ds+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+const fmtTimerS=s=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+const fmtMoney=v=>Number(v).toLocaleString("en-EU",{minimumFractionDigits:2,maximumFractionDigits:2});
+const curMonthKey=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`};
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const GREET={morning:["Rise and own the day.","One task at a time.","A fresh start awaits.","Let's make today count."],afternoon:["Keep the momentum.","Stay focused.","You're halfway there.","Finish strong."],evening:["Wind down with intention.","Reflect on today's wins.","Rest is part of progress.","Almost done."]};
+const getGreet=()=>{const h=new Date().getHours(),k=h<12?"morning":h<17?"afternoon":"evening";return{time:h<12?"Good morning":h<17?"Good afternoon":"Good evening",sub:GREET[k][new Date().getDay()%4]}};
+const genId=()=>Math.random().toString(36).slice(2,10);
+const SKEY="lit_v12";
+const loadData=()=>{try{const r=localStorage.getItem(SKEY);return r?JSON.parse(r):null}catch{return null}};
+const saveData=d=>localStorage.setItem(SKEY,JSON.stringify(d));
+
+const GROUPS=[{id:"none",label:"No group",color:"#AAAABE"},{id:"work",label:"Work",color:"#4090E0"},{id:"personal",label:"Personal",color:"#40B880"},{id:"health",label:"Health",color:"#E0A040"},{id:"learning",label:"Learning",color:"#9060E0"},{id:"social",label:"Social",color:"#E05080"},{id:"finance",label:"Finance",color:CORAL}];
+const gColor=id=>GROUPS.find(g=>g.id===id)?.color||"#AAAABE";
+const gLabel=id=>GROUPS.find(g=>g.id===id)?.label||"";
+const BOARD_COLORS=[CORAL,"#4090E0","#40B880","#E0A040","#E05080","#9060E0","#40C0D0","#80B040","#E06040","#6080E0"];
+const GOAL_ICONS=["✈️","🏠","🚗","💻","👶","💍","🎓","🌴","🏋️","🎸","📱","🐶","🛋️","🌍","⛵","🎯"];
+const CAT_C={housing:"#4090E0",bills:"#E0A040",savings:"#40B880",planning:"#9060E0"};
+const CAT_E={housing:"🏠",bills:"💳",savings:"💰",planning:"📊"};
+const CAT_L={housing:"Housing",bills:"Bills & Subscriptions",savings:"Savings",planning:"Planning"};
+const CATS=["housing","bills","savings","planning"];
+const DEF_RESET=[{cat:"housing",label:"Pay rent / mortgage",amount:""},{cat:"housing",label:"Pay utilities",amount:""},{cat:"bills",label:"Review credit card bill",amount:""},{cat:"bills",label:"Check subscriptions",amount:""},{cat:"savings",label:"Transfer to savings",amount:""},{cat:"savings",label:"Review monthly budget",amount:""},{cat:"planning",label:"Set intention for next month",amount:""},{cat:"planning",label:"Review financial goals",amount:""}];
+const mkReset=()=>DEF_RESET.map(r=>({id:genId(),...r,checked:false}));
+const blank=()=>({tasks:[],inbox:[],streakData:{current:0,longest:0,lastDate:null,graceUsed:false},reflections:{},monthlyReset:{},savingsGoals:[],boards:[],focusSessions:0,onboarded:false,dark:false});
+
+const getForDate=(tasks,ds)=>{const d=new Date(ds+"T00:00:00"),dow=d.getDay(),dom=d.getDate();return tasks.filter(t=>{if(t.date===ds)return true;if(!t.recurrence||t.recurrence==="none")return false;if(t.date>ds)return false;if(t.recurrence==="daily")return true;if(t.recurrence==="weekly")return new Date(t.date+"T00:00:00").getDay()===dow;if(t.recurrence==="monthly")return new Date(t.date+"T00:00:00").getDate()===dom;return false}).map(t=>({...t,instanceKey:`${t.id}_${ds}`}))};
+const isDone=(tasks,id,ds)=>(tasks.find(x=>x.id===id)?.completedDates||[]).includes(ds);
+const isDayDone=(tasks,ds)=>{const d=getForDate(tasks,ds);return d.length>0&&d.every(t=>isDone(tasks,t.id,ds))};
+const byTime=tasks=>[...tasks].sort((a,b)=>{if(!a.time&&!b.time)return 0;if(!a.time)return 1;if(!b.time)return-1;return a.time.localeCompare(b.time)});
+const calcStreak=(tasks,prev)=>{const td=todayStr(),yd=offsetStr(-1);const{current,longest,lastDate,graceUsed}=prev;const todayDone=isDayDone(tasks,td);if(todayDone&&lastDate!==td){const n=(lastDate===yd||lastDate===td)?current+1:(graceUsed&&lastDate===offsetStr(-2))?current+1:1;return{current:n,longest:Math.max(longest,n),lastDate:td,graceUsed:false}}if(!todayDone&&lastDate===offsetStr(-2)&&!graceUsed)return{...prev,graceUsed:true};if(!todayDone&&lastDate!==td&&lastDate!==yd&&!graceUsed)return{current:0,longest,lastDate,graceUsed:false};return prev};
+
+const IC={check:<polyline points="20 6 9 17 4 12"/>,plus:<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,trash:<><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></>,edit:<><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,inbox:<><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></>,home:<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,chart:<><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>,flame:<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>,x:<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,chevR:<polyline points="9 18 15 12 9 6"/>,chevD:<polyline points="6 9 12 15 18 9"/>,shield:<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,moon:<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,sun:<><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>,pause:<><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></>,play:<polygon points="5 3 19 12 5 21 5 3"/>,refresh:<><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></>,coffee:<><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></>,send:<><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></>,wallet:<><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></>,star:<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>,clock:<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,note:<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></>,diamond:<path d="M12 2L2 9l10 13 10-13z"/>,arrowL:<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>};
+const Icon=({name,size=20,color="currentColor",style={}})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={style}>{IC[name]}</svg>);
+
+// Components
+const NCard=({children,style={},T,onClick,className})=>(<div className={className} onClick={onClick} style={{background:T.bg,borderRadius:24,boxShadow:T.neu,cursor:onClick?"pointer":undefined,...style}}>{children}</div>);
+const NInset=({children,style={},T})=>(<div style={{background:T.bg,borderRadius:16,boxShadow:T.neuIn,...style}}>{children}</div>);
+const GCard=({children,style={},T})=>(<div style={{background:T.glassMid,backdropFilter:"blur(32px) saturate(180%)",WebkitBackdropFilter:"blur(32px) saturate(180%)",border:`1px solid ${T.border}`,borderRadius:24,boxShadow:T.neuLg,...style}}>{children}</div>);
+const PBtn=({children,onClick,T,color,style={}})=>{const c=color||T.accent,cd=color?color+"BB":T.accentD;return(<button onClick={onClick} style={{width:"100%",padding:"14px 20px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",fontWeight:700,fontSize:15,color:"#fff",background:`linear-gradient(160deg,${c},${cd})`,boxShadow:`6px 6px 16px ${c}44,-2px -2px 8px rgba(255,255,255,0.30),${T.specular}`,...style}}>{children}</button>)};
+const SBtn=({children,onClick,T,style={}})=>(<button onClick={onClick} style={{width:"100%",padding:"14px 20px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",fontWeight:600,fontSize:15,color:T.text2,background:T.bg,boxShadow:`${T.neuSm},${T.specular}`,...style}}>{children}</button>);
+const IBtn=({children,onClick,T,active=false,color,style={}})=>(<button onClick={onClick} style={{background:active?color||T.accent:T.bg,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:active?`3px 3px 8px ${(color||T.accent)+"55"},-1px -1px 4px rgba(255,255,255,0.20)`:T.neuSm,...style}}>{children}</button>);
+const NPill=({children,active,onClick,color,T,style={}})=>{const c=color||T.accent;return(<button onClick={onClick} style={{borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",fontWeight:active?700:500,fontSize:13,color:active?"#fff":T.text2,background:active?`linear-gradient(135deg,${c},${c+"CC"})`:T.bg,boxShadow:active?`3px 3px 10px ${c+"44"},-1px -1px 4px rgba(255,255,255,0.20),${T.specular}`:T.neuInSm,transition:"all 0.20s",...style}}>{children}</button>)};
+const PBar=({pct,T,color})=>{const c=color||T.accent;return(<NInset T={T} style={{height:10,borderRadius:99,overflow:"hidden",padding:0}}><div style={{height:"100%",width:`${Math.max(0,Math.min(100,pct))}%`,borderRadius:99,background:`linear-gradient(90deg,${c},${c+"CC"})`,boxShadow:`2px 0 8px ${c+"66"}`,transition:"width 0.65s cubic-bezier(0.4,0,0.2,1)"}}/></NInset>)};
+const mkInp=T=>({width:"100%",padding:"13px 18px",borderRadius:99,border:"none",fontFamily:"inherit",fontSize:15,color:T.text,background:T.bg,outline:"none",boxSizing:"border-box",marginBottom:12,boxShadow:T.neuIn});
+const SLbl=({children,T})=>(<div style={{fontSize:10,fontWeight:700,color:T.text3,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:10}}>{children}</div>);
+const Toast=({msg,T})=>(<div style={{position:"fixed",bottom:100,left:"50%",transform:"translateX(-50%)",background:T.bg,boxShadow:T.neuLg,color:T.text,padding:"11px 24px",borderRadius:99,fontSize:13,fontWeight:600,whiteSpace:"nowrap",zIndex:300,animation:"tIn 0.25s ease"}}>{msg}<style>{`@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style></div>);
+
+const GModal=({children,onClose,title,T})=>(<div style={{position:"fixed",inset:0,background:T.dark?"rgba(0,0,0,0.60)":"rgba(160,160,180,0.35)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:120}} onClick={onClose}><div style={{background:T.dark?"rgba(26,26,46,0.97)":"rgba(255,255,255,0.97)",backdropFilter:"blur(40px)",WebkitBackdropFilter:"blur(40px)",borderTop:`1px solid ${T.border}`,borderLeft:`1px solid ${T.border}`,borderRight:`1px solid ${T.border}`,borderRadius:"32px 32px 0 0",padding:"24px 28px 52px",width:"100%",maxWidth:520,boxShadow:T.neuLg,maxHeight:"92vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}><div style={{width:40,height:5,borderRadius:99,background:T.bgDeep,boxShadow:T.neuInSm,margin:"0 auto 24px"}}/>{title&&<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}><span style={{fontSize:18,fontWeight:800,color:T.text,letterSpacing:"-0.3px"}}>{title}</span><IBtn T={T} onClick={onClose} style={{width:36,height:36,borderRadius:99}}><Icon name="x" size={15} color={T.text2}/></IBtn></div>}{children}</div></div>);
+
+const Checkbox=({done,onToggle,T,color,square=false})=>{const[burst,setBurst]=useState(false);const c=color||T.accent;const handle=()=>{if(!done){setBurst(true);setTimeout(()=>setBurst(false),500)}onToggle()};return(<div onClick={handle} style={{position:"relative",flexShrink:0,cursor:"pointer"}}><div style={{width:28,height:28,borderRadius:square?10:99,background:done?`linear-gradient(135deg,${c},${c+"BB"})`:T.bg,boxShadow:done?`3px 3px 8px ${c+"55"},-1px -1px 4px rgba(255,255,255,0.20),${T.specular}`:T.neuIn,display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.22s",transform:burst?"scale(1.15)":"scale(1)"}}>{done&&<Icon name="check" size={14} color="#fff"/>}</div>{burst&&[0,1,2,3,4,5].map(i=><div key={i} style={{position:"absolute",top:"50%",left:"50%",width:4,height:4,borderRadius:"50%",background:c,transform:`translate(-50%,-50%) rotate(${i*60}deg) translateY(-18px)`,animation:"burst 0.45s ease-out forwards",opacity:0}}/>)}<style>{`@keyframes burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0deg) translateY(-8px)}100%{opacity:0;transform:translate(-50%,-50%) rotate(0deg) translateY(-24px)}}`}</style></div>)};
+
+const Onboarding=({onDone,T})=>{const[step,setStep]=useState(0);const steps=[{icon:"☀️",title:"What matters today?",body:"Lit gives you one clear view of your day — no clutter, no chaos.",btn:"Let's go"},{icon:"✦",title:"Your life, fully planned.",body:"Tasks, Focus, Finance, and a Capsule for the life you're building.",btn:"Got it"},{icon:"◈",title:"Private by design.",body:"Everything stays on your device. No account, no cloud, no tracking.",btn:"Start Lit"}];const s=steps[step];return(<div style={{minHeight:"100vh",background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"48px 32px",textAlign:"center"}}><div style={{display:"flex",gap:8,marginBottom:56}}>{steps.map((_,i)=><div key={i} style={{height:6,width:i===step?32:8,borderRadius:99,background:i===step?T.accent:T.bgDeep,boxShadow:i===step?`2px 2px 6px ${T.accentGlow},-1px -1px 3px rgba(255,255,255,0.20)`:T.neuInSm,transition:"all 0.3s"}}/>)}</div><div style={{fontSize:72,marginBottom:28,lineHeight:1}}>{s.icon}</div><h1 style={{fontSize:28,fontWeight:800,color:T.text,letterSpacing:"-0.5px",marginBottom:14,lineHeight:1.25}}>{s.title}</h1><p style={{fontSize:16,color:T.text2,lineHeight:1.8,maxWidth:300,marginBottom:56}}>{s.body}</p><div style={{width:"100%",maxWidth:320}}><PBtn T={T} onClick={()=>step<2?setStep(p=>p+1):onDone()}>{s.btn}</PBtn></div>{step<2&&<button onClick={onDone} style={{marginTop:18,background:"none",border:"none",color:T.text3,fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>Skip</button>}</div>)};
+
+const TaskModal=({initial,onSave,onClose,defaultDate,T})=>{const[text,setText]=useState(initial?.text||"");const[date,setDate]=useState(initial?.date||defaultDate||todayStr());const[rec,setRec]=useState(initial?.recurrence||"none");const[time,setTime]=useState(initial?.time||"");const[group,setGroup]=useState(initial?.group||"none");const[notes,setNotes]=useState(initial?.notes||"");const ref=useRef();useEffect(()=>{setTimeout(()=>ref.current?.focus(),80)},[]);const save=()=>{if(!text.trim())return;onSave({text:text.trim(),date,recurrence:rec,time,group,notes:notes.trim()})};const inp=mkInp(T);const gc=group!=="none"?gColor(group):T.accent;return(<GModal onClose={onClose} title={initial?"Edit task":"New task"} T={T}><SLbl T={T}>TASK</SLbl><input ref={ref} style={inp} placeholder="What needs to get done?" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&save()}/><div style={{display:"flex",gap:12}}><div style={{flex:1}}><SLbl T={T}>DATE</SLbl><input style={inp} type="date" value={date} onChange={e=>setDate(e.target.value)}/></div><div style={{flex:1}}><SLbl T={T}>TIME</SLbl><input style={inp} type="time" value={time} onChange={e=>setTime(e.target.value)}/></div></div><SLbl T={T}>REPEAT</SLbl><select style={{...inp,appearance:"none",marginBottom:16}} value={rec} onChange={e=>setRec(e.target.value)}><option value="none">No repeat</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select><SLbl T={T}>GROUP</SLbl><div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:18}}>{GROUPS.map(g=>(<NPill key={g.id} T={T} active={group===g.id} color={g.color} onClick={()=>setGroup(g.id)} style={{padding:"7px 14px",display:"flex",alignItems:"center",gap:6}}><div style={{width:7,height:7,borderRadius:"50%",background:group===g.id?"rgba(255,255,255,0.8)":g.color}}/>{g.label}</NPill>))}</div><SLbl T={T}>NOTES</SLbl><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Details, context, links…" rows={3} style={{...inp,resize:"none",lineHeight:1.65,borderRadius:20,marginBottom:20}}/><PBtn T={T} onClick={save} color={gc}>{initial?"Save changes":"Add task"}</PBtn><SBtn T={T} onClick={onClose} style={{marginTop:10}}>Cancel</SBtn></GModal>)};
+
+const TaskCard=({t,done,onToggle,onEdit,onDelete,T})=>{const[exp,setExp]=useState(false);const gc=gColor(t.group||"none");const hasExtras=(t.notes&&t.notes.trim())||t.time||(t.group&&t.group!=="none");return(<NCard T={T} style={{marginBottom:12,overflow:"hidden",opacity:done?0.55:1,transition:"opacity 0.2s"}}>{t.group&&t.group!=="none"&&<div style={{height:4,background:`linear-gradient(90deg,${gc},${gc+"44"})`,borderRadius:"24px 24px 0 0"}}/>}<div style={{padding:"14px 16px"}}><div style={{display:"flex",alignItems:"center",gap:12}}><Checkbox done={done} onToggle={onToggle} T={T} color={t.group&&t.group!=="none"?gc:T.accent}/><div style={{flex:1,minWidth:0}} onClick={()=>hasExtras&&setExp(e=>!e)}><div style={{fontSize:15,fontWeight:500,color:done?T.text3:T.text,textDecoration:done?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</div><div style={{display:"flex",alignItems:"center",gap:8,marginTop:4,flexWrap:"wrap"}}>{t.time&&<span style={{display:"flex",alignItems:"center",gap:3,fontSize:11,color:T.text3}}><Icon name="clock" size={10} color={T.text3}/>{t.time}</span>}{t.group&&t.group!=="none"&&<span style={{fontSize:11,fontWeight:600,color:gc}}>{gLabel(t.group)}</span>}{t.recurrence&&t.recurrence!=="none"&&<span style={{fontSize:11,color:T.accent,fontWeight:600}}>↻ {t.recurrence}</span>}{t.notes&&t.notes.trim()&&<Icon name="note" size={10} color={T.text3}/>}{hasExtras&&<Icon name="chevD" size={11} color={T.text3} style={{transform:exp?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}/>}</div></div><div style={{display:"flex",gap:6}}><IBtn T={T} onClick={onEdit} style={{width:32,height:32,borderRadius:10}}><Icon name="edit" size={13} color={T.text3}/></IBtn><IBtn T={T} onClick={onDelete} style={{width:32,height:32,borderRadius:10}}><Icon name="trash" size={13} color={T.text3}/></IBtn></div></div>{exp&&t.notes&&t.notes.trim()&&(<NInset T={T} style={{marginTop:10,padding:"10px 14px",borderRadius:14}}><div style={{fontSize:13,color:T.text2,lineHeight:1.65,borderLeft:`2px solid ${gc}`,paddingLeft:10}}>{t.notes}</div></NInset>)}</div></NCard>)};
+
+const MorningBrief=({tasks,inbox,streakData,onDismiss,T})=>{const td=todayStr(),todayTasks=getForDate(tasks,td),h=new Date().getHours(),isEv=h>=18;const q=["The secret of getting ahead is getting started.","Small steps every day.","Today's effort is tomorrow's result.","One thing at a time.","Rest is not a reward — it's a requirement.","Progress, not perfection."][new Date().getDay()%6];return(<div style={{position:"fixed",inset:0,background:T.dark?"rgba(0,0,0,0.65)":"rgba(150,150,170,0.40)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200}}><div style={{background:T.dark?"rgba(26,26,46,0.97)":"rgba(255,255,255,0.97)",backdropFilter:"blur(40px)",WebkitBackdropFilter:"blur(40px)",borderTop:`1px solid ${T.border}`,borderRadius:"32px 32px 0 0",padding:"32px 28px 52px",width:"100%",maxWidth:520,boxShadow:T.neuLg}}><div style={{width:40,height:5,borderRadius:99,background:T.bgDeep,boxShadow:T.neuInSm,margin:"0 auto 28px"}}/><div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",color:T.accent,textTransform:"uppercase",marginBottom:10}}>{isEv?"Evening Wind-Down":"Morning Brief"}</div><div style={{fontSize:22,fontWeight:800,color:T.text,marginBottom:8,lineHeight:1.3}}>{isEv?"How was your day?":todayTasks.length>0?`You have ${todayTasks.length} task${todayTasks.length>1?"s":""} today.`:"Your day is wide open."}</div><div style={{fontSize:14,color:T.text2,marginBottom:24,fontStyle:"italic",lineHeight:1.7}}>"{q}"</div>{streakData.current>0&&<NCard T={T} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 18px",marginBottom:20}}><Icon name="flame" size={18} color={T.accent}/><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>{streakData.current} day streak</div><div style={{fontSize:12,color:T.text2}}>Keep it going.</div></div></NCard>}{!isEv&&todayTasks.length>0&&<NInset T={T} style={{padding:"4px 18px",marginBottom:20,borderRadius:20}}>{byTime(todayTasks).slice(0,3).map(t=><div key={t.instanceKey} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:`1px solid ${T.borderLow}`}}><div style={{width:7,height:7,borderRadius:"50%",background:t.group&&t.group!=="none"?gColor(t.group):T.accent,flexShrink:0}}/><span style={{fontSize:14,color:T.text,fontWeight:500,flex:1}}>{t.text}</span>{t.time&&<span style={{fontSize:12,color:T.text3}}>{t.time}</span>}</div>)}{todayTasks.length>3&&<div style={{fontSize:12,color:T.text3,padding:"8px 0"}}>+{todayTasks.length-3} more</div>}</NInset>}<PBtn T={T} onClick={onDismiss}>{isEv?"Close":"Let's do this"}</PBtn></div></div>)};
+
+const EveningReflection=({tasks,onSave,onClose,T})=>{const[step,setStep]=useState(0);const[ans,setAns]=useState({win:"",hard:"",tomorrow:""});const td=todayStr(),dayT=getForDate(tasks,td),dn=dayT.filter(t=>isDone(tasks,t.id,td));const pct=dayT.length?Math.round((dn.length/dayT.length)*100):0;const Qs=[{k:"win",q:"What was your biggest win today?",ph:"Even small wins count..."},{k:"hard",q:"What was challenging?",ph:"Being honest helps you grow..."},{k:"tomorrow",q:"What's your #1 priority tomorrow?",ph:"Just one thing..."}];const cur=Qs[step];const inp=mkInp(T);return(<div style={{position:"fixed",inset:0,background:T.dark?"rgba(0,0,0,0.65)":"rgba(150,150,170,0.40)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:200}}><div style={{background:T.dark?"rgba(26,26,46,0.97)":"rgba(255,255,255,0.97)",backdropFilter:"blur(40px)",WebkitBackdropFilter:"blur(40px)",borderTop:`1px solid ${T.border}`,borderRadius:"32px 32px 0 0",padding:"28px 28px 52px",width:"100%",maxWidth:520,boxShadow:T.neuLg}}><div style={{width:40,height:5,borderRadius:99,background:T.bgDeep,boxShadow:T.neuInSm,margin:"0 auto 24px"}}/><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20}}><div><div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",color:T.accent,textTransform:"uppercase",marginBottom:6}}>Evening Reflection</div><div style={{fontSize:20,fontWeight:800,color:T.text}}>Day in review</div></div><IBtn T={T} onClick={onClose} style={{width:36,height:36,borderRadius:99}}><Icon name="x" size={15} color={T.text2}/></IBtn></div><NCard T={T} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",marginBottom:24}}><NInset T={T} style={{width:44,height:44,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{fontSize:14,fontWeight:900,color:pct===100?T.accent:T.text}}>{pct}%</span></NInset><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>{dn.length} of {dayT.length} tasks done</div><div style={{fontSize:12,color:T.text2}}>{pct===100?"Perfect day! ✨":pct>=50?"Solid effort.":"Progress is progress."}</div></div></NCard><div style={{display:"flex",gap:8,marginBottom:22}}>{Qs.map((_,i)=><div key={i} style={{flex:1,height:5,borderRadius:99,background:i<=step?T.accent:T.bgDeep,boxShadow:i<=step?`2px 2px 6px ${T.accentGlow},-1px -1px 3px rgba(255,255,255,0.20)`:T.neuInSm,transition:"all 0.3s"}}/>)}</div><div style={{fontSize:16,fontWeight:700,color:T.text,marginBottom:14}}>{cur.q}</div><textarea value={ans[cur.k]} onChange={e=>setAns(a=>({...a,[cur.k]:e.target.value}))} placeholder={cur.ph} autoFocus style={{...inp,resize:"none",lineHeight:1.65,borderRadius:20,minHeight:92}}/><PBtn T={T} onClick={()=>step<2?setStep(s=>s+1):onSave(ans)} style={{marginTop:4}}>{step<2?"Next →":"Save reflection"}</PBtn></div></div>)};
+
+const HomeScreen=({tasks,onToggle,onAdd,onEdit,onDelete,selectedDate,setSelectedDate,streakData,T,showToast,inbox,onOpenReflection,resetPending,savingsGoals,monthlyReset})=>{
+  const[modal,setModal]=useState(null);
+  const dayTasks=getForDate(tasks,selectedDate),sorted=byTime(dayTasks);
+  const doneTasks=dayTasks.filter(t=>isDone(tasks,t.id,selectedDate));
+  const pct=dayTasks.length?Math.round((doneTasks.length/dayTasks.length)*100):0;
+  const isToday=selectedDate===todayStr(),{time}=getGreet(),h=new Date().getHours();
+  const handleToggle=(id,ds)=>{const w=isDone(tasks,id,ds);onToggle(id,ds);if(!w&&doneTasks.length+1===dayTasks.length)showToast("✨ All done.")};
+  const handleSave=d=>{modal==="new"?onAdd(d):onEdit(modal.id,d);setModal(null)};
+  const mk=curMonthKey(),ri=(monthlyReset||{})[mk]!==undefined?(monthlyReset||{})[mk]:mkReset();
+  const mTotal=ri.reduce((a,i)=>a+(parseFloat(i.amount)||0),0);
+  const mPaid=ri.filter(i=>i.checked).reduce((a,i)=>a+(parseFloat(i.amount)||0),0);
+  const topExp=ri.filter(i=>i.amount&&parseFloat(i.amount)>0).sort((a,b)=>parseFloat(b.amount)-parseFloat(a.amount)).slice(0,3);
+  const topGoals=(savingsGoals||[]).slice(0,2);
+  const grpProg=GROUPS.filter(g=>g.id!=="none").map(g=>{const gt=tasks.filter(t=>t.group===g.id);return{...g,total:gt.length,done:gt.reduce((a,t)=>a+(t.completedDates?.length||0),0)}}).filter(g=>g.total>0).slice(0,2);
+  return(<>
+    <div style={{padding:"52px 28px 0"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+        <div><div style={{fontSize:11,fontWeight:700,color:T.accent,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:5}}>{time}</div><div style={{fontSize:26,fontWeight:800,color:T.text,letterSpacing:"-0.5px",lineHeight:1.2}}>{isToday?new Date().toLocaleDateString("en-US",{weekday:"long"}):fmtDate(selectedDate)}</div><div style={{fontSize:13,color:T.text2,marginTop:3}}>{isToday?new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}):""}</div></div>
+        {streakData.current>0&&<NCard T={T} style={{padding:"10px 16px",display:"flex",alignItems:"center",gap:8,borderRadius:99}}><Icon name="flame" size={15} color={T.accent}/><span style={{fontSize:14,fontWeight:700,color:T.accent}}>{streakData.current}</span></NCard>}
+      </div>
+      <div style={{display:"flex",gap:8,overflowX:"auto",scrollbarWidth:"none",paddingBottom:4}}>
+        {[-3,-2,-1,0,1,2,3].map(off=>{const ds=offsetStr(off),d=new Date(ds+"T00:00:00"),sel=ds===selectedDate,tod=ds===todayStr(),hasDot=getForDate(tasks,ds).some(t=>isDone(tasks,t.id,ds));return(<button key={ds} onClick={()=>setSelectedDate(ds)} style={{flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"10px 14px",borderRadius:99,border:"none",fontFamily:"inherit",cursor:"pointer",background:sel?`linear-gradient(160deg,${T.accent},${T.accentD})`:T.bg,boxShadow:sel?`4px 4px 12px ${T.accentGlow},-2px -2px 6px rgba(255,255,255,0.30),${T.specular}`:tod?`${T.neuSm},inset 0 0 0 2px ${T.accent}33`:T.neuSm,transition:"all 0.2s",position:"relative"}}><span style={{fontSize:10,fontWeight:700,letterSpacing:"0.10em",textTransform:"uppercase",color:sel?"rgba(255,255,255,0.80)":tod?T.accent:T.text3}}>{d.toLocaleDateString("en-US",{weekday:"short"})}</span><span style={{fontSize:18,fontWeight:800,color:sel?"#fff":T.text}}>{d.getDate()}</span>{hasDot&&!sel&&<div style={{width:5,height:5,borderRadius:"50%",background:T.accent,position:"absolute",bottom:7}}/>}</button>)})}
+      </div>
     </div>
-  );
-}
-
-export default function LitApp() {
-  const { user, loading: authLoading, sendOtp, verifyOtp, signOut, deleteAccount } = useAuth();
-
-  const todayKey = toDateKey();
-  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light"); // "light" | "dark" | "system"
-  useEffect(() => { localStorage.setItem(THEME_KEY, theme); }, [theme]);
-  const [sysDark, setSysDark] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)").matches : false));
-  useEffect(() => {
-    if (!window.matchMedia) return;
-    const m = window.matchMedia("(prefers-color-scheme: dark)");
-    const fn = (e) => setSysDark(e.matches);
-    m.addEventListener ? m.addEventListener("change", fn) : m.addListener(fn);
-    return () => { m.removeEventListener ? m.removeEventListener("change", fn) : m.removeListener(fn); };
-  }, []);
-  const dark = theme === "dark" || (theme === "system" && sysDark);
-  applyTheme(dark); /* must run before anything below renders */
-  const isDesktop = useMediaQuery("(min-width: 900px)");
-
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [profileName, setProfileName] = useState("");
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [onboarded, setOnboardedState] = useState(() => localStorage.getItem(ONBOARDED_KEY) === "true"); /* first login → walkthrough shows once, then persisted (localStorage for instant/offline-safe gating, Supabase profile for cross-device) */
-  const [coachStep, setCoachStep] = useState(-1); /* -1 = welcome brand moment, 0+ = pointer tour */
-  const [tab, setTab] = useState("today");
-  const [selectedDay, setSelectedDay] = useState(todayKey);
-  const [tasks, setTasks] = useState([]);
-  const [captures, setCaptures] = useState([]);
-  const [boards, setBoards] = useState([]);
-  const [looseItems, setLooseItems] = useState([]);
-  const [goals, setGoals] = useState([]);
-  const [finance, setFinance] = useState({ income: null, extras: [], bills: [], expenses: [] });
-  const [financeMonth, setFinanceMonth] = useState(() => toMonthKey());
-  const [clearedDays, setClearedDays] = useState([]);
-  const [inboxOpen, setInboxOpen] = useState(false);
-  const [editor, setEditor] = useState(null); // null | {initial?}
-  const [detailId, setDetailId] = useState(null); // task id open in read-only detail
-  const [editingListCaptureId, setEditingListCaptureId] = useState(null); // capture id open in the list editor, reached from a scheduled task's pencil
-  const [toast, setToast] = useState(null); // null | { msg, action? }
-  const [boardOpen, setBoardOpen] = useState(null);
-  const toastTimer = useRef();
-  const deleteUndoRef = useRef(null); // { capture, timer } while a deleted Inbox item's Undo window is open
-  const goalDeleteUndoRef = useRef(null); // { goal, timer } while a deleted goal's Undo window is open
-  const billDeleteUndoRef = useRef(null); // { bill, timer } while a deleted bill's Undo window is open
-  /* moveVisionItem's toast "Undo" button calls moveVisionItem again, but
-     only after the user reads the toast — by then several renders may have
-     passed. A plain closure over `boards`/`looseItems` from the render that
-     created the toast would see that render's snapshot (item still on its
-     original board, pre-optimistic-update), so the undo's own from === to
-     check would wrongly short-circuit and do nothing. These refs always
-     hold the latest state, independent of which render's closure reads them. */
-  const boardsRef = useRef(boards); boardsRef.current = boards;
-  const looseItemsRef = useRef(looseItems); looseItemsRef.current = looseItems;
-
-  /* opts.action adds an inline Undo-style link to the toast; opts.duration
-     overrides the default auto-dismiss time (used for the longer
-     delete-undo window below). Existing callers that just pass a string
-     are unaffected. */
-  const showToast = useCallback((msg, opts) => {
-    setToast({ msg, action: opts?.action });
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), opts?.duration ?? 2400);
-  }, []);
-
-  /* ----- load everything once signed in ----- */
-  useEffect(() => {
-    if (!user) { setDataLoaded(false); return; }
-    let cancelled = false;
-    (async () => {
-      const defaultName = user.user_metadata?.full_name || user.email?.split("@")[0] || "there";
-      await db.ensureProfile(user.id, defaultName);
-      const data = await db.fetchAll(user.id);
-      if (cancelled) return;
-      setProfileName(data.profile?.name || defaultName);
-      const onboardedRemote = !!data.profile?.onboarded;
-      if (onboardedRemote) localStorage.setItem(ONBOARDED_KEY, "true");
-      /* trust either source — a device that already finished the tour should
-         never see it again even if the Supabase write silently failed, and a
-         fresh device picks it up from the account once fetchAll returns */
-      setOnboardedState((prev) => prev || onboardedRemote);
-      setTasks(data.tasks);
-      setCaptures(data.captures);
-      setBoards(data.boards);
-      setLooseItems(data.looseItems);
-      setGoals(data.goals);
-      setFinance(data.finance);
-      setClearedDays(data.clearedDays);
-      setDataLoaded(true);
-    })().catch((e) => { console.error(e); setDataLoaded(true); });
-    return () => { cancelled = true; };
-  }, [user]);
-
-  const profile = { name: profileName, email: user?.email || "" };
-
-  /* ----- derived ----- */
-  /* a scheduled list's completion is derived straight from its items on
-     every render, never trusted from the stored tasks.done copy alone —
-     the ring and every main checkbox read this, so a list can't get stuck
-     "not done" because the sync write to the DB failed, was never run, or
-     the row predates this logic entirely (tasks.done is still written
-     whenever a list's items change — see applyListItemsChange — purely so
-     any other reader of the DB sees the same thing; the UI itself never
-     depends on that write having succeeded). A zero-item list has no
-     items to derive from, so it keeps whatever `done` is actually stored
-     — it's a plain, directly-toggled task at that point. */
-  const captureById = new Map(captures.map((c) => [c.id, c]));
-  const effectiveTasks = tasks.map((t) => {
-    if (!t.captureId) return t;
-    const capture = captureById.get(t.captureId);
-    if (capture?.type !== "list") return t;
-    const items = capture.items || [];
-    if (items.length === 0) return t;
-    return { ...t, done: isListDone(items) };
-  });
-  const dayTasks = effectiveTasks.filter((t) => t.dateKey === selectedDay);
-  const top3 = dayTasks.filter((t) => t.top3).sort(byPeriodAndTime);
-  const rest = dayTasks.filter((t) => !t.top3);
-  const doneTop3 = top3.filter((t) => t.done).length;
-
-  /* a capture stops showing up in the Inbox the moment some task links back
-     to it (t.captureId) — scheduled, not deleted. This is computed from the
-     link itself, never stored as a second "scheduled" flag on the capture,
-     so it can't drift out of sync with what's actually scheduled. */
-  const scheduledCaptureIds = new Set(tasks.filter((t) => t.captureId).map((t) => t.captureId));
-  const inboxCaptures = captures.filter((c) => !scheduledCaptureIds.has(c.id));
-
-  /* streak: quiet, never resets — only pauses. Today counts as cleared
-     only while all three of today's priorities are actually done: if one
-     is unticked (or moved off today / un-starred) after the day was
-     cleared, today comes back out of the streak until the three are done
-     again. Past days are never touched — only today can change. */
-  useEffect(() => {
-    if (!dataLoaded || selectedDay !== todayKey) return;
-    const complete = top3.length === 3 && doneTop3 === 3;
-    const counted = clearedDays.includes(todayKey);
-    if (complete && !counted) {
-      setClearedDays((c) => [...c, todayKey]);
-      db.dbInsertClearedDay(user.id, todayKey).catch(console.error);
-    } else if (!complete && counted) {
-      setClearedDays((c) => c.filter((d) => d !== todayKey));
-      db.dbDeleteClearedDay(user.id, todayKey).catch(console.error);
-    }
-  }, [doneTop3, top3.length, selectedDay, todayKey, clearedDays, dataLoaded, user]);
-  const streak = clearedDays.length;
-
-  useNotifications(effectiveTasks);
-  useAppBadge(inboxCaptures.length);
-
-  /* ----- task ops ----- */
-  const saveTask = (data, existingId) => {
-    /* "Mark as priority" in the form is a real promotion to the day's Top 3,
-       not just a cosmetic dot — same 3-slot rule and silent refusal as the
-       star button on a task card. Unchecking it never demotes on its own;
-       that stays the star/drag's job. */
-    let top3;
-    if (data.priority) {
-      const occupied = tasks.filter((t) => t.dateKey === data.dateKey && t.top3 && t.id !== existingId).length;
-      top3 = occupied < 3;
-    } else if (existingId) {
-      top3 = tasks.find((t) => t.id === existingId)?.top3 || false;
-    } else {
-      top3 = false;
-    }
-
-    if (existingId) {
-      const merged = { ...tasks.find((t) => t.id === existingId), ...data, top3 };
-      setTasks((ts) => ts.map((t) => (t.id === existingId ? merged : t)));
-      db.dbReplaceTask(existingId, merged, user.id).catch(console.error);
-    } else {
-      const temp = { id: uid(), done: false, ...data, top3 };
-      setTasks((ts) => [...ts, temp]);
-      db.dbInsertTask(user.id, temp).then((real) => {
-        setTasks((ts) => ts.map((t) => (t.id === temp.id ? real : t)));
-      }).catch(console.error);
-    }
-    setEditor(null);
-  };
-  const toggleDone = (id) => {
-    const t = tasks.find((x) => x.id === id);
-    if (!t) return;
-    setTasks((ts) => ts.map((x) => (x.id === id ? { ...x, done: !x.done } : x)));
-    db.dbUpdateTask(id, { done: !t.done }).catch(console.error);
-  };
-  const deleteTask = (id) => {
-    const t = tasks.find((x) => x.id === id);
-    setTasks((ts) => ts.filter((x) => x.id !== id));
-    db.dbDeleteTask(id).catch(console.error);
-    /* a FINISHED task that came from the Inbox takes its capture with it
-       when deleted — otherwise the capture would pop back into the Inbox
-       (a capture shows there whenever no task links to it), which makes no
-       sense for something already done. An unfinished scheduled item keeps
-       the old behaviour: delete the task and the capture returns to Inbox. */
-    if (t?.captureId) {
-      const wasDone = effectiveTasks.find((x) => x.id === id)?.done;
-      const otherLinks = tasks.some((x) => x.id !== id && x.captureId === t.captureId);
-      if (wasDone && !otherLinks) {
-        setCaptures((cs) => cs.filter((c) => c.id !== t.captureId));
-        db.dbDeleteCapture(t.captureId).catch(console.error);
-      }
-    }
-  };
-  const setTop3 = (id, val) => {
-    const target = tasks.find((t) => t.id === id);
-    if (!target) return;
-    if (val) {
-      const count = tasks.filter((t) => t.dateKey === target.dateKey && t.top3).length;
-      if (count >= 3) return; /* 4th attempt: refused in silence — no error, no shake */
-    }
-    setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, top3: val } : t)));
-    db.dbUpdateTask(id, { top3: val }).catch(console.error);
-  };
-  const moveTaskToDay = (id, dateKey) => {
-    const target = tasks.find((t) => t.id === id);
-    if (!target) return;
-    const nextTop3 = target.dateKey === dateKey ? target.top3 : false;
-    setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, dateKey, top3: nextTop3 } : t)));
-    db.dbUpdateTask(id, { date_key: dateKey, top3: nextTop3 }).catch(console.error);
-  };
-  /* dragging a task onto the Inbox trigger: same idea as clearing the date
-     in the editor, reached by drag instead — the task loses its date and
-     becomes a plain capture. Reuses addCapture/deleteTask so the Supabase
-     sync (insert capture, delete task) stays in one place. */
-  const taskToInbox = (id) => {
-    const t = tasks.find((x) => x.id === id);
-    if (!t) return;
-    addCapture({ type: "note", text: t.text, tags: [] });
-    deleteTask(id);
-    showToast("Moved to Inbox");
-  };
-
-  /* ----- capture ops -----
-     Every write here is optimistic (local state updates before Supabase
-     confirms), so every one of them rolls the optimistic change back and
-     tells the person calmly if the Supabase call actually fails — a
-     capture that only "saved" locally and silently vanishes on next
-     reload (no error, no trace) is worse than a visible failure. */
-  const addCapture = (c, onSaved) => {
-    const temp = { id: uid(), createdAt: Date.now(), ...c };
-    setCaptures((cs) => [temp, ...cs]);
-    showToast(`Captured to Inbox · ${c.type}`);
-    db.dbInsertCapture(user.id, temp).then((real) => {
-      setCaptures((cs) => cs.map((x) => (x.id === temp.id ? real : x)));
-      onSaved?.(real);
-    }).catch((e) => {
-      console.error(e);
-      setCaptures((cs) => cs.filter((x) => x.id !== temp.id));
-      showToast("Couldn't save that to the cloud — please try again");
-    });
-  };
-  const releaseCapture = (id) => {
-    const prev = captures.find((c) => c.id === id);
-    setCaptures((cs) => cs.filter((c) => c.id !== id));
-    db.dbDeleteCapture(id).catch((e) => {
-      console.error(e);
-      if (prev) setCaptures((cs) => [prev, ...cs]);
-      showToast("Couldn't delete that — please try again");
-    });
-  };
-  /* the Inbox trash button's delete — same end effect as releaseCapture
-     (removed locally, deleted in Supabase) but given a 5s grace window
-     with a toast "Undo" instead of deleting the instant it's tapped, so a
-     mis-tap isn't destructive. If a second delete happens while one is
-     still pending, the first one is committed immediately rather than
-     silently dropped — there's only ever one toast on screen at a time. */
-  const deleteCapture = (c, message = "Deleted ·") => {
-    if (deleteUndoRef.current) {
-      clearTimeout(deleteUndoRef.current.timer);
-      db.dbDeleteCapture(deleteUndoRef.current.capture.id).catch(console.error);
-    }
-    setCaptures((cs) => cs.filter((x) => x.id !== c.id));
-    const timer = setTimeout(() => {
-      deleteUndoRef.current = null;
-      db.dbDeleteCapture(c.id).catch(console.error);
-    }, 5000);
-    deleteUndoRef.current = { capture: c, timer };
-    showToast(message, {
-      duration: 5000,
-      action: () => {
-        clearTimeout(timer);
-        deleteUndoRef.current = null;
-        setCaptures((cs) => [c, ...cs]);
-      },
-    });
-  };
-  /* the Inbox "done" check: the item isn't deleted — it becomes a task on
-     TODAY that's already ticked, linked back to its capture (so a link keeps
-     its preview and a list keeps its items, now all ticked). Linking it is
-     also what takes it out of the Inbox. Nothing is lost: Undo (5s) removes
-     that task again and the item is back in the Inbox exactly as it was;
-     after that it lives in Today, where it can be unticked or deleted. */
-  const completeCapture = (c) => {
-    const isList = c.type === "list" && (c.items || []).length > 0;
-    const prevItems = c.items || [];
-    const text = (c.type === "list" ? c.title : null) || c.title || c.text || c.url || (c.type === "image" ? "Image" : "Done");
-    const temp = { id: uid(), text, dateKey: todayKey, done: true, top3: false, captureId: c.id };
-    const state = { realId: null, cancelled: false };
-    setTasks((ts) => [...ts, temp]);
-    if (isList) applyListItemsChange(c.id, normalizeListItems(prevItems).map((it) => ({ ...it, done: true })));
-    db.dbInsertTask(user.id, temp).then((real) => {
-      state.realId = real.id;
-      if (state.cancelled) { db.dbDeleteTask(real.id).catch(console.error); return; }
-      setTasks((ts) => ts.map((t) => (t.id === temp.id ? real : t)));
-    }).catch((e) => {
-      console.error(e);
-      setTasks((ts) => ts.filter((t) => t.id !== temp.id));
-      if (isList) applyListItemsChange(c.id, prevItems);
-      showToast("Couldn't save that — please try again");
-    });
-    showToast("Done ✓ — saved in Today ·", {
-      duration: 5000,
-      action: () => {
-        state.cancelled = true;
-        setTasks((ts) => ts.filter((t) => t.id !== temp.id && t.id !== state.realId));
-        if (state.realId) db.dbDeleteTask(state.realId).catch(console.error);
-        if (isList) applyListItemsChange(c.id, prevItems);
-      },
-    });
-  };
-  /* a scheduled list's done-state is derived from its items, never set
-     directly — the main checkbox only ever reflects it (see TaskCard). So
-     every write that can change a list's items also recomputes its linked
-     task(s)' `done` here and carries both to the server in the one
-     set_capture_items_and_sync_done call, with one combined rollback if
-     that call fails. A capture with no task scheduled from it (still
-     sitting in the Inbox) has no linked task, so this is a no-op on the
-     tasks side for it — same items edit, same code path either way. */
-  const applyListItemsChange = (cid, items, { title } = {}) => {
-    const prevCapture = captures.find((c) => c.id === cid);
-    if (!prevCapture) return;
-    const linkedTasks = tasks.filter((t) => t.captureId === cid);
-    const prevDoneByTaskId = new Map(linkedTasks.map((t) => [t.id, t.done]));
-    /* a zero-item list has no derived state of its own — it's a normal
-       task, toggled directly — so going to zero items must leave whatever
-       `done` the task already had alone instead of forcing it open. */
-    const shouldSyncDone = items.length > 0 && linkedTasks.length > 0;
-    const nextDone = shouldSyncDone ? isListDone(items) : null;
-
-    setCaptures((cs) => cs.map((c) => (c.id === cid ? { ...c, items, ...(title !== undefined ? { title } : {}) } : c)));
-    if (shouldSyncDone) setTasks((ts) => ts.map((t) => (t.captureId === cid ? { ...t, done: nextDone } : t)));
-
-    const save = title !== undefined ? db.dbSaveListEdits(cid, title, items) : db.dbSetListItems(cid, items);
-    save.catch((e) => {
-      console.error(e);
-      setCaptures((cs) => cs.map((c) => (c.id === cid ? prevCapture : c)));
-      if (shouldSyncDone) setTasks((ts) => ts.map((t) => (prevDoneByTaskId.has(t.id) ? { ...t, done: prevDoneByTaskId.get(t.id) } : t)));
-      showToast("Couldn't save that change — please try again");
-    });
-  };
-  const toggleListItem = (cid, ix) => {
-    const capture = captures.find((c) => c.id === cid);
-    if (!capture) return;
-    const items = (capture.items || []).map((it, i) => {
-      const obj = typeof it === "string" ? { text: it, done: false } : it;
-      return i === ix ? { ...obj, done: !obj.done } : obj;
-    });
-    applyListItemsChange(cid, items);
-  };
-  /* the scheduled list's main checkbox: tick (or untick) every item in one
-     write, so completing or reopening a whole list is one tap and goes
-     through the exact same sync + rollback path as a single item tick. */
-  const setAllListItems = (cid, done) => {
-    const capture = captures.find((c) => c.id === cid);
-    if (!capture) return;
-    const items = (capture.items || []).map((it) => ({ ...(typeof it === "string" ? { text: it } : it), done }));
-    if (items.length === 0) return;
-    applyListItemsChange(cid, items);
-  };
-  const updateCapture = (id, changes) => {
-    const prev = captures.find((c) => c.id === id);
-    if (!prev) return;
-    if (changes.items !== undefined) {
-      applyListItemsChange(id, changes.items, changes.title !== undefined ? { title: changes.title } : {});
-      return;
-    }
-    setCaptures((cs) => cs.map((c) => (c.id === id ? { ...c, ...changes } : c)));
-    db.dbUpdateCapture(id, changes).catch((e) => {
-      console.error(e);
-      setCaptures((cs) => cs.map((c) => (c.id === id ? prev : c)));
-      showToast("Couldn't save that change — please try again");
-    });
-  };
-  /* fetches an Open Graph preview for a "link" capture (server-side —
-     browsers can't read another site's HTML) and caches it onto the row.
-     Best-effort: on failure the capture just keeps showing its plain URL,
-     which is already the correct fallback, so no toast here. */
-  const fetchLinkPreview = (captureId, url) => {
-    db.fetchLinkPreview(url).then((preview) => {
-      setCaptures((cs) => cs.map((c) => (c.id === captureId
-        ? { ...c, previewTitle: preview.title, previewImage: preview.image, previewSite: preview.site }
-        : c)));
-      db.dbUpdateCapture(captureId, {
-        preview_title: preview.title ?? null,
-        preview_image: preview.image ?? null,
-        preview_site: preview.site ?? null,
-        preview_fetched_at: new Date().toISOString(),
-      }).catch(console.error);
-    }).catch(console.error);
-  };
-  const captureToTask = (c) => {
-    const temp = { id: uid(), text: c.title || c.text, dateKey: todayKey, done: false, top3: false };
-    setTasks((ts) => [...ts, temp]);
-    db.dbInsertTask(user.id, temp).then((real) => {
-      setTasks((ts) => ts.map((t) => (t.id === temp.id ? real : t)));
-    }).catch(console.error);
-    releaseCapture(c.id);
-    showToast("Moved to today · task");
-  };
-  const captureToVision = (c) => {
-    const item = c.type === "image"
-      ? { id: uid(), type: "image", content: c.imageUrl, tags: c.tags || [] }
-      : c.type === "link"
-        ? { id: uid(), type: "link", content: c.url, tags: c.tags || [] }
-        : { id: uid(), type: "text", content: c.title || c.text, tags: c.tags || [] };
-    setLooseItems((ls) => [item, ...ls]);
-    db.dbInsertVisionItem(user.id, item, null, Date.now()).then((real) => {
-      setLooseItems((ls) => ls.map((x) => (x.id === item.id ? real : x)));
-    }).catch(console.error);
-    releaseCapture(c.id);
-    showToast("Moved to Vision — place it on a board when you like");
-  };
-
-  /* ----- vision (boards + loose items) ops ----- */
-  const addLooseItem = (item) => {
-    setLooseItems((ls) => [item, ...ls]);
-    db.dbInsertVisionItem(user.id, item, null, Date.now()).then((real) => {
-      setLooseItems((ls) => ls.map((x) => (x.id === item.id ? real : x)));
-    }).catch(console.error);
-  };
-  const placeOnBoard = (itemId, boardId) => {
-    const item = looseItems.find((i) => i.id === itemId);
-    if (!item) return;
-    const prevLoose = looseItems, prevBoards = boards;
-    setLooseItems((ls) => ls.filter((i) => i.id !== itemId));
-    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
-    db.dbMoveVisionItem(itemId, boardId).catch((e) => {
-      console.error(e);
-      setLooseItems(prevLoose); setBoards(prevBoards);
-      showToast("Couldn't save that — please try again");
-    });
-  };
-  const createBoard = (name, color) => {
-    const temp = { id: uid(), name, color, coverUrl: null, items: [], position: Date.now() };
-    setBoards((bs) => [...bs, temp]);
-    db.dbInsertBoard(user.id, temp).then((real) => {
-      setBoards((bs) => bs.map((b) => (b.id === temp.id ? { ...real, items: b.items } : b)));
-    }).catch(console.error);
-  };
-  const reorderBoards = (from, to) => {
-    const prev = boards;
-    const arr = [...boards];
-    const [moved] = arr.splice(from, 1);
-    arr.splice(to, 0, moved);
-    const base = Date.now();
-    const withPositions = arr.map((b, i) => ({ ...b, position: base + i }));
-    setBoards(withPositions);
-    db.dbUpdateBoardPositions(user.id, withPositions).catch((e) => {
-      console.error(e);
-      setBoards(prev);
-      showToast("Couldn't save the new order — please try again");
-    });
-  };
-  const updateBoard = (id, patch) => {
-    setBoards((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)));
-    const row = {};
-    if (patch.name !== undefined) row.name = patch.name;
-    if (patch.color !== undefined) row.color = patch.color;
-    if (patch.coverUrl !== undefined) row.cover_url = patch.coverUrl;
-    db.dbUpdateBoard(id, row).catch(console.error);
-  };
-  const deleteBoard = (id) => {
-    const b = boards.find((x) => x.id === id);
-    setBoards((bs) => bs.filter((x) => x.id !== id));
-    if (b?.items.length) setLooseItems((ls) => [...b.items, ...ls]);
-    db.dbDeleteBoard(id).catch(console.error); /* vision_items.board_id is ON DELETE SET NULL — they come back loose server-side too */
-  };
-  const deleteVisionItem = (id) => {
-    setLooseItems((ls) => ls.filter((i) => i.id !== id));
-    setBoards((bs) => bs.map((b) => ({ ...b, items: b.items.filter((i) => i.id !== id) })));
-    db.dbDeleteVisionItem(id).catch(console.error);
-  };
-  const pinCover = (boardId, content) => {
-    const board = boards.find((b) => b.id === boardId);
-    const nextCover = board?.coverUrl === content ? null : content;
-    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, coverUrl: nextCover } : b)));
-    db.dbUpdateBoard(boardId, { cover_url: nextCover }).catch(console.error);
-  };
-  const reorderBoardItems = (boardId, from, to) => {
-    const prev = boards;
-    const board = boards.find((b) => b.id === boardId);
-    if (!board) return;
-    const items = [...board.items];
-    const [moved] = items.splice(from, 1);
-    items.splice(to, 0, moved);
-    const base = Date.now();
-    const withPositions = items.map((it, i) => ({ ...it, position: base - i }));
-    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: withPositions } : b)));
-    db.dbUpdateVisionItemPositions(user.id, withPositions, boardId).catch((e) => {
-      console.error(e);
-      setBoards(prev);
-      showToast("Couldn't save the new order — please try again");
-    });
-  };
-  /* moves an item between boards, or to/from the loose tray (targetBoardId
-     null = loose). Used by board-view drag/menu "move out" and "move to",
-     and by dragging an item onto the top "move out of this board" zone —
-     never by placeOnBoard, which stays the loose-tray-specific, simpler
-     path (no source board to find). */
-  const moveVisionItem = (itemId, targetBoardId) => {
-    const boardsNow = boardsRef.current, looseNow = looseItemsRef.current;
-    let item = null, sourceBoardId = null;
-    for (const b of boardsNow) {
-      const hit = b.items.find((i) => i.id === itemId);
-      if (hit) { item = hit; sourceBoardId = b.id; break; }
-    }
-    if (!item) item = looseNow.find((i) => i.id === itemId) || null;
-    if (!item || sourceBoardId === targetBoardId) return;
-    const prevBoards = boardsNow, prevLoose = looseNow;
-    setBoards((bs) => bs.map((b) => ({ ...b, items: b.items.filter((i) => i.id !== itemId) })));
-    setLooseItems((ls) => ls.filter((i) => i.id !== itemId));
-    if (targetBoardId) setBoards((bs) => bs.map((b) => (b.id === targetBoardId ? { ...b, items: [item, ...b.items] } : b)));
-    else setLooseItems((ls) => [item, ...ls]);
-    const destLabel = targetBoardId ? (boardsNow.find((b) => b.id === targetBoardId)?.name || "board") : "Not on a board yet";
-    db.dbMoveVisionItem(itemId, targetBoardId).then(() => {
-      showToast(`Moved to ${destLabel} ·`, { duration: 5000, action: () => moveVisionItem(itemId, sourceBoardId) });
-    }).catch((e) => {
-      console.error(e);
-      setBoards(prevBoards); setLooseItems(prevLoose);
-      showToast("Couldn't save that — please try again");
-    });
-  };
-  const editVisionItem = (id, changes) => {
-    setBoards((bs) => bs.map((b) => ({ ...b, items: b.items.map((i) => (i.id === id ? { ...i, ...changes } : i)) })));
-    db.dbUpdateVisionItem(id, changes).catch(console.error);
-  };
-  const addImageToBoard = (boardId, dataUrl) => {
-    const item = { id: uid(), type: "image", content: dataUrl, tags: [] };
-    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
-    db.dbInsertVisionItem(user.id, item, boardId, Date.now()).then((real) => {
-      setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: b.items.map((i) => (i.id === item.id ? real : i)) } : b)));
-    }).catch(console.error);
-  };
-  const addItemToBoard = (boardId, item) => {
-    setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: [item, ...b.items] } : b)));
-    db.dbInsertVisionItem(user.id, item, boardId, Date.now()).then((real) => {
-      setBoards((bs) => bs.map((b) => (b.id === boardId ? { ...b, items: b.items.map((i) => (i.id === item.id ? real : i)) } : b)));
-    }).catch(console.error);
-  };
-
-  /* ----- goals ops ----- */
-  const toggleMilestone = (goalId, mid) => {
-    const goal = goals.find((g) => g.id === goalId);
-    const ms = goal?.milestones.find((m) => m.id === mid);
-    if (!ms) return;
-    const milestones = goal.milestones.map((m) => (m.id === mid ? { ...m, done: !m.done } : m));
-    /* completed_at: stamped when the last milestone is ticked, cleared when
-       one is unticked — it orders the stars in the Goals sky. Best-effort:
-       if the column doesn't exist yet (migration 0009 not run), the sky
-       still works for this session, it just isn't remembered. */
-    const complete = milestones.length > 0 && milestones.every((m) => m.done);
-    const completedAt = complete ? (goal.completedAt || new Date().toISOString()) : null;
-    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones, completedAt } : g)));
-    db.dbUpdateMilestone(mid, { done: !ms.done }).catch(console.error);
-    if ((goal.completedAt || null) !== completedAt) db.dbUpdateGoal(goalId, { completed_at: completedAt }).catch(console.error);
-  };
-  const addMilestone = (goalId, text) => {
-    const temp = { id: uid(), text, done: false };
-    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: [...g.milestones, temp] } : g)));
-    db.dbInsertMilestone(user.id, goalId, text).then((real) => {
-      setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.map((m) => (m.id === temp.id ? real : m)) } : g)));
-    }).catch(console.error);
-  };
-  const editMilestone = (goalId, mid, text) => {
-    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.map((m) => (m.id === mid ? { ...m, text } : m)) } : g)));
-    db.dbUpdateMilestone(mid, { text }).catch(console.error);
-  };
-  /* rename a goal / change its target date — optimistic, rolled back with a
-     toast if Supabase refuses */
-  const updateGoal = (goalId, { title, targetDate }) => {
-    const prev = goals.find((g) => g.id === goalId);
-    if (!prev) return;
-    const next = { ...prev, ...(title !== undefined ? { title } : {}), ...(targetDate !== undefined ? { targetDate } : {}) };
-    setGoals((gs) => gs.map((g) => (g.id === goalId ? next : g)));
-    const patch = {};
-    if (title !== undefined) patch.title = title;
-    if (targetDate !== undefined) patch.target_date = targetDate || null;
-    db.dbUpdateGoal(goalId, patch).catch((e) => {
-      console.error(e);
-      setGoals((gs) => gs.map((g) => (g.id === goalId ? prev : g)));
-      showToast("Couldn't save that — please try again");
-    });
-  };
-  const deleteMilestone = (goalId, mid) => {
-    const goal = goals.find((g) => g.id === goalId);
-    const ix = goal?.milestones.findIndex((m) => m.id === mid) ?? -1;
-    if (ix === -1) return;
-    const m = goal.milestones[ix];
-    setGoals((gs) => gs.map((g) => (g.id === goalId ? { ...g, milestones: g.milestones.filter((x) => x.id !== mid) } : g)));
-    db.dbDeleteMilestone(mid).catch((e) => {
-      console.error(e);
-      setGoals((gs) => gs.map((g) => {
-        if (g.id !== goalId) return g;
-        const ms = [...g.milestones]; ms.splice(Math.min(ix, ms.length), 0, m);
-        return { ...g, milestones: ms };
-      }));
-      showToast("Couldn't delete that — please try again");
-    });
-  };
-  const createGoal = ({ title, targetDate, milestones }) => {
-    const temp = { id: uid(), title, targetDate, milestones: milestones.map((text) => ({ id: uid(), text, done: false })) };
-    setGoals((gs) => [...gs, temp]);
-    db.dbInsertGoal(user.id, temp).then((real) => {
-      setGoals((gs) => gs.map((g) => (g.id === temp.id ? real : g)));
-    }).catch(console.error);
-  };
-  /* same grace-window delete as the Inbox trash (deleteCapture below): the
-     goal (and, via milestones.goal_id's on-delete-cascade, its milestones)
-     leaves local state immediately — card collapses, "At a glance" and any
-     other view computed from `goals` just stop seeing it, nothing else in
-     the app stores a goal id to go stale — but the actual Supabase delete
-     only fires once the 5s toast expires without an Undo. Undo is just
-     splicing the in-memory snapshot back at its original index, never a
-     re-fetch or a re-create. */
-  const deleteGoal = (id) => {
-    const ix = goals.findIndex((g) => g.id === id);
-    if (ix === -1) return;
-    const g = goals[ix];
-    if (goalDeleteUndoRef.current) {
-      clearTimeout(goalDeleteUndoRef.current.timer);
-      db.dbDeleteGoal(goalDeleteUndoRef.current.goal.id).catch(console.error);
-    }
-    setGoals((gs) => gs.filter((x) => x.id !== id));
-    const timer = setTimeout(() => {
-      goalDeleteUndoRef.current = null;
-      db.dbDeleteGoal(id).catch(console.error);
-    }, 5000);
-    goalDeleteUndoRef.current = { goal: g, timer };
-    showToast("Goal deleted ·", {
-      duration: 5000,
-      action: () => {
-        clearTimeout(timer);
-        goalDeleteUndoRef.current = null;
-        setGoals((gs) => {
-          const copy = [...gs];
-          copy.splice(Math.min(ix, copy.length), 0, g);
-          return copy;
-        });
-      },
-    });
-  };
-
-  /* ----- finance ops ----- */
-  const setIncome = (income) => {
-    setFinance((f) => ({ ...f, income }));
-    db.dbSetIncome(user.id, income).catch(console.error);
-  };
-  /* same grace-window delete as goals / the Inbox trash: the bill leaves
-     the screen (and the month's numbers) immediately, but the Supabase
-     delete only fires once the 5s "Undo" toast expires. A recurring bill
-     is removed from every month — it's one row. */
-  const deleteBill = (id) => {
-    const bill = finance.bills.find((b) => b.id === id);
-    if (!bill) return;
-    if (billDeleteUndoRef.current) {
-      clearTimeout(billDeleteUndoRef.current.timer);
-      db.dbDeleteBill(billDeleteUndoRef.current.bill.id).catch(console.error);
-    }
-    setFinance((f) => ({ ...f, bills: f.bills.filter((b) => b.id !== id) }));
-    const timer = setTimeout(() => {
-      billDeleteUndoRef.current = null;
-      db.dbDeleteBill(id).catch((e) => {
-        console.error(e);
-        setFinance((f) => ({ ...f, bills: [...f.bills, bill] }));
-        showToast("Couldn't delete that bill — please try again");
-      });
-    }, 5000);
-    billDeleteUndoRef.current = { bill, timer };
-    showToast(`${bill.name} deleted ·`, {
-      duration: 5000,
-      action: () => {
-        clearTimeout(timer);
-        billDeleteUndoRef.current = null;
-        setFinance((f) => ({ ...f, bills: [...f.bills, bill] }));
-      },
-    });
-  };
-  const togglePaid = (bill) => {
-    const patch = bill.recurring
-      ? { paid_months: { ...(bill.paidMonths || {}), [financeMonth]: !bill.paidMonths?.[financeMonth] } }
-      : { paid: !bill.paid };
-    setFinance((f) => ({
-      ...f,
-      bills: f.bills.map((x) => x.id !== bill.id ? x
-        : bill.recurring ? { ...x, paidMonths: { ...(x.paidMonths || {}), [financeMonth]: !x.paidMonths?.[financeMonth] } }
-        : { ...x, paid: !x.paid }),
-    }));
-    db.dbUpdateBillPaid(bill.id, bill.recurring, patch).catch(console.error);
-  };
-  const addBill = (bill) => {
-    const temp = { id: uid(), ...bill, ...(bill.recurring ? { paidMonths: {} } : { paid: false }) };
-    setFinance((f) => ({ ...f, bills: [...f.bills, temp] }));
-    db.dbInsertBill(user.id, temp).then((real) => {
-      setFinance((f) => ({ ...f, bills: f.bills.map((b) => (b.id === temp.id ? real : b)) }));
-    }).catch(console.error);
-  };
-  /* extra money that came in this month only (a bonus, a gig, a gift) —
-     added on top of the income for that one month, removable with one tap.
-     (Day-to-day expenses and carry-over were removed from Finance; their
-     rows stay in the DB, unused.) */
-  const addExtra = (extra) => {
-    const temp = { id: uid(), ...extra };
-    setFinance((f) => ({ ...f, extras: [...f.extras, temp] }));
-    db.dbInsertExtra(user.id, temp).then((real) => {
-      setFinance((f) => ({ ...f, extras: f.extras.map((e) => (e.id === temp.id ? real : e)) }));
-    }).catch((e) => {
-      console.error(e);
-      setFinance((f) => ({ ...f, extras: f.extras.filter((x) => x.id !== temp.id) }));
-      showToast("Couldn't save that — please try again");
-    });
-  };
-  const deleteExtra = (id) => {
-    const prev = finance.extras.find((e) => e.id === id);
-    setFinance((f) => ({ ...f, extras: f.extras.filter((e) => e.id !== id) }));
-    db.dbDeleteExtra(id).then(({ error } = {}) => { if (error) throw error; }).catch((e) => {
-      console.error(e);
-      if (prev) setFinance((f) => ({ ...f, extras: [...f.extras, prev] }));
-      showToast("Couldn't delete that — please try again");
-    });
-  };
-
-  /* ----- profile / onboarding ops ----- */
-  const saveProfileName = (name) => {
-    setProfileName(name);
-    db.saveProfileName(user.id, name).catch(console.error);
-  };
-  const finishOnboarding = () => {
-    localStorage.setItem(ONBOARDED_KEY, "true");
-    setOnboardedState(true);
-    db.saveOnboarded(user.id, true).catch(console.error);
-  };
-
-  /* tab changes slide in the direction of travel — same motion language as days/months */
-  const TAB_ORDER = ["today", "vision", "finance", "goals"];
-  const [tabSlide, setTabSlide] = useState(null); // {dir, k}
-  const goTab = (t) => {
-    if (t === tab) return;
-    const dir = TAB_ORDER.indexOf(t) > TAB_ORDER.indexOf(tab) ? 1 : -1;
-    setTab(t); setBoardOpen(null);
-    setTabSlide({ dir, k: Date.now() });
-  };
-
-  /* ============================== auth gate ============================== */
-  /* GlobalStyle has to be mounted here too, not just in the main return below —
-     these are the screens shown BEFORE that return is ever reached, and without
-     it every className this file and its children use (fonts, animations, the
-     fixed-position/height rules these screens rely on to fill the viewport)
-     silently does nothing. That's what broke the sign-in screen last time. */
-  if (authLoading) return <><GlobalStyle /><LoadingScreen /></>;
-  if (!user) return <><GlobalStyle /><SignInScreen onSendCode={sendOtp} onVerifyCode={verifyOtp} /></>;
-  if (!dataLoaded) return <><GlobalStyle /><LoadingScreen /></>;
-
-  /* ============================== render ============================== */
-  const mainContent = (
-    <div key={tabSlide ? tabSlide.k : tab}
-      style={{ animation: tabSlide ? `${tabSlide.dir === 1 ? "slideFromRight" : "slideFromLeft"} .3s cubic-bezier(.3,.8,.4,1)` : undefined }}>
-      {tab === "today" && (
-        <TodayScreen {...{ tasks: effectiveTasks, top3, rest, doneTop3, selectedDay, setSelectedDay, todayKey, streak, finance, goals, toggleDone, deleteTask, setTop3, moveTaskToDay, taskToInbox, setEditor, setTab: goTab, openDetail: setDetailId, financeMonth, setFinanceMonth, profile, captures, toggleListItem, setAllListItems, onEditList: setEditingListCaptureId }} />
-      )}
-      {tab === "vision" && (
-        <VisionScreen {...{ boards, looseItems, boardOpen, setBoardOpen, showToast,
-          onAddLooseItem: addLooseItem, onPlaceOnBoard: placeOnBoard, onCreateBoard: createBoard, onUpdateBoard: updateBoard,
-          onDeleteBoard: deleteBoard, onDeleteVisionItem: deleteVisionItem, onReorderBoardItems: reorderBoardItems, onReorderBoards: reorderBoards,
-          onMoveVisionItem: moveVisionItem, onAddImageToBoard: addImageToBoard, onPinCover: pinCover, onEditVisionItem: editVisionItem, onAddItemToBoard: addItemToBoard }} />
-      )}
-      {tab === "finance" && (
-        <FinanceScreen {...{ finance, mk: financeMonth, setMk: setFinanceMonth,
-          onSetIncome: setIncome, onTogglePaid: togglePaid, onAddBill: addBill, onDeleteBill: deleteBill, onAddExtra: addExtra, onDeleteExtra: deleteExtra }} />
-      )}
-      {tab === "goals" && (
-        <GoalsScreen {...{ goals, onToggleMilestone: toggleMilestone, onAddMilestone: addMilestone, onEditMilestone: editMilestone, onDeleteMilestone: deleteMilestone, onUpdateGoal: updateGoal, onCreateGoal: createGoal, onDeleteGoal: deleteGoal, setEditor }} />
-      )}
-    </div>
-  );
-
-  return (
-    <div style={{ width: "100%", minHeight: "100vh", background: T.pageBg, display: "flex", justifyContent: "center", fontFamily: "'Inter','SF Pro Text',system-ui,sans-serif", color: T.ink, transition: "background .3s ease" }}>
-      <GlobalStyle />
-
-      {isDesktop ? (
-        <div style={{ display: "flex", width: "100%", maxWidth: 1160, minHeight: "100vh" }}>
-          <Sidebar tab={tab} setTab={goTab}
-            dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
-
-          {/* Capture: a small, quiet icon in the corner — not a glowing pill
-              fighting the sidebar for attention. Fixed to the viewport corner,
-              sitting in the content column's own top padding, so it never
-              collides with a screen's own header row (e.g. Vision's board view). */}
-          <button data-coach="inbox" data-drop="inbox" onClick={() => setInboxOpen(true)} aria-label="Open Inbox" className="pressable"
-            style={{ position: "fixed", top: 28, right: 40, zIndex: 45, width: 40, height: 40, borderRadius: 13, background: T.card, border: `1px solid ${T.stroke}`, boxShadow: T.shadowSm, display: "grid", placeItems: "center", cursor: "pointer" }}>
-            {Ic.thought(T.ink2)}
-            <NotificationBadge count={inboxCaptures.length} size={19} />
-          </button>
-
-          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            <div style={{ maxWidth: 720, margin: "0 auto", padding: "56px 48px 80px" }}>
-              {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
-              {mainContent}
-            </div>
+    <div style={{padding:"20px 28px"}}>
+      <style>{`.dg{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:768px){.dg{grid-template-columns:1fr 1fr}.df{grid-column:1/-1}}`}</style>
+      <div className="dg">
+        <NCard T={T} style={{padding:"20px"}} className="df">
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>Today Overview</div><NPill T={T} active onClick={()=>setModal("new")} style={{padding:"7px 16px",display:"flex",alignItems:"center",gap:6}}><Icon name="plus" size={12} color="#fff"/>New</NPill></div>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}><div style={{flex:1}}><PBar pct={pct} T={T}/></div><span style={{fontSize:13,fontWeight:800,color:T.accent,flexShrink:0}}>{pct}%</span></div>
+          {sorted.length===0?<div style={{textAlign:"center",padding:"20px 0",fontSize:13,color:T.text3}}>No tasks today. Tap New to add one.</div>:sorted.slice(0,5).map((t,i)=>{const done2=isDone(tasks,t.id,selectedDate),gc=gColor(t.group||"none");return(<div key={t.instanceKey} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:i<Math.min(sorted.length,5)-1?`1px solid ${T.borderLow}`:"none"}}><Checkbox done={done2} onToggle={()=>handleToggle(t.id,selectedDate)} T={T} color={t.group&&t.group!=="none"?gc:T.accent}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:14,fontWeight:500,color:done2?T.text3:T.text,textDecoration:done2?"line-through":"none",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</div>{(t.time||(t.group&&t.group!=="none"))&&<div style={{display:"flex",gap:8,marginTop:3}}>{t.time&&<span style={{fontSize:11,color:T.text3,display:"flex",alignItems:"center",gap:2}}><Icon name="clock" size={9} color={T.text3}/>{t.time}</span>}{t.group&&t.group!=="none"&&<span style={{fontSize:11,color:gc,fontWeight:600}}>{gLabel(t.group)}</span>}</div>}</div><div style={{display:"flex",gap:5}}><IBtn T={T} onClick={()=>setModal(t)} style={{width:28,height:28,borderRadius:9}}><Icon name="edit" size={11} color={T.text3}/></IBtn><IBtn T={T} onClick={()=>{onDelete(t.id);showToast("Removed")}} style={{width:28,height:28,borderRadius:9}}><Icon name="trash" size={11} color={T.text3}/></IBtn></div></div>)})}
+          {sorted.length>5&&<div style={{fontSize:12,color:T.text3,marginTop:10,textAlign:"center"}}>+{sorted.length-5} more</div>}
+          {isToday&&h>=17&&pct>0&&<button onClick={onOpenReflection} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:99,background:T.bg,boxShadow:T.neuSm,border:"none",cursor:"pointer",marginTop:14,fontFamily:"inherit"}}><span style={{fontSize:16}}>🌙</span><span style={{fontSize:13,fontWeight:600,color:T.text}}>Evening reflection</span><Icon name="chevR" size={13} color={T.accent} style={{marginLeft:"auto"}}/></button>}
+        </NCard>
+        {(topGoals.length>0||grpProg.length>0)&&(<NCard T={T} style={{padding:"20px"}}>
+          <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:16}}>Goals Snapshot</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            {topGoals.map(g=>{const gp=g.target>0?Math.min(100,Math.round(((g.saved||0)/g.target)*100)):0;return(<NInset key={g.id} T={T} style={{padding:"14px",borderRadius:18}}><div style={{fontSize:20,marginBottom:6}}>{g.icon}</div><div style={{fontSize:12,fontWeight:600,color:T.text,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{g.name}</div><div style={{fontSize:11,color:g.color,fontWeight:700,marginBottom:8}}>{gp}%</div><PBar pct={gp} T={T} color={g.color}/></NInset>)})}
+            {grpProg.map(g=>{const gp=g.total>0?Math.min(100,Math.round((g.done/g.total)*100)):0;return(<NInset key={g.id} T={T} style={{padding:"14px",borderRadius:18}}><div style={{width:10,height:10,borderRadius:"50%",background:g.color,marginBottom:6,boxShadow:`2px 2px 5px ${g.color+"44"}`}}/><div style={{fontSize:12,fontWeight:600,color:T.text,marginBottom:2}}>{g.label}</div><div style={{fontSize:11,color:g.color,fontWeight:700,marginBottom:8}}>{g.done}/{g.total}</div><PBar pct={gp} T={T} color={g.color}/></NInset>)})}
           </div>
-        </div>
-      ) : (
-        <div style={{ width: "100%", maxWidth: 440, minHeight: "100vh", position: "relative", padding: "0 0 110px" }}>
-          <TopBar dark={dark} toggleTheme={() => setTheme(dark ? "light" : "dark")} profile={profile} openProfile={() => setProfileOpen(true)} />
-          {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
-          {mainContent}
-          <Dock tab={tab} setTab={goTab} openInbox={() => setInboxOpen(true)} unreadCount={inboxCaptures.length} />
-        </div>
-      )}
-
-      {/* sheets, modals, toast — identical regardless of layout; Sheet itself
-          adapts from bottom-sheet (mobile) to centered modal (desktop) */}
-      <>
-        {inboxOpen && (
-          <InboxSheet
-            captures={inboxCaptures} addCapture={addCapture} releaseCapture={deleteCapture} completeCapture={completeCapture} toggleListItem={toggleListItem} updateCapture={updateCapture}
-            captureToVision={captureToVision} fetchLinkPreview={fetchLinkPreview}
-            onSchedule={(c) => {
-              setInboxOpen(false);
-              /* same fallback chain as the capture's own display label
-                 (CaptureRow) — a link capture usually has no title/text at
-                 all, only a url, and the pre-filled title must never come
-                 up empty: TaskEditor silently refuses to save an empty
-                 title, so Schedule would otherwise do nothing for it. */
-              setEditor({ initial: { text: c.title || c.text || c.url || "Image" }, fromCaptureId: c.id });
-            }}
-            onClose={() => setInboxOpen(false)} showToast={showToast}
-          />
-        )}
-
-        {/* TaskEditor sheet */}
-        {editor && (
-          <TaskEditor
-            initial={editor.initial} todayKey={todayKey}
-            onSave={(data) => {
-              /* Schedule: keep the capture as the task's single source of
-                 truth for list items / link preview — link to it instead of
-                 copying its title and deleting it. editor.initial?.captureId
-                 covers re-editing an already-scheduled task (clearing the
-                 date etc.), where the link must be preserved too. */
-              const captureId = editor.fromCaptureId ?? editor.initial?.captureId ?? null;
-              saveTask(captureId ? { ...data, captureId } : data, editor.initial?.id);
-            }}
-            onToInbox={(text) => {
-              if (editor.initial?.captureId) {
-                /* already backed by a capture — deleting the task severs the
-                   link, and the original capture (with its items/url intact)
-                   reappears in the Inbox on its own. Creating a second,
-                   title-only capture here would just duplicate it. */
-                deleteTask(editor.initial.id);
-              } else {
-                addCapture({ type: "note", text, tags: [] });
-                /* editing an EXISTING task and clearing its date: the task
-                   becomes a capture, so the original scheduled task must go —
-                   otherwise it would exist twice (as a task and as a capture) */
-                if (editor.initial?.id) deleteTask(editor.initial.id);
-              }
-              setEditor(null);
-              showToast("Moved to Inbox");
-            }}
-            onClose={() => setEditor(null)}
-          />
-        )}
-
-        {/* Profile & settings */}
-        {profileOpen && (
-          <SettingsSheet profile={profile} userId={user?.id} onSaveName={saveProfileName} onSignOut={signOut} onDeleteAccount={deleteAccount} theme={theme} setTheme={setTheme}
-            onClose={() => setProfileOpen(false)} showToast={showToast} />
-        )}
-
-        {/* Task detail — read-only; editing lives behind its own button */}
-        {detailId && (() => {
-          const t = effectiveTasks.find((x) => x.id === detailId);
-          if (!t) { return null; }
-          return (
-            <TaskDetailSheet task={t}
-              onEdit={() => { setDetailId(null); setEditor({ initial: t }); }}
-              onToggleDone={() => toggleDone(t.id)}
-              onClose={() => setDetailId(null)} />
-          );
-        })()}
-
-        {/* Editing a scheduled list's items — same sheet and same updateCapture
-            the Inbox itself uses, operating on the one capture row that both
-            views share. */}
-        {editingListCaptureId && (() => {
-          const capture = captures.find((c) => c.id === editingListCaptureId);
-          if (!capture) { setEditingListCaptureId(null); return null; }
-          return (
-            <ListEditorSheet capture={capture}
-              onSave={(changes) => { updateCapture(editingListCaptureId, changes); setEditingListCaptureId(null); }}
-              onClose={() => setEditingListCaptureId(null)} />
-          );
-        })()}
-
-        {/* toast — top, quiet */}
-        {toast && (
-          <div style={{ position: "fixed", top: 18, left: "50%", transform: "translateX(-50%)", background: T.ink, color: T.card, fontSize: 13, fontWeight: 500, padding: "10px 16px", borderRadius: 100, boxShadow: T.shadow, zIndex: 10000, animation: "toastIn .3s cubic-bezier(.34,1.3,.5,1)", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8, backdropFilter: "blur(8px)" }}>
-            {!toast.action && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={T.mint} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>}
-            <span>{toast.msg}</span>
-            {toast.action && (
-              <button onClick={() => { clearTimeout(toastTimer.current); toast.action(); setToast(null); }}
-                style={{ fontWeight: 700, color: T.mint, textDecoration: "underline", cursor: "pointer" }}>
-                Undo
-              </button>
-            )}
+        </NCard>)}
+        <NCard T={T} style={{padding:"20px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>Financial Snapshot</div><span style={{fontSize:11,color:T.text3}}>{new Date().toLocaleDateString("en-US",{month:"short",year:"numeric"})}</span></div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+            <NInset T={T} style={{padding:"14px",borderRadius:18}}><div style={{fontSize:10,color:T.text3,marginBottom:4,letterSpacing:"0.06em",textTransform:"uppercase",fontWeight:600}}>Total</div><div style={{fontSize:20,fontWeight:900,color:T.text,letterSpacing:"-0.5px"}}>€{fmtMoney(mTotal)}</div></NInset>
+            <NInset T={T} style={{padding:"14px",borderRadius:18}}><div style={{fontSize:10,color:T.text3,marginBottom:4,letterSpacing:"0.06em",textTransform:"uppercase",fontWeight:600}}>Paid</div><div style={{fontSize:20,fontWeight:900,color:T.green,letterSpacing:"-0.5px"}}>€{fmtMoney(mPaid)}</div></NInset>
           </div>
-        )}
-      </>
+          {topExp.length>0?topExp.map((item,i)=>(<div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:i<topExp.length-1?`1px solid ${T.borderLow}`:"none"}}><span style={{fontSize:14}}>{CAT_E[item.cat]}</span><span style={{fontSize:13,color:T.text,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.label}</span><span style={{fontSize:13,fontWeight:700,color:CAT_C[item.cat]}}>€{fmtMoney(item.amount)}</span></div>)):<div style={{textAlign:"center",padding:"8px 0",fontSize:13,color:T.text3}}>Add amounts in Finance to see expenses.</div>}
+        </NCard>
+        {inbox.length>0&&<NCard T={T} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 18px",borderRadius:99}} className="df"><Icon name="inbox" size={15} color={T.blue}/><span style={{fontSize:13,color:T.text2,flex:1}}><b style={{color:T.blue}}>{inbox.length}</b> item{inbox.length>1?"s":""} in Capture</span><Icon name="chevR" size={13} color={T.text3}/></NCard>}
+        <div className="df" style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0"}}><Icon name="shield" size={12} color={T.text3}/><span style={{fontSize:11,color:T.text3}}>Your data stays on your device. No tracking.</span></div>
+      </div>
     </div>
-  );
-}
+    {modal&&<TaskModal initial={modal==="new"?null:modal} defaultDate={selectedDate} onSave={handleSave} onClose={()=>setModal(null)} T={T}/>}
+  </>)};
+
+const CaptureScreen=({inbox,onSchedule,onDeleteInbox,onAddToInbox,T,showToast})=>{const[text,setText]=useState("");const[sched,setSched]=useState(null);const[schedDate,setSchedDate]=useState(todayStr());const[schedRec,setSchedRec]=useState("none");const ref=useRef();const add=()=>{if(!text.trim())return;onAddToInbox(text.trim());setText("");ref.current?.focus();showToast("Captured ✓")};const inp=mkInp(T);return(<div><div style={{padding:"52px 28px 20px"}}><SLbl T={T}>Your thoughts</SLbl><div style={{fontSize:26,fontWeight:800,color:T.text,letterSpacing:"-0.5px",marginBottom:4}}>Capture</div><div style={{fontSize:14,color:T.text2}}>Capture thoughts. Schedule later.</div></div><div style={{padding:"0 28px"}}><div style={{display:"flex",gap:12,marginBottom:28}}><input ref={ref} value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&add()} placeholder="What's on your mind?" autoFocus style={{...inp,marginBottom:0,flex:1}}/><IBtn T={T} onClick={add} active color={T.accent} style={{width:52,height:52,borderRadius:99,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.accentD})`}}><Icon name="send" size={18} color="#fff"/></IBtn></div>{inbox.length===0?<div style={{textAlign:"center",padding:"60px 0"}}><NInset T={T} style={{width:72,height:72,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><span style={{fontSize:32,opacity:0.4}}>📭</span></NInset><div style={{fontSize:15,color:T.text2,fontWeight:500}}>Nothing captured yet.</div></div>:inbox.map(item=>(<div key={item.id}><NCard T={T} style={{padding:"14px 18px",marginBottom:10,display:"flex",alignItems:"center",gap:12}}><div style={{flex:1}}><div style={{fontSize:15,fontWeight:500,color:T.text}}>{item.text}</div><div style={{fontSize:11,color:T.text3,marginTop:3}}>{new Date(item.createdAt).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</div></div><NPill T={T} active={sched?.id===item.id} onClick={()=>setSched(sched?.id===item.id?null:item)} style={{padding:"7px 14px"}}>Schedule</NPill><IBtn T={T} onClick={()=>{onDeleteInbox(item.id);showToast("Removed")}} style={{width:34,height:34,borderRadius:10}}><Icon name="trash" size={13} color={T.red}/></IBtn></NCard>{sched?.id===item.id&&<NInset T={T} style={{padding:"18px",marginBottom:10,marginTop:-6,borderRadius:20}}><div style={{display:"flex",gap:12,marginBottom:14}}><div style={{flex:1}}><SLbl T={T}>DATE</SLbl><input type="date" value={schedDate} onChange={e=>setSchedDate(e.target.value)} style={{...inp,marginBottom:0}}/></div><div style={{flex:1}}><SLbl T={T}>REPEAT</SLbl><select value={schedRec} onChange={e=>setSchedRec(e.target.value)} style={{...inp,appearance:"none",marginBottom:0}}><option value="none">Once</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div></div><PBtn T={T} onClick={()=>{onSchedule(item.id,{text:item.text,date:schedDate,recurrence:schedRec});setSched(null);showToast("Scheduled ✓")}}>Add to {schedDate===todayStr()?"Today":new Date(schedDate+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</PBtn></NInset>}</div>))}</div></div>)};
+
+const FocusTimer=({T,onComplete})=>{const MODES=[{label:"Focus",minutes:25,color:T.accent,desc:"Deep work — no distractions."},{label:"Short break",minutes:5,color:T.green,desc:"Step away. Breathe."},{label:"Long break",minutes:15,color:T.blue,desc:"Recharge fully."}];const[mode,setMode]=useState(0);const[secs,setSecs]=useState(25*60);const[running,setRunning]=useState(false);const[sessions,setSessions]=useState(0);const interval=useRef(null);const cur=MODES[mode];const R=80,C=2*Math.PI*R;useEffect(()=>{setSecs(MODES[mode].minutes*60);setRunning(false)},[mode]);useEffect(()=>{if(running){interval.current=setInterval(()=>{setSecs(s=>{if(s<=1){clearInterval(interval.current);setRunning(false);if(mode===0){setSessions(n=>n+1);onComplete&&onComplete()}return 0}return s-1})},1000)}else clearInterval(interval.current);return()=>clearInterval(interval.current)},[running,mode]);const reset=()=>{setRunning(false);setSecs(MODES[mode].minutes*60)};return(<div style={{padding:"52px 28px 28px"}}><SLbl T={T}>Focus Mode</SLbl><div style={{fontSize:26,fontWeight:800,color:T.text,letterSpacing:"-0.5px",marginBottom:28}}>Stay in the zone.</div><NInset T={T} style={{display:"flex",gap:5,marginBottom:36,padding:6,borderRadius:99}}>{MODES.map((m,i)=><button key={i} onClick={()=>setMode(i)} style={{flex:1,padding:"10px 8px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:12,fontWeight:mode===i?700:400,color:mode===i?"#fff":T.text2,background:mode===i?`linear-gradient(135deg,${m.color},${m.color+"CC"})`:"transparent",boxShadow:mode===i?`3px 3px 10px ${m.color+"44"},-1px -1px 4px rgba(255,255,255,0.20),${T.specular}`:"none",transition:"all 0.22s"}}>{m.label}</button>)}</NInset><div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:36}}><NCard T={T} style={{width:208,height:208,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",boxShadow:T.neuLg}}><svg width={208} height={208} style={{position:"absolute",inset:0,transform:"rotate(-90deg)"}}><circle cx={104} cy={104} r={R} fill="none" stroke={T.bgDeep} strokeWidth={10}/><circle cx={104} cy={104} r={R} fill="none" stroke={cur.color} strokeWidth={10} strokeLinecap="round" strokeDasharray={`${(secs/(cur.minutes*60))*C} ${C}`} style={{transition:"stroke-dasharray 0.8s ease",filter:`drop-shadow(0 0 8px ${cur.color+"88"})`}}/></svg><div style={{textAlign:"center",position:"relative",zIndex:1}}><div style={{fontSize:46,fontWeight:900,color:T.text,letterSpacing:"-2px",lineHeight:1}}>{fmtTimerS(secs)}</div><div style={{fontSize:11,color:T.text3,marginTop:6,fontWeight:700,letterSpacing:"0.12em"}}>{cur.label.toUpperCase()}</div></div></NCard><div style={{fontSize:13,color:T.text2,marginTop:16}}>{cur.desc}</div></div><div style={{display:"flex",gap:14,justifyContent:"center",marginBottom:28}}><IBtn T={T} onClick={reset} style={{width:54,height:54,borderRadius:"50%",boxShadow:T.neu}}><Icon name="refresh" size={18} color={T.text2}/></IBtn><button onClick={()=>setRunning(r=>!r)} style={{width:74,height:74,borderRadius:"50%",background:`linear-gradient(160deg,${cur.color},${cur.color+"BB"})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`6px 6px 18px ${cur.color+"55"},-2px -2px 8px rgba(255,255,255,0.20),${T.specular}`}}><Icon name={running?"pause":"play"} size={28} color="#fff"/></button><IBtn T={T} onClick={()=>setMode(m=>(m+1)%3)} style={{width:54,height:54,borderRadius:"50%",boxShadow:T.neu}}><Icon name="coffee" size={18} color={T.text2}/></IBtn></div>{sessions>0&&<NCard T={T} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 18px",marginBottom:18}}><Icon name="star" size={16} color={T.accent}/><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>{sessions} session{sessions>1?"s":""} today</div><div style={{fontSize:12,color:T.text2}}>{sessions*25} min of deep work.</div></div></NCard>}</div>)};
+
+const fileToB64=file=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
+
+const BoardView=({board,boards,onUpdateBoards,T,showToast,onBack})=>{
+  const[fkw,setFkw]=useState("");const[viewItem,setViewItem]=useState(null);const[showAdd,setShowAdd]=useState(false);
+  const[mode,setMode]=useState("upload");const[src,setSrc]=useState("");const[txt,setTxt]=useState("");const[cap,setCap]=useState("");const[tags,setTags]=useState([]);const[tagIn,setTagIn]=useState("");const[loading,setLoading]=useState(false);const fileRef=useRef();
+  const addTag=()=>{const t=tagIn.trim().replace(/^#/,"");if(!t||tags.includes(t))return;setTags(p=>[...p,t]);setTagIn("")};
+  const handleFile=async e=>{const file=e.target.files?.[0];if(!file)return;setLoading(true);try{const b64=await fileToB64(file);setSrc(b64)}catch{}setLoading(false)};
+  const resetItem=()=>{setMode("upload");setSrc("");setTxt("");setCap("");setTags([]);setTagIn("")};
+  const inp=mkInp(T);
+  const allTags=[...new Set(board.items.flatMap(i=>i.tags||[]))];
+  const filtered=fkw?board.items.filter(i=>(i.tags||[]).includes(fkw)||(i.caption||"").toLowerCase().includes(fkw.toLowerCase())||(i.text||"").toLowerCase().includes(fkw.toLowerCase())):board.items;
+  const addItem=()=>{if(mode==="text"&&!txt.trim())return;if(mode!=="text"&&!src.trim())return;onUpdateBoards(boards.map(b=>b.id===board.id?{...b,items:[...b.items,{id:genId(),type:mode==="text"?"text":"image",src:mode==="text"?"":src,text:mode==="text"?txt.trim():"",caption:cap.trim(),tags,createdAt:new Date().toISOString()}]}:b));resetItem();setShowAdd(false);showToast("Added ✓")};
+  const delItem=id=>{onUpdateBoards(boards.map(b=>b.id===board.id?{...b,items:b.items.filter(i=>i.id!==id)}:b));if(viewItem?.id===id)setViewItem(null);showToast("Removed")};
+  return(<div style={{paddingBottom:90}}>
+      <div style={{padding:"52px 28px 16px"}}><button onClick={()=>setOpenBoard(null)} style={{display:"flex",alignItems:"center",gap:6,background:"none",border:"none",cursor:"pointer",color:T.text2,fontSize:13,fontWeight:600,marginBottom:16,padding:0,fontFamily:"inherit"}} onClick={onBack}><Icon name="arrowL" size={15} color={T.text2}/>Back</button><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:4}}><div style={{width:14,height:14,borderRadius:"50%",background:board.color,boxShadow:`3px 3px 8px ${board.color+"55"}`}}/><div style={{fontSize:24,fontWeight:800,color:T.text,letterSpacing:"-0.5px"}}>{board.name}</div></div>{board.intention&&<div style={{fontSize:14,color:T.text2,fontStyle:"italic",marginBottom:10}}>"{board.intention}"</div>}{board.keywords?.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:7}}>{board.keywords.map(k=><NPill key={k} T={T} active color={board.color} style={{padding:"4px 12px",fontSize:11}}>#{k}</NPill>)}</div>}</div>
+      {allTags.length>0&&<div style={{paddingLeft:28,marginBottom:14}}><div style={{display:"flex",gap:7,overflowX:"auto",paddingRight:28,scrollbarWidth:"none"}}><NPill T={T} active={!fkw} color={board.color} onClick={()=>setFkw("")} style={{padding:"6px 14px",flexShrink:0}}>All</NPill>{allTags.map(t=><NPill key={t} T={T} active={fkw===t} color={board.color} onClick={()=>setFkw(fkw===t?"":t)} style={{padding:"6px 14px",flexShrink:0}}>#{t}</NPill>)}</div></div>}
+      <div style={{padding:"0 14px"}}>
+        {filtered.length===0?<div style={{textAlign:"center",padding:"60px 0"}}><NInset T={T} style={{width:72,height:72,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><span style={{fontSize:30,opacity:0.35}}>◎</span></NInset><div style={{fontSize:15,color:T.text2,fontWeight:600}}>Empty capsule.</div></div>:<div style={{columns:2,columnGap:12}}>{filtered.map(item=><div key={item.id} style={{breakInside:"avoid",marginBottom:12,cursor:"pointer"}} onClick={()=>setViewItem(item)}><NCard T={T} style={{overflow:"hidden",position:"relative"}}>{item.type==="image"&&item.src&&<img src={item.src} alt="" style={{width:"100%",display:"block"}} loading="lazy"/>}{item.type==="text"&&<NInset T={T} style={{padding:"22px 14px",minHeight:100,display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",borderRadius:24}}><span style={{fontSize:15,fontWeight:800,color:board.color,lineHeight:1.4}}>{item.text}</span></NInset>}{(item.caption||(item.tags&&item.tags.length>0))&&<div style={{padding:"10px 12px"}}>{item.caption&&<div style={{fontSize:11,color:T.text2,lineHeight:1.5,marginBottom:4}}>{item.caption}</div>}{item.tags?.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4}}>{item.tags.map(t=><span key={t} style={{fontSize:10,fontWeight:600,background:`${board.color}18`,color:board.color,padding:"2px 7px",borderRadius:99}}>#{t}</span>)}</div>}</div>}<button onClick={e=>{e.stopPropagation();delItem(item.id)}} style={{position:"absolute",top:7,right:7,width:26,height:26,borderRadius:"50%",background:T.bg,boxShadow:T.neuSm,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name="trash" size={11} color={T.text3}/></button></NCard></div>)}</div>}
+      </div>
+      {viewItem&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.80)",backdropFilter:"blur(20px)",zIndex:250,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px"}} onClick={()=>setViewItem(null)}><IBtn T={T} onClick={()=>setViewItem(null)} style={{position:"absolute",top:20,right:20,width:42,height:42,borderRadius:"50%",boxShadow:T.neu}}><Icon name="x" size={18} color={T.text}/></IBtn><NCard T={T} style={{maxWidth:420,width:"100%",borderRadius:28,overflow:"hidden",boxShadow:T.neuLg}} onClick={e=>e.stopPropagation()}>{viewItem.type==="image"&&viewItem.src&&<img src={viewItem.src} alt="" style={{width:"100%",display:"block",maxHeight:440,objectFit:"cover"}}/>}{viewItem.type==="text"&&<NInset T={T} style={{padding:"44px 28px",textAlign:"center",borderRadius:0}}><span style={{fontSize:22,fontWeight:800,color:board.color,lineHeight:1.4}}>{viewItem.text}</span></NInset>}{(viewItem.caption||(viewItem.tags?.length>0))&&<div style={{padding:"18px"}}>{viewItem.caption&&<div style={{fontSize:14,color:T.text,lineHeight:1.6,marginBottom:12}}>{viewItem.caption}</div>}{viewItem.tags?.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:6}}>{viewItem.tags.map(t=><NPill key={t} T={T} active color={board.color} style={{padding:"4px 12px",fontSize:12}}>#{t}</NPill>)}</div>}</div>}</NCard></div>}
+      {showAdd&&<GModal onClose={()=>{setShowAdd(false);resetItem()}} title="Add to Capsule" T={T}><NInset T={T} style={{display:"flex",gap:5,marginBottom:20,padding:5,borderRadius:99}}>{[{k:"upload",label:"📁 Upload"},{k:"url",label:"🔗 URL"},{k:"text",label:"✏️ Word"}].map(t=><button key={t.k} onClick={()=>setMode(t.k)} style={{flex:1,padding:"9px 8px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:11,fontWeight:mode===t.k?700:400,color:mode===t.k?"#fff":T.text2,background:mode===t.k?`linear-gradient(135deg,${board.color},${board.color+"BB"})`:"transparent",boxShadow:mode===t.k?`3px 3px 8px ${board.color+"44"},-1px -1px 3px rgba(255,255,255,0.20)`:T.specular,transition:"all 0.2s"}}>{t.label}</button>)}</NInset>{mode==="upload"&&(<>{<input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleFile}/>}{src?<div style={{position:"relative",marginBottom:14}}><img src={src} alt="" style={{width:"100%",borderRadius:20,maxHeight:220,objectFit:"cover",boxShadow:T.neuSm}}/><IBtn T={T} onClick={()=>setSrc("")} style={{position:"absolute",top:8,right:8,width:28,height:28,borderRadius:"50%"}}><Icon name="x" size={12} color={T.text}/></IBtn></div>:<NInset T={T} style={{padding:"40px 20px",textAlign:"center",cursor:"pointer",marginBottom:14,borderRadius:20}} onClick={()=>fileRef.current?.click()}>{loading?<div style={{fontSize:14,color:T.text2}}>Loading…</div>:<><div style={{fontSize:36,marginBottom:10,opacity:0.4}}>📁</div><div style={{fontSize:14,fontWeight:600,color:T.text2}}>Tap to choose an image</div></>}</NInset>}</>)}{mode==="url"&&<><SLbl T={T}>IMAGE URL</SLbl><input value={src} onChange={e=>setSrc(e.target.value)} placeholder="https://images.unsplash.com/…" style={inp}/>{src&&src.startsWith("http")&&<div style={{marginBottom:10}}><img src={src} alt="" style={{width:"100%",borderRadius:18,maxHeight:180,objectFit:"cover",boxShadow:T.neuSm}} onError={e=>e.target.style.opacity="0.1"}/></div>}</>}{mode==="text"&&<><SLbl T={T}>WORD OR QUOTE</SLbl><textarea value={txt} onChange={e=>setTxt(e.target.value)} autoFocus placeholder="Freedom. Abundance. Write your own rules." rows={3} style={{...inp,resize:"none",lineHeight:1.6,borderRadius:20}}/>{txt&&<NCard T={T} style={{padding:"18px",marginBottom:14,textAlign:"center"}}><span style={{fontSize:17,fontWeight:800,color:board.color,lineHeight:1.4}}>{txt}</span></NCard>}</>}<SLbl T={T}>CAPTION</SLbl><input value={cap} onChange={e=>setCap(e.target.value)} placeholder="What does this mean to you?" style={inp}/><SLbl T={T}>KEYWORDS</SLbl><div style={{display:"flex",gap:10,marginBottom:10}}><input value={tagIn} onChange={e=>setTagIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTag()} placeholder="#adventure  #freedom…" style={{...inp,marginBottom:0,flex:1}}/><IBtn T={T} active color={board.color} onClick={addTag} style={{width:46,height:46,borderRadius:99,background:`linear-gradient(135deg,${board.color},${board.color+"BB"})`}}><span style={{color:"#fff",fontSize:18}}>+</span></IBtn></div>{tags.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:18}}>{tags.map(t=><NPill key={t} T={T} active color={board.color} style={{padding:"5px 12px",display:"flex",alignItems:"center",gap:5}}>#{t}<button onClick={()=>setTags(p=>p.filter(x=>x!==t))} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.7)",padding:0,marginLeft:2}}>×</button></NPill>)}</div>}<PBtn T={T} onClick={addItem} color={board.color}>Add to Capsule</PBtn><SBtn T={T} onClick={()=>{setShowAdd(false);resetItem()}} style={{marginTop:10}}>Cancel</SBtn></GModal>}
+      <button onClick={()=>setShowAdd(true)} style={{position:"fixed",bottom:96,right:28,width:56,height:56,borderRadius:"50%",background:`linear-gradient(160deg,${board.color},${board.color+"BB"})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`6px 6px 18px ${board.color+"55"},-2px -2px 6px rgba(255,255,255,0.20),${T.specular}`,zIndex:50}}><Icon name="plus" size={24} color="#fff"/></button>
+  </div>)};
+
+const CapsuleScreen=({boards,onUpdateBoards,T,showToast})=>{
+  const[showNew,setShowNew]=useState(false);const[openBoard,setOpenBoard]=useState(null);
+  const[newName,setNewName]=useState("");const[newInt,setNewInt]=useState("");const[newColor,setNewColor]=useState(BOARD_COLORS[0]);const[kwIn,setKwIn]=useState("");const[kws,setKws]=useState([]);
+  const addKw=()=>{const k=kwIn.trim().replace(/^#/,"");if(!k||kws.includes(k))return;setKws(p=>[...p,k]);setKwIn("")};
+  const resetNewBoard=()=>{setNewName("");setNewInt("");setNewColor(BOARD_COLORS[0]);setKws([]);setKwIn("")};
+  const create=()=>{if(!newName.trim())return;onUpdateBoards([...boards,{id:genId(),name:newName.trim(),intention:newInt.trim(),color:newColor,keywords:kws,items:[],createdAt:new Date().toISOString()}]);resetNewBoard();setShowNew(false);showToast("Capsule created ✦")};
+  const inp=mkInp(T);
+  if(openBoard){const board=boards.find(b=>b.id===openBoard);if(!board){setOpenBoard(null);return null}return<BoardView board={board} boards={boards} onUpdateBoards={onUpdateBoards} T={T} showToast={showToast} onBack={()=>setOpenBoard(null)}/>}
+  return(<div><div style={{padding:"52px 28px 20px"}}><SLbl T={T}>Visualise your future</SLbl><div style={{fontSize:26,fontWeight:800,color:T.text,letterSpacing:"-0.5px"}}>Capsule</div><div style={{fontSize:14,color:T.text2,marginTop:4}}>Curate the life you're building.</div></div><div style={{padding:"0 28px"}}><button onClick={()=>setShowNew(true)} style={{width:"100%",padding:"14px",borderRadius:99,background:T.bg,boxShadow:T.neu,border:"none",fontFamily:"inherit",fontSize:14,fontWeight:700,color:T.accent,cursor:"pointer",marginBottom:24,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Icon name="plus" size={17} color={T.accent}/>New Capsule</button>{boards.length===0?<div style={{textAlign:"center",padding:"56px 0"}}><NInset T={T} style={{width:80,height:80,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><span style={{fontSize:36,opacity:0.4}}>◈</span></NInset><div style={{fontSize:16,color:T.text,fontWeight:600,marginBottom:6}}>No capsules yet.</div><div style={{fontSize:14,color:T.text2,maxWidth:280,margin:"0 auto",lineHeight:1.7}}>Create your first capsule and start collecting images, quotes, and keywords.</div></div>:boards.map(board=>{const preview=board.items.slice(0,4);return(<NCard key={board.id} T={T} style={{marginBottom:18,overflow:"hidden",cursor:"pointer"}} onClick={()=>setOpenBoard(board.id)}><div style={{height:5,background:`linear-gradient(90deg,${board.color},${board.color+"44"})`}}/><div style={{height:140,position:"relative",overflow:"hidden",background:`${board.color}08`}}>{preview.length===0&&<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:8}}><div style={{fontSize:28,opacity:0.2}}>◎</div><span style={{fontSize:12,color:T.text3}}>Empty capsule</span></div>}{preview.length>0&&<div style={{display:"grid",gridTemplateColumns:preview.length>=2?"1fr 1fr":"1fr",gap:2,height:"100%"}}>{preview.map(item=><div key={item.id} style={{overflow:"hidden"}}>{item.type==="image"&&item.src&&<img src={item.src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>}{item.type==="text"&&<div style={{width:"100%",height:"100%",background:`${board.color}22`,display:"flex",alignItems:"center",justifyContent:"center",padding:"8px"}}><span style={{fontSize:12,fontWeight:700,color:board.color,textAlign:"center",lineHeight:1.3}}>{item.text}</span></div>}</div>)}</div>}<button onClick={e=>{e.stopPropagation();onUpdateBoards(boards.filter(b=>b.id!==board.id));showToast("Removed")}} style={{position:"absolute",top:8,right:8,background:T.bg,boxShadow:T.neuSm,border:"none",cursor:"pointer",width:30,height:30,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name="trash" size={12} color={T.text3}/></button></div><div style={{padding:"16px 20px"}}><div style={{fontSize:16,fontWeight:800,color:T.text,marginBottom:3}}>{board.name}</div>{board.intention&&<div style={{fontSize:13,color:T.text2,fontStyle:"italic",marginBottom:10}}>"{board.intention}"</div>}<div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}><span style={{fontSize:11,color:T.text3}}>{board.items.length} item{board.items.length!==1?"s":""}</span>{board.keywords?.slice(0,3).map(k=><span key={k} style={{fontSize:10,fontWeight:600,background:`${board.color}14`,color:board.color,padding:"2px 8px",borderRadius:99}}>#{k}</span>)}</div></div></NCard>)})}</div>{showNew&&<GModal onClose={()=>{setShowNew(false);resetNewBoard()}} title="New Capsule" T={T}><SLbl T={T}>NAME</SLbl><input value={newName} onChange={e=>setNewName(e.target.value)} placeholder="Life in Europe · Dream Home · 2026…" style={inp} autoFocus/><SLbl T={T}>INTENTION</SLbl><input value={newInt} onChange={e=>setNewInt(e.target.value)} placeholder="What does this capsule represent?" style={inp}/><SLbl T={T}>COLOUR</SLbl><div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:18}}>{BOARD_COLORS.map(c=><button key={c} onClick={()=>setNewColor(c)} style={{width:32,height:32,borderRadius:"50%",background:c,border:"none",cursor:"pointer",flexShrink:0,boxShadow:c===newColor?`3px 3px 8px ${c+"66"},-1px -1px 3px rgba(255,255,255,0.30)`:T.neuSm,transform:c===newColor?"scale(1.12)":"scale(1)",transition:"all 0.2s"}}/>)}</div><SLbl T={T}>KEYWORDS</SLbl><div style={{display:"flex",gap:10,marginBottom:10}}><input value={kwIn} onChange={e=>setKwIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addKw()} placeholder="#freedom  #travel  #minimal…" style={{...inp,marginBottom:0,flex:1}}/><IBtn T={T} active color={newColor} onClick={addKw} style={{width:46,height:46,borderRadius:99,background:`linear-gradient(135deg,${newColor},${newColor+"BB"})`}}><span style={{color:"#fff",fontSize:20,lineHeight:1}}>+</span></IBtn></div>{kws.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:18}}>{kws.map(k=><NPill key={k} T={T} active color={newColor} style={{padding:"5px 12px",display:"flex",alignItems:"center",gap:5}}>#{k}<button onClick={()=>setKws(p=>p.filter(x=>x!==k))} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.7)",padding:0,marginLeft:2}}>×</button></NPill>)}</div>}<PBtn T={T} onClick={create} color={newColor} style={{marginTop:4}}>Create Capsule</PBtn><SBtn T={T} onClick={()=>{setShowNew(false);resetNewBoard()}} style={{marginTop:10}}>Cancel</SBtn></GModal>}</div>)};
+
+const FinanceScreen=({monthlyReset,savingsGoals,onUpdate,onUpdateGoals,T,showToast})=>{
+  const mk=curMonthKey(),d=new Date(),monthLabel=`${MONTHS[d.getMonth()]} ${d.getFullYear()}`,daysLeft=new Date(d.getFullYear(),d.getMonth()+1,0).getDate()-d.getDate();
+  const items=monthlyReset[mk]!==undefined?monthlyReset[mk]:mkReset();
+  const[editMode,setEditMode]=useState(false);const[showAdd,setShowAdd]=useState(false);const[newLabel,setNewLabel]=useState("");const[newAmount,setNewAmount]=useState("");const[newCat,setNewCat]=useState("bills");
+  const[editAId,setEditAId]=useState(null);const[editAVal,setEditAVal]=useState("");const[tab,setTab]=useState("bills");const[goalModal,setGoalModal]=useState(null);
+  const[depId,setDepId]=useState(null);const[depAmt,setDepAmt]=useState("");const[withId,setWithId]=useState(null);const[withAmt,setWithAmt]=useState("");
+  const addRef=useRef();
+  useEffect(()=>{if(showAdd)setTimeout(()=>addRef.current?.focus(),80)},[showAdd]);
+  useEffect(()=>{if(monthlyReset[mk]===undefined)onUpdate(mk,mkReset())},[mk]);
+  const persist=next=>onUpdate(mk,next);
+  const toggle=id=>{const next=items.map(i=>i.id===id?{...i,checked:!i.checked}:i);persist(next);const item=items.find(i=>i.id===id);if(item&&!item.checked)showToast("✓ Done")};
+  const addItem=()=>{if(!newLabel.trim())return;persist([...items,{id:genId(),cat:newCat,label:newLabel.trim(),amount:newAmount,checked:false}]);setNewLabel("");setNewAmount("");setShowAdd(false);showToast("Added ✓")};
+  const delItem=id=>{persist(items.filter(i=>i.id!==id));showToast("Removed")};
+  const saveAmt=id=>{persist(items.map(i=>i.id===id?{...i,amount:editAVal}:i));setEditAId(null)};
+  const chk=items.filter(i=>i.checked),totAmt=items.reduce((a,i)=>a+(parseFloat(i.amount)||0),0),paidAmt=chk.reduce((a,i)=>a+(parseFloat(i.amount)||0),0);
+  const done=chk.length,total=items.length,pct=total?Math.round((done/total)*100):0;
+  const totalSaved=savingsGoals.reduce((a,g)=>a+(g.saved||0),0),totalTarget=savingsGoals.reduce((a,g)=>a+(g.target||0),0);
+  const deposit=id=>{const amt=parseFloat(depAmt)||0;if(!amt)return;onUpdateGoals(savingsGoals.map(g=>g.id===id?{...g,saved:Math.min((g.saved||0)+amt,g.target)}:g));setDepId(null);setDepAmt("");showToast(`+€${fmtMoney(amt)} ✓`)};
+  const withdraw=id=>{const amt=parseFloat(withAmt)||0;if(!amt)return;onUpdateGoals(savingsGoals.map(g=>g.id===id?{...g,saved:Math.max((g.saved||0)-amt,0)}:g));setWithId(null);setWithAmt("");showToast(`-€${fmtMoney(amt)} ✓`)};
+  const inp=mkInp(T);
+  const GOAL_COLORS=[T.accent,T.green,T.blue,"#E05080","#E0A040","#9060E0","#40C0D0","#80B040","#E06040","#6080E0"];
+  return(<div><div style={{padding:"52px 28px 20px"}}><SLbl T={T}>Your finances</SLbl><div style={{fontSize:26,fontWeight:800,color:T.text,letterSpacing:"-0.5px"}}>Finance</div><div style={{fontSize:14,color:T.text2,marginTop:4}}>{monthLabel} · {daysLeft} day{daysLeft!==1?"s":""} left</div></div><div style={{padding:"0 28px"}}>
+    <NInset T={T} style={{display:"flex",gap:5,marginBottom:22,padding:6,borderRadius:99}}>{[{k:"bills",label:"💳 Bills"},{k:"savings",label:"🎯 Goals"}].map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={{flex:1,padding:"11px 8px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:tab===t.k?700:400,color:tab===t.k?"#fff":T.text2,background:tab===t.k?`linear-gradient(135deg,${T.accent},${T.accentD})`:"transparent",boxShadow:tab===t.k?`4px 4px 12px ${T.accentGlow},-2px -2px 6px rgba(255,255,255,0.20),${T.specular}`:"none",transition:"all 0.22s"}}>{t.label}</button>)}</NInset>
+    {tab==="bills"&&<><NCard T={T} style={{padding:"22px",marginBottom:18}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}><div><div style={{fontSize:13,fontWeight:600,color:T.text2}}>{done} of {total} paid</div><div style={{fontSize:12,color:T.text3,marginTop:2}}>{pct===100?"All closed ✦":pct>=50?"More than halfway.":"Let's get it done."}</div></div><div style={{fontSize:34,fontWeight:900,color:T.accent,letterSpacing:"-1px"}}>{pct}%</div></div>{totAmt>0&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:14,paddingBottom:14,borderBottom:`1px solid ${T.borderLow}`}}><span style={{fontSize:13,color:T.text3}}>Paid so far</span><span style={{fontSize:15,fontWeight:800,color:T.accent}}>€{fmtMoney(paidAmt)} <span style={{fontSize:12,fontWeight:400,color:T.text3}}>/ €{fmtMoney(totAmt)}</span></span></div>}<PBar pct={pct} T={T}/></NCard>
+    <div style={{display:"flex",gap:10,marginBottom:18}}><NPill T={T} active={showAdd} onClick={()=>setShowAdd(s=>!s)} style={{flex:1,padding:"12px",fontSize:13,fontWeight:700}}>+ Add bill</NPill><NPill T={T} active={editMode} color={T.red} onClick={()=>setEditMode(e=>!e)} style={{flex:1,padding:"12px",fontSize:13,fontWeight:700}}>{editMode?"Done":"Edit"}</NPill><IBtn T={T} onClick={()=>{persist(items.map(i=>({...i,checked:false})));showToast("Reset 🔄")}} style={{width:46,height:46,borderRadius:99,boxShadow:T.neu}}><Icon name="refresh" size={15} color={T.text2}/></IBtn></div>
+    {showAdd&&<NInset T={T} style={{padding:"18px",marginBottom:18,borderRadius:24}}><input ref={addRef} value={newLabel} onChange={e=>setNewLabel(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addItem()} placeholder="Bill name" style={inp}/><div style={{display:"flex",gap:12,marginBottom:14}}><div style={{flex:1}}><SLbl T={T}>AMOUNT (€)</SLbl><input type="number" value={newAmount} onChange={e=>setNewAmount(e.target.value)} placeholder="0.00" style={{...inp,marginBottom:0}}/></div><div style={{flex:1}}><SLbl T={T}>CATEGORY</SLbl><div style={{display:"flex",gap:6}}>{CATS.map(c=><IBtn key={c} T={T} active={newCat===c} color={CAT_C[c]} onClick={()=>setNewCat(c)} style={{flex:1,height:42,borderRadius:12,fontSize:18,background:newCat===c?`linear-gradient(135deg,${CAT_C[c]},${CAT_C[c]+"BB"})`:T.bg}}>{CAT_E[c]}</IBtn>)}</div></div></div><div style={{display:"flex",gap:10}}><PBtn T={T} onClick={addItem} style={{marginTop:0}}>Add</PBtn><SBtn T={T} onClick={()=>{setShowAdd(false);setNewLabel("")}} style={{marginTop:0}}>Cancel</SBtn></div></NInset>}
+    {CATS.map(cat=>{const catItems=items.filter(i=>i.cat===cat);if(!catItems.length)return null;const cc=CAT_C[cat],catTot=catItems.reduce((a,i)=>a+(parseFloat(i.amount)||0),0);return(<div key={cat} style={{marginBottom:22}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}><div style={{width:4,height:16,borderRadius:99,background:cc,boxShadow:`2px 2px 5px ${cc+"44"}`}}/><SLbl T={T}>{CAT_L[cat]}</SLbl><div style={{flex:1}}/>{catTot>0&&<span style={{fontSize:11,fontWeight:700,color:cc}}>€{fmtMoney(catTot)}</span>}</div>{catItems.map((item,idx)=>(<div key={item.id}><div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:idx<catItems.length-1?`1px solid ${T.borderLow}`:"none"}}><Checkbox done={item.checked} onToggle={()=>toggle(item.id)} T={T} color={cc} square/><div style={{flex:1,minWidth:0}}><div style={{fontSize:15,fontWeight:500,color:item.checked?T.text3:T.text,textDecoration:item.checked?"line-through":"none"}}>{CAT_E[item.cat]} {item.label}</div>{editAId===item.id?<div style={{display:"flex",gap:8,marginTop:8,alignItems:"center"}}><span style={{fontSize:13,color:T.text2}}>€</span><input autoFocus type="number" value={editAVal} onChange={e=>setEditAVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveAmt(item.id)} style={{width:110,padding:"8px 12px",borderRadius:99,background:T.bg,boxShadow:T.neuIn,fontSize:13,fontFamily:"inherit",color:T.text,outline:"none",border:"none"}}/><NPill T={T} active onClick={()=>saveAmt(item.id)} style={{padding:"7px 14px",fontSize:12}}>Save</NPill><button onClick={()=>setEditAId(null)} style={{padding:"7px 10px",borderRadius:99,background:"none",border:"none",color:T.text3,cursor:"pointer",fontFamily:"inherit",fontSize:12}}>✕</button></div>:<div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>{item.amount?<span style={{fontSize:12,fontWeight:700,color:item.checked?T.text3:cc}}>€{fmtMoney(item.amount)}</span>:<span style={{fontSize:12,color:T.text3}}>No amount</span>}<button onClick={()=>{setEditAId(item.id);setEditAVal(item.amount||"")}} style={{fontSize:11,color:T.text3,background:"none",border:"none",cursor:"pointer",textDecoration:"underline",fontFamily:"inherit"}}>edit</button></div>}</div>{editMode&&<IBtn T={T} onClick={()=>delItem(item.id)} style={{width:30,height:30,borderRadius:10}}><Icon name="trash" size={12} color={T.red}/></IBtn>}</div></div>))}</div>)})}</>}
+    {tab==="savings"&&<><NCard T={T} style={{padding:"22px",marginBottom:18}}><div style={{fontSize:12,fontWeight:600,color:T.text3,marginBottom:6,letterSpacing:"0.08em",textTransform:"uppercase"}}>Total saved</div><div style={{fontSize:38,fontWeight:900,color:T.accent,letterSpacing:"-1.5px",lineHeight:1}}>€{fmtMoney(totalSaved)}</div>{totalTarget>0&&<><div style={{fontSize:13,color:T.text3,marginTop:5}}>of €{fmtMoney(totalTarget)} target</div><div style={{marginTop:16}}><PBar pct={Math.min(100,Math.round((totalSaved/totalTarget)*100))} T={T}/></div></>}</NCard>
+    <button onClick={()=>setGoalModal("new")} style={{width:"100%",padding:"14px",borderRadius:99,background:T.bg,boxShadow:T.neu,border:"none",fontFamily:"inherit",fontSize:14,fontWeight:700,color:T.accent,cursor:"pointer",marginBottom:18}}>+ New savings goal</button>
+    {savingsGoals.length===0?<div style={{textAlign:"center",padding:"36px 0"}}><NInset T={T} style={{width:64,height:64,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}><span style={{fontSize:28,opacity:0.5}}>🎯</span></NInset><div style={{fontSize:15,color:T.text2,fontWeight:500}}>No goals yet.</div></div>:savingsGoals.map(goal=>{const gPct=goal.target>0?Math.min(100,Math.round(((goal.saved||0)/goal.target)*100)):0,rem=Math.max(0,(goal.target||0)-(goal.saved||0)),done2=gPct>=100;return(<NCard key={goal.id} T={T} style={{padding:"20px",marginBottom:14}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}><NInset T={T} style={{width:46,height:46,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{goal.icon}</NInset><div style={{flex:1,minWidth:0}}><div style={{fontSize:15,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{goal.name}</div><div style={{fontSize:12,color:T.text2,marginTop:2}}>{done2?"✨ Goal reached!":rem>0?`€${fmtMoney(rem)} to go`:""}</div></div><div style={{display:"flex",gap:6}}><IBtn T={T} onClick={()=>setGoalModal(goal)} style={{width:30,height:30,borderRadius:10}}><Icon name="edit" size={12} color={T.text3}/></IBtn><IBtn T={T} onClick={()=>{onUpdateGoals(savingsGoals.filter(g=>g.id!==goal.id));showToast("Removed")}} style={{width:30,height:30,borderRadius:10}}><Icon name="trash" size={12} color={T.red}/></IBtn></div></div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><span style={{fontSize:22,fontWeight:900,color:goal.color,letterSpacing:"-0.5px"}}>€{fmtMoney(goal.saved||0)}</span><span style={{fontSize:13,fontWeight:700,color:done2?goal.color:T.text3}}>{gPct}%</span></div><PBar pct={gPct} T={T} color={goal.color}/><div style={{marginTop:14}}/>{!done2&&<div style={{display:"flex",gap:10}}><NPill T={T} active color={goal.color} onClick={()=>{setDepId(depId===goal.id?null:goal.id);setDepAmt("");setWithId(null)}} style={{flex:1,padding:"10px",fontSize:13,fontWeight:700}}>+ Add</NPill><NPill T={T} onClick={()=>{setWithId(withId===goal.id?null:goal.id);setWithAmt("");setDepId(null)}} style={{flex:1,padding:"10px",fontSize:13}}>− Withdraw</NPill></div>}{depId===goal.id&&<div style={{display:"flex",gap:10,marginTop:12,alignItems:"center"}}><span style={{fontSize:15,color:T.text2}}>€</span><input autoFocus type="number" value={depAmt} onChange={e=>setDepAmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&deposit(goal.id)} placeholder="Amount" min="0" style={{...inp,flex:1,marginBottom:0}}/><PBtn T={T} onClick={()=>deposit(goal.id)} color={goal.color} style={{width:"auto",padding:"12px 20px",marginTop:0}}>Add</PBtn></div>}{withId===goal.id&&<div style={{display:"flex",gap:10,marginTop:12,alignItems:"center"}}><span style={{fontSize:15,color:T.text2}}>€</span><input autoFocus type="number" value={withAmt} onChange={e=>setWithAmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&withdraw(goal.id)} placeholder="Amount" min="0" style={{...inp,flex:1,marginBottom:0}}/><SBtn T={T} onClick={()=>withdraw(goal.id)} style={{width:"auto",padding:"12px 20px",marginTop:0}}>OK</SBtn></div>}</NCard>)})}</>}
+    <div style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",marginTop:8}}><Icon name="shield" size={12} color={T.text3}/><span style={{fontSize:11,color:T.text3}}>No bank connection. Data never leaves your device.</span></div>
+  </div>
+  {goalModal&&<GModal onClose={()=>setGoalModal(null)} title={goalModal==="new"?"New savings goal":"Edit goal"} T={T}><SLbl T={T}>ICON</SLbl><div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:14}}>{GOAL_ICONS.map(ic=>{const gm=goalModal==="new"?null:goalModal;const[gi,setGi]=useState(gm?.icon||"🎯");return(<IBtn key={ic} T={T} onClick={()=>{}} active={false} style={{width:40,height:40,borderRadius:12,fontSize:18}}>{ic}</IBtn>)})}</div><PBtn T={T} onClick={()=>setGoalModal(null)}>Close</PBtn></GModal>}
+  </div>)};
+
+const JourneyScreen=({tasks,streakData,reflections,focusSessions,monthlyReset,savingsGoals,boards,T})=>{const td=todayStr(),mk=curMonthKey();const last7=Array.from({length:7},(_,i)=>{const ds=offsetStr(i-6),dt=getForDate(tasks,ds),dn=dt.filter(t=>isDone(tasks,t.id,ds));return{ds,label:new Date(ds+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}),pct:dt.length?Math.round((dn.length/dt.length)*100):0,total:dt.length}});const totalDone=tasks.reduce((a,t)=>a+(t.completedDates?.length||0),0);const valid=last7.filter(d=>d.total>0),avg=valid.length?Math.round(valid.reduce((a,d)=>a+d.pct,0)/valid.length):0;const snap=getForDate(tasks,td),snapDone=snap.filter(t=>isDone(tasks,t.id,td));const reflCount=Object.keys(reflections||{}).length;const ri=(monthlyReset||{})[mk]!==undefined?(monthlyReset||{})[mk]:mkReset();const rd=ri.filter(i=>i.checked).length,rp=ri.length?Math.round((rd/ri.length)*100):0;const totalSaved=(savingsGoals||[]).reduce((a,g)=>a+(g.saved||0),0);return(<div><div style={{padding:"52px 28px 20px"}}><SLbl T={T}>Your journey</SLbl><div style={{fontSize:26,fontWeight:800,color:T.text,letterSpacing:"-0.5px"}}>Journey</div></div><div style={{padding:"0 28px"}}><style>{`.jg{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:768px){.jg{grid-template-columns:1fr 1fr}.jf{grid-column:1/-1}}`}</style><div className="jg"><NCard T={T} style={{padding:"22px"}} className="jf"><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}><Icon name="flame" size={19} color={T.accent}/><span style={{fontSize:13,color:T.text2,fontWeight:500,letterSpacing:"0.04em"}}>Current streak</span></div><div style={{fontSize:46,fontWeight:900,color:T.accent,letterSpacing:"-2px",lineHeight:1}}>{streakData.current}<span style={{fontSize:18,fontWeight:500,marginLeft:8,color:T.text3,letterSpacing:"0"}}>days</span></div><div style={{fontSize:12,color:T.text3,marginTop:10,letterSpacing:"0.04em"}}>Best: <b style={{color:T.text2}}>{streakData.longest} days</b></div></NCard><NCard T={T} style={{padding:"20px"}}><div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-1px",lineHeight:1,marginBottom:5}}>{totalDone}</div><div style={{fontSize:12,color:T.text2,letterSpacing:"0.04em"}}>Tasks completed</div></NCard><NCard T={T} style={{padding:"20px"}}><div style={{fontSize:32,fontWeight:900,color:T.accent,letterSpacing:"-1px",lineHeight:1,marginBottom:5}}>{avg}%</div><div style={{fontSize:12,color:T.text2,letterSpacing:"0.04em"}}>7-day avg</div></NCard><NCard T={T} style={{padding:"20px"}}><div style={{fontSize:32,fontWeight:900,color:T.blue,letterSpacing:"-1px",lineHeight:1,marginBottom:5}}>{focusSessions||0}</div><div style={{fontSize:12,color:T.text2,letterSpacing:"0.04em"}}>Focus sessions</div></NCard>{reflCount>0&&<NCard T={T} style={{padding:"20px"}}><div style={{fontSize:32,fontWeight:900,color:T.green,letterSpacing:"-1px",lineHeight:1,marginBottom:5}}>{reflCount}</div><div style={{fontSize:12,color:T.text2,letterSpacing:"0.04em"}}>Reflections</div></NCard>}{(boards||[]).length>0&&<NCard T={T} style={{padding:"20px"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}><span style={{fontSize:20}}>◈</span><div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-1px"}}>{boards.length}</div></div><div style={{fontSize:12,color:T.text2,letterSpacing:"0.04em"}}>{(boards||[]).reduce((a,b)=>a+b.items.length,0)} items in capsules</div></NCard>}{(savingsGoals||[]).length>0&&<NCard T={T} style={{padding:"20px"}}><div style={{fontSize:12,color:T.text3,marginBottom:5,letterSpacing:"0.06em",textTransform:"uppercase",fontWeight:600}}>Total saved</div><div style={{fontSize:28,fontWeight:900,color:T.green,letterSpacing:"-0.5px"}}>€{fmtMoney(totalSaved)}</div></NCard>}<NCard T={T} style={{padding:"20px"}} className="jf"><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><span style={{fontSize:14,fontWeight:700,color:T.text}}>💳 Finance</span><span style={{fontSize:13,color:T.text2}}>{rd}/{ri.length}</span></div><PBar pct={rp} T={T} color={T.green}/>{rp===100&&<div style={{fontSize:12,color:T.green,fontWeight:600,marginTop:10}}>Month fully closed ✦</div>}</NCard><NCard T={T} style={{padding:"22px"}} className="jf"><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:20}}>This week</div><div style={{display:"flex",alignItems:"flex-end",gap:10,height:80}}>{last7.map(d=><div key={d.ds} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}><NInset T={T} style={{width:"100%",height:d.total===0?5:Math.max(5,Math.round((d.pct/100)*64)),alignSelf:"flex-end",borderRadius:"6px 6px 3px 3px",overflow:"hidden",position:"relative"}}>{d.pct>0&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:`${d.pct}%`,background:d.ds===td?`linear-gradient(180deg,${T.accent},${T.accentD})`:d.pct===100?`linear-gradient(180deg,${T.green},${T.green+"AA"})`:T.accentBg,transition:"height 0.5s"}}/>}</NInset><span style={{fontSize:10,color:d.ds===td?T.accent:T.text3,fontWeight:d.ds===td?700:400}}>{d.label}</span></div>)}</div></NCard><NCard T={T} style={{padding:"20px"}} className="jf"><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><span style={{fontSize:14,fontWeight:700,color:T.text}}>Today</span><span style={{fontSize:13,color:T.text2}}>{snapDone.length}/{snap.length}</span></div><PBar pct={snap.length?Math.round((snapDone.length/snap.length)*100):0} T={T}/></NCard><div className="jf" style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0"}}><Icon name="shield" size={12} color={T.text3}/><span style={{fontSize:11,color:T.text3}}>All data stored locally. Nothing leaves your device.</span></div></div></div></div>)};
+
+export default function App(){
+  const[data,setData]=useState(()=>loadData()||blank());
+  const[tab,setTab]=useState("home");
+  const[selectedDate,setSelectedDate]=useState(todayStr());
+  const[toast,setToast]=useState(null);
+  const[showBrief,setShowBrief]=useState(false);
+  const[showReflect,setShowReflect]=useState(false);
+  const{tasks,inbox,streakData,reflections,monthlyReset,savingsGoals,boards,focusSessions,onboarded,dark}=data;
+  const T=dark?DARK:LIGHT;
+  useEffect(()=>{if(!onboarded)return;const h=new Date().getHours(),k=`lit_brief_${todayStr()}_${h<12?"am":"pm"}`;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,"1");setTimeout(()=>setShowBrief(true),900)}},[onboarded]);
+  useEffect(()=>saveData(data),[data]);
+  const upd=fn=>setData(p=>fn(p));
+  const showToast=useCallback(msg=>{setToast(msg);setTimeout(()=>setToast(null),2400)},[]);
+  const addTask=d=>upd(p=>({...p,tasks:[...p.tasks,{id:genId(),...d,completedDates:[]}]}));
+  const editTask=(id,d)=>upd(p=>({...p,tasks:p.tasks.map(t=>t.id===id?{...t,...d}:t)}));
+  const delTask=id=>upd(p=>({...p,tasks:p.tasks.filter(t=>t.id!==id)}));
+  const togTask=(id,ds)=>upd(p=>{const tasks=p.tasks.map(t=>{if(t.id!==id)return t;const cd=t.completedDates||[];return{...t,completedDates:cd.includes(ds)?cd.filter(x=>x!==ds):[...cd,ds]}});return{...p,tasks,streakData:calcStreak(tasks,p.streakData)}});
+  const addInbox=text=>upd(p=>({...p,inbox:[{id:genId(),text,createdAt:new Date().toISOString()},...p.inbox]}));
+  const delInbox=id=>upd(p=>({...p,inbox:p.inbox.filter(i=>i.id!==id)}));
+  const schedInbox=(id,d)=>upd(p=>({...p,tasks:[...p.tasks,{id:genId(),...d,completedDates:[]}],inbox:p.inbox.filter(i=>i.id!==id)}));
+  const saveRefl=ans=>upd(p=>({...p,reflections:{...p.reflections,[todayStr()]:ans}}));
+  const updReset=(mk,items)=>upd(p=>({...p,monthlyReset:{...(p.monthlyReset||{}),[mk]:items}}));
+  const updGoals=goals=>upd(p=>({...p,savingsGoals:goals}));
+  const updBoards=b=>upd(p=>({...p,boards:b}));
+  const focusDone=()=>{upd(p=>({...p,focusSessions:(p.focusSessions||0)+1}));showToast("🎯 Focus session done!")};
+  const mk=curMonthKey(),resetItems=(monthlyReset||{})[mk]!==undefined?(monthlyReset||{})[mk]:mkReset();
+  const resetPending=resetItems.some(i=>!i.checked),resetAllDone=resetItems.every(i=>i.checked);
+  if(!onboarded)return(<div style={{fontFamily:"'Inter',-apple-system,BlinkMacSystemFont,sans-serif"}}><Onboarding onDone={()=>upd(p=>({...p,onboarded:true}))} T={T}/></div>);
+  const NAV=[{id:"home",label:"Today",icon:"home"},{id:"inbox",label:"Capture",icon:"inbox"},{id:"capsule",label:"Capsule",icon:"diamond"},{id:"reset",label:"Finance",icon:"wallet"},{id:"stats",label:"Journey",icon:"chart"}];
+  const screens=(<>{tab==="home"&&<HomeScreen tasks={tasks} onToggle={togTask} onAdd={addTask} onEdit={editTask} onDelete={delTask} selectedDate={selectedDate} setSelectedDate={setSelectedDate} streakData={streakData} T={T} showToast={showToast} inbox={inbox} onOpenReflection={()=>setShowReflect(true)} resetPending={resetPending} savingsGoals={savingsGoals||[]} monthlyReset={monthlyReset||{}}/>}{tab==="inbox"&&<CaptureScreen inbox={inbox} onSchedule={schedInbox} onDeleteInbox={delInbox} onAddToInbox={addInbox} T={T} showToast={showToast}/>}{tab==="focus"&&<FocusTimer T={T} onComplete={focusDone}/>}{tab==="capsule"&&<CapsuleScreen boards={boards||[]} onUpdateBoards={updBoards} T={T} showToast={showToast}/>}{tab==="reset"&&<FinanceScreen monthlyReset={monthlyReset||{}} savingsGoals={savingsGoals||[]} onUpdate={updReset} onUpdateGoals={updGoals} T={T} showToast={showToast}/>}{tab==="stats"&&<JourneyScreen tasks={tasks} streakData={streakData} reflections={reflections||{}} focusSessions={focusSessions||0} monthlyReset={monthlyReset||{}} savingsGoals={savingsGoals||[]} boards={boards||[]} T={T}/>}</>);
+  return(<div style={{minHeight:"100vh",background:T.bg,fontFamily:"'Inter',-apple-system,BlinkMacSystemFont,sans-serif",color:T.text,transition:"background 0.3s,color 0.3s"}}>
+    <style>{`*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}::-webkit-scrollbar{display:none}.lit-sb{display:none}.lit-mn{width:100%;padding-bottom:96px}.lit-nm{display:flex}@media(min-width:768px){.lit-sh{display:flex;min-height:100vh}.lit-sb{display:flex !important;flex-direction:column;justify-content:space-between;width:240px;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;padding:36px 18px 28px;border-right:1px solid ${T.borderLow};z-index:40;background:${T.bg}}.lit-mn{margin-left:240px;flex:1;min-width:0;padding-bottom:56px}.lit-in{max-width:1080px;margin:0 auto;padding:12px 48px 0}.lit-sb button:hover{transform:translateX(3px)}.lit-mn button:not(.lit-nm):hover{filter:brightness(1.03)}.lit-nm{display:none !important}}@media(min-width:1280px){.lit-in{padding:20px 64px 0}.dg{gap:24px !important}.jg{gap:22px !important}}`}</style>
+    <div className="lit-sh">
+      <aside className="lit-sb">
+        <div><div style={{fontSize:24,fontWeight:900,color:T.text,letterSpacing:"-0.5px",marginBottom:4}}>Lit <span style={{color:T.accent}}>✦</span></div><div style={{fontSize:12,color:T.text3,marginBottom:36,letterSpacing:"0.06em"}}>Daily clarity.</div>{NAV.map(item=>(<button key={item.id} onClick={()=>setTab(item.id)} style={{width:"100%",display:"flex",alignItems:"center",gap:12,padding:"11px 14px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",marginBottom:5,background:tab===item.id?T.bg:"transparent",boxShadow:tab===item.id?T.neuSm:"none",transition:"all 0.2s"}}><div style={{width:36,height:36,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:tab===item.id?`linear-gradient(135deg,${T.accent},${T.accentD})`:T.bg,boxShadow:tab===item.id?`4px 4px 10px ${T.accentGlow},-2px -2px 5px rgba(255,255,255,0.25),${T.specular}`:T.neuSm,flexShrink:0,transition:"all 0.2s"}}><Icon name={item.icon} size={16} color={tab===item.id?"#fff":T.text3}/></div><span style={{fontSize:14,fontWeight:tab===item.id?700:500,color:tab===item.id?T.text:T.text2}}>{item.label}</span>{item.id==="inbox"&&inbox.length>0&&<div style={{marginLeft:"auto",width:18,height:18,borderRadius:"50%",background:T.blue,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:10,fontWeight:800,color:"#fff"}}>{inbox.length>9?"9+":inbox.length}</span></div>}{item.id==="reset"&&resetPending&&!resetAllDone&&<div style={{marginLeft:"auto",width:8,height:8,borderRadius:"50%",background:T.green}}/>}</button>))}</div>
+        <div><button onClick={()=>upd(p=>({...p,dark:!p.dark}))} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:99,border:"none",cursor:"pointer",fontFamily:"inherit",background:T.bg,boxShadow:T.neuSm}}><Icon name={dark?"sun":"moon"} size={15} color={T.accent}/><span style={{fontSize:13,fontWeight:600,color:T.text2}}>{dark?"Light mode":"Dark mode"}</span></button><div style={{display:"flex",alignItems:"center",gap:6,padding:"10px 14px",marginTop:4}}><Icon name="shield" size={11} color={T.text3}/><span style={{fontSize:11,color:T.text3,letterSpacing:"0.04em"}}>Private by design.</span></div></div>
+      </aside>
+      <main className="lit-mn">
+        <button onClick={()=>upd(p=>({...p,dark:!p.dark}))} className="lit-nm" style={{position:"fixed",top:16,right:16,background:T.bg,boxShadow:T.neu,border:"none",borderRadius:99,padding:"8px 16px",cursor:"pointer",alignItems:"center",gap:7,zIndex:60,fontFamily:"inherit"}}><Icon name={dark?"sun":"moon"} size={14} color={T.accent}/><span style={{fontSize:12,fontWeight:600,color:T.text2}}>{dark?"Light":"Dark"}</span></button>
+        <div className="lit-in">{screens}</div>
+      </main>
+      <nav className="lit-nm" style={{position:"fixed",bottom:0,left:0,right:0,background:T.navBg,backdropFilter:"blur(24px)",WebkitBackdropFilter:"blur(24px)",borderTop:`1px solid ${T.borderLow}`,justifyContent:"space-around",padding:"10px 0 22px",zIndex:50,boxShadow:"0 -4px 16px rgba(0,0,0,0.06)"}}>
+        {NAV.map(item=>(<button key={item.id} onClick={()=>setTab(item.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",color:tab===item.id?T.accent:T.text3,fontSize:10,fontWeight:tab===item.id?700:400,transition:"all 0.2s",padding:"2px 10px",position:"relative"}}><div style={{width:44,height:44,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:tab===item.id?`linear-gradient(135deg,${T.accent},${T.accentD})`:T.bg,boxShadow:tab===item.id?`4px 4px 12px ${T.accentGlow},-2px -2px 5px rgba(255,255,255,0.25),${T.specular}`:T.neuSm,transition:"all 0.2s"}}><Icon name={item.icon} size={20} color={tab===item.id?"#fff":T.text3}/></div>{item.label}{item.id==="inbox"&&inbox.length>0&&<div style={{position:"absolute",top:0,right:6,width:15,height:15,borderRadius:"50%",background:T.blue,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:9,fontWeight:800,color:"#fff"}}>{inbox.length>9?"9+":inbox.length}</span></div>}{item.id==="reset"&&resetPending&&!resetAllDone&&<div style={{position:"absolute",top:0,right:7,width:8,height:8,borderRadius:"50%",background:T.green}}/>}{item.id==="reset"&&resetAllDone&&<div style={{position:"absolute",top:0,right:7,fontSize:10}}>✦</div>}</button>))}
+      </nav>
+    </div>
+    {toast&&<Toast msg={toast} T={T}/>}
+    {showBrief&&<MorningBrief tasks={tasks} inbox={inbox} streakData={streakData} onDismiss={()=>setShowBrief(false)} T={T}/>}
+    {showReflect&&<EveningReflection tasks={tasks} onSave={ans=>{saveRefl(ans);setShowReflect(false);showToast("Reflection saved 🌙")}} onClose={()=>setShowReflect(false)} T={T}/>}
+  </div>)}
