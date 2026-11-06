@@ -210,6 +210,7 @@ function Celebration({ goal, cheer, onClose }) {
 
 export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMilestone, onDeleteMilestone, onUpdateGoal, onCreateGoal, onDeleteGoal, setEditor }) {
   const isDesktop = useMediaQuery("(min-width: 900px)");
+  const wide = useMediaQuery("(min-width: 1200px)");
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState(""); const [date, setDate] = useState(""); const [msDraft, setMsDraft] = useState("");
   const [editingGoal, setEditingGoal] = useState(null); // goal id whose title/date is being edited
@@ -243,7 +244,7 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMi
   };
 
   return (
-    <div style={{ padding: isDesktop ? "26px 22px 0" : "84px 22px 0" }} className="rise">
+    <div style={{ padding: isDesktop ? "0" : "84px 22px 0", maxWidth: isDesktop && !wide ? 760 : undefined, margin: isDesktop && !wide ? "0 auto" : undefined }} className="rise">
       <Eyebrow>Big things, broken into steps</Eyebrow>
       <h1 className="fr" style={{ fontSize: 34, fontWeight: 500, margin: "6px 0 16px" }}>Goals</h1>
       {goals.length > 0 && <GoalSky ignite={bump}
@@ -254,6 +255,8 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMi
           return ta - tb || a.ix - b.ix;
         }).map((x) => x.g)} />}
 
+      {/* wide desktop: goal cards side by side, two per row */}
+      <div style={wide ? { display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", columnGap: 18, alignItems: "start", marginTop: 6 } : undefined}>
       {goals.map((g) => {
         const pct = goalPct(g);
         const done = isComplete(g);
@@ -309,6 +312,7 @@ export function GoalsScreen({ goals, onToggleMilestone, onAddMilestone, onEditMi
           </Card>
         );
       })}
+      </div>
 
       {goals.length === 0 && !adding && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 0 28px", opacity: 0.8 }}>

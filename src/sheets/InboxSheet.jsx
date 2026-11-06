@@ -76,7 +76,7 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
   });
 
   return (
-    <Sheet onClose={onClose} title="Inbox" subtitle="Capture anything. Decide later.">
+    <Sheet side onClose={onClose} title="Inbox" subtitle="Capture anything. Decide later.">
       {/* composer */}
       <Card style={{ padding: 16, boxShadow: T.shadowSm }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
