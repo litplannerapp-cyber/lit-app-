@@ -4,6 +4,7 @@ import { GlobalStyle } from "./components/GlobalStyle";
 import { Dock } from "./components/Dock";
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
+import { CaptureButton } from "./components/CaptureButton";
 import { useMediaQuery } from "./hooks/useMediaQuery";
 import { TodayScreen } from "./screens/TodayScreen";
 import { VisionScreen } from "./screens/VisionScreen";
@@ -853,11 +854,12 @@ export default function LitApp() {
             openInbox={() => setInboxOpen(true)} inboxCount={inboxCaptures.length} />
 
           <main style={{ flex: 1, minWidth: 0, position: "relative" }}>
-            <div style={{ maxWidth: 1320, margin: "0 auto", padding: "40px clamp(32px, 4vw, 64px) 96px" }}>
+            <div style={{ maxWidth: 1320, margin: "0 auto", padding: "40px clamp(32px, 4vw, 64px) 140px" }}>
               {!onboarded && <CoachMarks step={coachStep} setStep={setCoachStep} tab={tab} goTab={goTab} onDone={finishOnboarding} />}
               {mainContent}
             </div>
           </main>
+          <CaptureButton onOpen={() => setInboxOpen(true)} count={inboxCaptures.length} />
         </div>
       ) : (
         <div style={{ width: "100%", maxWidth: 440, minHeight: "100vh", position: "relative", padding: "0 0 110px" }}>

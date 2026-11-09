@@ -3,8 +3,7 @@ import { HaloMark, Ic } from "../icons/Icons";
 
 /* Desktop navigation: a real left rail pinned to the window edge, the
    pattern desktop-class apps use (Linear, Things, Notion). It holds the
-   whole app's frame — brand, the one primary action (Capture), the four
-   spaces, the Inbox with its count, and theme/profile at the foot — so the
+   whole app's frame — brand, the four spaces, the Inbox with its count, and theme/profile at the foot — so the
    content area to its right can use the full width of the screen.
 
    The Inbox row is also the drop target for dragging a task back to the
@@ -32,19 +31,10 @@ export function Sidebar({ tab, setTab, dark, toggleTheme, profile, openProfile, 
   return (
     <aside style={{ width: 256, flexShrink: 0, padding: "24px 16px 20px", display: "flex", flexDirection: "column",
       background: dark ? "rgba(0,0,0,.14)" : "rgba(46,42,38,.025)", borderRight: `1px solid ${T.stroke}`, position: "sticky", top: 0, height: "100vh", boxSizing: "border-box" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 10px", marginBottom: 26 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 10px", marginBottom: 30 }}>
         <HaloMark size={26} />
         <span className="fr" style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em" }}>Lit</span>
       </div>
-
-      {/* the one primary action on every screen */}
-      <button onClick={openInbox} className="pressable" title="Capture (C)"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", height: 44, padding: "0 14px", borderRadius: 14, cursor: "pointer",
-          background: T.coralGrad, color: "#fff", boxShadow: "0 10px 22px -8px rgba(255,107,94,.55)", marginBottom: 22 }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-        <span style={{ flex: 1, textAlign: "left", fontSize: 14, fontWeight: 650 }}>Capture</span>
-        <span aria-hidden="true" style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "rgba(255,255,255,.22)" }}>C</span>
-      </button>
 
       <nav data-coach="dock" aria-label="Spaces" style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {navItem("today", "Today", iconToday, "1")}
