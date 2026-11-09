@@ -97,6 +97,15 @@ export function GlobalStyle() {
       @media (hover: none), (pointer: coarse) {
         .goal-trash { opacity: 1; }
       }
+      /* desktop capture button: a slow breathing halo around the orb, and
+         a lift on hover — alive, never nagging */
+      .capture-halo { position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(255,107,94,.45); animation: captureHalo 3.2s ease-out infinite; pointer-events: none; }
+      @keyframes captureHalo { 0% { transform: scale(.92); opacity: .9; } 70% { transform: scale(1.28); opacity: 0; } 100% { transform: scale(1.28); opacity: 0; } }
+      .capture-capsule { transition: transform .25s cubic-bezier(.3,.9,.3,1), box-shadow .25s ease; }
+      .capture-capsule:hover { transform: translateY(-3px); }
+      .capture-capsule:hover .capture-orb { transform: scale(1.06) rotate(-4deg); }
+      .capture-capsule:active { transform: translateY(0) scale(.98); }
+      .capture-orb { transition: transform .3s cubic-bezier(.34,1.5,.5,1); }
       @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     `}</style>
   );
