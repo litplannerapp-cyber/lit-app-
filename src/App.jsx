@@ -274,10 +274,10 @@ export default function LitApp() {
      tells the person calmly if the Supabase call actually fails — a
      capture that only "saved" locally and silently vanishes on next
      reload (no error, no trace) is worse than a visible failure. */
-  const addCapture = (c, onSaved) => {
+  const addCapture = (c, onSaved, toast) => {
     const temp = { id: uid(), createdAt: Date.now(), ...c };
     setCaptures((cs) => [temp, ...cs]);
-    showToast(`Captured to Inbox · ${c.type}`);
+    showToast(toast || `Captured to Inbox · ${c.type}`);
     db.dbInsertCapture(user.id, temp).then((real) => {
       setCaptures((cs) => cs.map((x) => (x.id === temp.id ? real : x)));
       onSaved?.(real);
@@ -919,6 +919,21 @@ export default function LitApp() {
               }
               setEditor(null);
               showToast("Moved to Inbox");
+            }}
+            allowKinds={!editor.initial?.id && !editor.fromCaptureId}
+            onSaveCapture={({ _label, ...capture }, dateKey) => {
+              /* a new List or Link from the editor's tabs: it's an Inbox
+                 capture; with a date it's also put on that day, linked to the
+                 capture (same as Schedule from the Inbox). The task is
+                 created once the capture has its real id, so the link holds. */
+              const label = capture.type === "list" ? capture.title : _label;
+              addCapture(capture, (real) => {
+                if (capture.type === "link") fetchLinkPreview(real.id, capture.url);
+                if (dateKey) {
+                  saveTask({ text: label, notes: "", dateKey, time: "", endTime: "", period: null, priority: false, reminder: false, group: null, captureId: real.id });
+                }
+              }, dateKey ? `Added to the day · ${capture.type}` : `Saved to Inbox · ${capture.type}`);
+              setEditor(null);
             }}
             onClose={() => setEditor(null)}
           />
