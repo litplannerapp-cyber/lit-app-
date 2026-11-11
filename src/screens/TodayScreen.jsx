@@ -332,7 +332,7 @@ export function TodayScreen({ tasks, top3, rest, doneTop3, selectedDay, setSelec
     <>
         {/* Your 3 today */}
         <div style={{ marginTop: 28 }}>
-          <Eyebrow style={{ marginBottom: 12 }}>Your 3 today</Eyebrow>
+          <Eyebrow style={{ marginBottom: 12 }}>Your 3 priorities today</Eyebrow>
           {drag && !top3.some((x) => x.id === drag.id) && (
             <div data-drop="top3" style={{ border: `1.8px dashed ${hoverZone === "top3" ? T.coral : T.ink3}`, background: hoverZone === "top3" ? T.coralSoft : "transparent", borderRadius: 16, padding: "13px 16px", marginBottom: 10, textAlign: "center", fontSize: 13, fontWeight: 600, color: hoverZone === "top3" ? T.coral : T.ink2, transition: "all .15s" }}>
               Drop here — one of your 3
