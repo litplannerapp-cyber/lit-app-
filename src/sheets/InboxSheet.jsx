@@ -7,20 +7,27 @@ import { GROCERY_WORDS } from "../constants";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { CaptureRow } from "./CaptureRow";
 import { ListEditorSheet } from "./ListEditorSheet";
+import { KindTabs } from "../components/KindTabs";
+import { ListItemsInput } from "../components/ListItemsInput";
 
 export function InboxSheet({ captures, addCapture, releaseCapture, completeCapture, toggleListItem, updateCapture, captureToVision, fetchLinkPreview, onSchedule, onClose, showToast }) {
   useBodyScrollLock(true);
-  const [type, setType] = useState(null); // null | task | list | image
+  /* null = Thought (the default: just empty your head), or list | image.
+     No separate "Task" tab here: a thought already becomes a task when
+     you Schedule it — two tabs for the same quick line was repetition. Same tab control as the New task sheet, so the two places
+     feel like one app — the Inbox just starts on "Thought" because its
+     job is getting things out of your head fast. */
+  const [type, setType] = useState(null);
   const [free, setFree] = useState("");
   const [title, setTitle] = useState("");
-  const [items, setItems] = useState("");
+  const [items, setItems] = useState([""]);
   const [imgUrl, setImgUrl] = useState("");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState(null);
   const [tagFilter, setTagFilter] = useState(null);
   const [expanded, setExpanded] = useState(null);
   const [editingListId, setEditingListId] = useState(null);
-  const itemsRef = useRef();
+  const itemsRef = useRef(null);
 
   const parseTags = (s) => (s.match(/#[\w-]+/g) || []).map((t) => t.slice(1));
   const stripTags = (s) => s.replace(/#[\w-]+/g, "").trim();
@@ -36,11 +43,11 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
     else addCapture({ type: "note", text: stripTags(v), tags });
     setFree("");
   };
-  const sendTask = () => { const v = title.trim(); if (!v) return; addCapture({ type: "task", title: v, tags: parseTags(v) }); setTitle(""); };
   const sendList = () => {
-    const v = title.trim(); if (!v) return;
-    addCapture({ type: "list", title: v, items: items.split("\n").map((s) => s.trim()).filter(Boolean).map((text) => ({ text, done: false })), tags: [] });
-    setTitle(""); setItems("");
+    const clean = items.map((s) => s.trim()).filter(Boolean);
+    const v = title.trim() || (clean.length ? "List" : ""); if (!v) return;
+    addCapture({ type: "list", title: v, items: items.map((s) => s.trim()).filter(Boolean).map((text) => ({ text, done: false })), tags: [] });
+    setTitle(""); setItems([""]);
   };
   const sendImage = () => {
     const url = imgUrl.trim(); if (!url) return;
@@ -70,6 +77,9 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
     return hay.includes(search.toLowerCase());
   });
 
+  /* composer fields: the same soft filled field as the New task sheet */
+  const field = { width: "100%", padding: "14px 16px", borderRadius: 15, border: "none", outline: "none", background: T.bg, fontSize: 15, fontWeight: 500 };
+
   const pill = (active) => ({
     padding: "7px 14px", borderRadius: 100, fontSize: 12.5, fontWeight: 600, cursor: "pointer",
     background: active ? T.coralGrad : T.bg, color: active ? "#fff" : T.ink2, transition: "all .2s",
@@ -79,13 +89,17 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
     <Sheet side onClose={onClose} title="Inbox" subtitle="Capture anything. Decide later.">
       {/* composer */}
       <Card style={{ padding: 16, boxShadow: T.shadowSm }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          {["task", "list", "image"].map((t) => (
-            <button key={t} style={pill(type === t)} onClick={() => setType(type === t ? null : t)}>
-              {t[0].toUpperCase() + t.slice(1)}
-            </button>
-          ))}
-        </div>
+        <KindTabs kinds={[["thought", "Thought"], ["list", "List"], ["image", "Image"]]}
+          value={type ?? "thought"} onChange={(k) => {
+            const next = k === "thought" ? null : k;
+            if (next === type) return;
+            /* carry what you've typed across where it makes sense (a
+               thought becomes the list name); never carry a list
+               name into an image title or back */
+            if (type === null && next === "list") { setTitle(free.trim()); setFree(""); }
+            else if (next === "image" || type === "image") setTitle("");
+            setType(next);
+          }} />
 
         {type === null && (
           <textarea value={free} onChange={(e) => setFree(e.target.value)}
@@ -95,28 +109,23 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
               if (item) { e.preventDefault(); const f = item.getAsFile(); const r = new FileReader(); r.onload = () => addCapture({ type: "image", imageUrl: r.result, tags: [] }); r.readAsDataURL(f); }
             }}
             placeholder="Anything on your mind. #tag to tag, paste a link or image…"
-            rows={2} style={{ width: "100%", border: "none", outline: "none", resize: "none", fontSize: 14.5, background: "transparent", lineHeight: 1.5 }} />
-        )}
-        {type === "task" && (
-          <input value={title} onChange={(e) => setTitle(e.target.value)} enterKeyHint="done"
-            onKeyDown={(e) => e.key === "Enter" && sendTask()}
-            placeholder="Task title" style={{ width: "100%", border: "none", outline: "none", fontSize: 14.5, background: "transparent" }} />
+            rows={3} style={{ ...field, resize: "none", lineHeight: 1.5 }} />
         )}
         {type === "list" && (<>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} enterKeyHint="next"
+          <input value={title} onChange={(e) => setTitle(e.target.value)} enterKeyHint="next" autoFocus
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); itemsRef.current?.focus(); } }}
-            placeholder="List name" style={{ width: "100%", border: "none", outline: "none", fontSize: 14.5, fontWeight: 600, background: "transparent", marginBottom: 8 }} />
-          <textarea ref={itemsRef} value={items} onChange={(e) => setItems(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendList(); } }}
-            placeholder={"One item per line\n⌘+Enter to save"} rows={3}
-            style={{ width: "100%", border: "none", outline: "none", resize: "none", fontSize: 14, background: "transparent", lineHeight: 1.6 }} />
+            placeholder="List name — e.g. Groceries" style={{ ...field, fontWeight: 600 }} />
+          <div style={{ marginTop: 10 }}>
+            <ListItemsInput items={items} onChange={setItems} firstRef={itemsRef} onSubmit={sendList} />
+          </div>
         </>)}
         {type === "image" && (<>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)"
-            style={{ width: "100%", border: "none", outline: "none", fontSize: 14.5, background: "transparent", marginBottom: 8 }} />
-          <input value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} placeholder="Paste an image or link URL"
+          <input value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} placeholder="Paste an image or link URL" autoFocus inputMode="url" autoCapitalize="none" autoCorrect="off"
             onKeyDown={(e) => e.key === "Enter" && sendImage()}
-            style={{ width: "100%", border: "none", outline: "none", fontSize: 14, background: "transparent" }} />
+            style={field} />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)"
+            onKeyDown={(e) => e.key === "Enter" && sendImage()}
+            style={{ ...field, marginTop: 10, fontSize: 14 }} />
           {imgUrl && isImageUrl(imgUrl) && (
             <img src={imgUrl} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }}
               style={{ width: "100%", borderRadius: 12, marginTop: 10, maxHeight: 160, objectFit: "cover" }} />
@@ -134,16 +143,18 @@ export function InboxSheet({ captures, addCapture, releaseCapture, completeCaptu
         )}
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 12 }}>
-          <button onPointerDown={(e) => { e.preventDefault(); startVoice(); }} aria-label="Capture by voice" style={{ width: 40, height: 40, borderRadius: 14, background: T.bg, display: "grid", placeItems: "center", cursor: "pointer" }}>
-            {Ic.mic(T.ink2)}
-          </button>
+          {type === null && (
+            <button onPointerDown={(e) => { e.preventDefault(); startVoice(); }} aria-label="Capture by voice" style={{ width: 44, height: 44, borderRadius: 15, background: T.bg, display: "grid", placeItems: "center", cursor: "pointer" }}>
+              {Ic.mic(T.ink2)}
+            </button>
+          )}
           <button
             onPointerDown={(e) => {
               e.preventDefault(); /* don't blur the field — the reflow was eating the tap */
-              (type === null ? sendFree : type === "task" ? sendTask : type === "list" ? sendList : sendImage)();
+              (type === null ? sendFree : type === "list" ? sendList : sendImage)();
             }}
             aria-label="Capture"
-            style={{ width: 40, height: 40, borderRadius: 14, background: T.coralGrad, display: "grid", placeItems: "center", cursor: "pointer", boxShadow: "0 6px 16px rgba(255,107,94,.3)" }}>
+            style={{ width: 44, height: 44, borderRadius: 15, background: T.coralGrad, display: "grid", placeItems: "center", cursor: "pointer", boxShadow: "0 6px 16px rgba(255,107,94,.3)" }}>
             {Ic.send()}
           </button>
         </div>
