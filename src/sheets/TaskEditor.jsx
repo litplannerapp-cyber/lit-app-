@@ -1,7 +1,9 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { T } from "../theme";
 import { Ic } from "../icons/Icons";
 import { Sheet } from "../components/Sheet";
+import { KindTabs } from "../components/KindTabs";
+import { ListItemsInput } from "../components/ListItemsInput";
 import { Eyebrow } from "../components/Eyebrow";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { toDateKey, addDays } from "../utils/date";
@@ -34,7 +36,7 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onSaveCapture
   const [linkUrl, setLinkUrl] = useState("");
   const [linkTitle, setLinkTitle] = useState("");
   const [linkError, setLinkError] = useState(false);
-  const itemRefs = useRef([]);
+  const firstItemRef = useRef(null);
   const [text, setText] = useState(initial?.text || "");
   const [notes, setNotes] = useState(initial?.notes || "");
   const [dateKey, setDateKey] = useState(initial?.dateKey || todayKey); // null = no date → goes to Inbox
@@ -76,39 +78,6 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onSaveCapture
     });
   };
 
-  /* list rows behave like iPhone Reminders: Return makes the next row,
-     Backspace on an empty row removes it, pasting several lines makes
-     several rows */
-  /* focus moves in a layout effect, right after the new row renders and
-     before the next key is handled — so fast typing never spills the
-     next letters into the previous row */
-  const pendingFocus = useRef(null);
-  const focusRow = (i) => { pendingFocus.current = i; };
-  useLayoutEffect(() => {
-    if (pendingFocus.current == null) return;
-    itemRefs.current[pendingFocus.current]?.focus();
-    pendingFocus.current = null;
-  });
-  const setRow = (i, v) => setListItems((a) => a.map((x, j) => (j === i ? v : x)));
-  const rowKeyDown = (i, e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      setListItems((a) => [...a.slice(0, i + 1), "", ...a.slice(i + 1)]);
-      focusRow(i + 1);
-    } else if (e.key === "Backspace" && listItems[i] === "" && listItems.length > 1) {
-      e.preventDefault();
-      setListItems((a) => a.filter((_, j) => j !== i));
-      focusRow(Math.max(0, i - 1));
-    }
-  };
-  const rowPaste = (i, e) => {
-    const lines = e.clipboardData.getData("text").split(/\r?\n/).map((l) => l.replace(/^\s*([-*•]|\d+[.)])\s*/, "").trim()).filter(Boolean);
-    if (lines.length < 2) return;
-    e.preventDefault();
-    setListItems((a) => [...a.slice(0, i), ...(a[i] ? [a[i]] : []), ...lines, ...a.slice(i + 1)]);
-    focusRow(i + lines.length);
-  };
-
   /* tapping the already-active pill deselects it — date becomes "none",
      which (per the rule above) sends the task to the Inbox on save */
   const datePill = (label, key) => (
@@ -120,51 +89,17 @@ export function TaskEditor({ initial, todayKey, onSave, onToInbox, onSaveCapture
   return (
     <Sheet onClose={onClose} title={editing ? "Edit task" : kind === "list" ? "New list" : kind === "link" ? "New link" : "New task"}>
       {allowKinds && !editing && (
-        <div role="tablist" aria-label="What are you adding?" style={{ display: "flex", gap: 4, padding: 4, borderRadius: 14, background: T.bg, marginBottom: 14 }}>
-          {[["task", "Task"], ["list", "List"], ["link", "Link"]].map(([k, label]) => {
-            const on = kind === k;
-            return (
-              <button key={k} role="tab" aria-selected={on} onClick={() => { setKind(k); setLinkError(false); }}
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "9px 0", borderRadius: 11, cursor: "pointer", fontSize: 13.5, fontWeight: on ? 700 : 600,
-                  background: on ? T.card : "transparent", color: on ? T.ink : T.ink2, boxShadow: on ? T.shadowSm : "none", transition: "all .2s ease" }}>
-                {k === "task" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={on ? T.coral : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="5" /><path d="M8.5 12.3l2.4 2.4 4.8-5" /></svg>}
-                {k === "list" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={on ? T.coral : "currentColor"} strokeWidth="2" strokeLinecap="round"><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4.5" cy="6" r="1" fill={on ? T.coral : "currentColor"} /><circle cx="4.5" cy="12" r="1" fill={on ? T.coral : "currentColor"} /><circle cx="4.5" cy="18" r="1" fill={on ? T.coral : "currentColor"} /></svg>}
-                {k === "link" && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={on ? T.coral : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1" /><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" /></svg>}
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <KindTabs kinds={[["task", "Task"], ["list", "List"], ["link", "Link"]]} value={kind} onChange={(k) => { setKind(k); setLinkError(false); }} />
       )}
 
       {kind === "list" && (
         <div className="rise">
           <input value={listTitle} onChange={(e) => setListTitle(e.target.value)} enterKeyHint="next" autoFocus
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); itemRefs.current[0]?.focus(); } }}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); firstItemRef.current?.focus(); } }}
             placeholder="List name — e.g. Groceries"
             style={{ width: "100%", padding: "15px 16px", borderRadius: 15, border: "none", outline: "none", background: T.bg, fontSize: 15.5, fontWeight: 600 }} />
-          <div style={{ marginTop: 10, padding: "6px 6px 6px 14px", borderRadius: 15, background: T.bg }}>
-            {listItems.map((v, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span aria-hidden="true" style={{ width: 17, height: 17, borderRadius: 6, border: `1.6px solid ${T.ink3}`, flexShrink: 0, opacity: v ? 1 : 0.5 }} />
-                <input ref={(el) => { itemRefs.current[i] = el; }} value={v} onChange={(e) => setRow(i, e.target.value)}
-                  onKeyDown={(e) => rowKeyDown(i, e)} onPaste={(e) => rowPaste(i, e)} enterKeyHint="next"
-                  placeholder={i === 0 ? "First item" : "Add item"} aria-label={`Item ${i + 1}`}
-                  style={{ flex: 1, minWidth: 0, padding: "10px 4px", border: "none", outline: "none", background: "transparent", fontSize: 14.5, fontWeight: 500, color: T.ink,
-                    borderBottom: i < listItems.length - 1 ? `1px solid ${T.hairline}` : "none" }} />
-                {listItems.length > 1 && (
-                  <button aria-label={`Remove ${v || "item"}`} onClick={() => setListItems((a) => a.filter((_, j) => j !== i))}
-                    style={{ width: 28, height: 28, borderRadius: 9, display: "grid", placeItems: "center", cursor: "pointer", color: T.ink3, flexShrink: 0 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
-                  </button>
-                )}
-              </div>
-            ))}
-            <button onClick={() => { setListItems((a) => [...a, ""]); focusRow(listItems.length); }}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 0 8px", fontSize: 13.5, fontWeight: 650, color: T.coral, cursor: "pointer" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-              Add item
-            </button>
+          <div style={{ marginTop: 10 }}>
+            <ListItemsInput items={listItems} onChange={setListItems} firstRef={firstItemRef} />
           </div>
           <p style={{ fontSize: 12, color: T.ink3, margin: "8px 2px 0", lineHeight: 1.45 }}>Return adds the next item. Pasting several lines adds them all.</p>
         </div>
