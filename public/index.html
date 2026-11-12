@@ -676,6 +676,20 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 .gl-bstar.new svg{animation:glbloom2 1.4s cubic-bezier(.2,1.3,.4,1) .7s both}
 @keyframes glbloom2{0%{transform:scale(0);opacity:0}55%{transform:scale(2);opacity:1}100%{transform:scale(1);opacity:1}}
 @media (max-width:900px){.gl-bstar em{display:none}.gl-bstar svg{width:22px;height:22px}}
+/* ===== Promises strip ===== */
+.pr-section{position:relative;padding:20px 0 70px}
+.pr-grid{list-style:none;margin:26px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.pr-card{padding:26px 26px 24px;border-radius:28px}
+.pr-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(237,123,101,.14);color:#A93C24}
+.pr-card h3{margin:16px 0 0;font-size:25px;font-weight:400;line-height:1.15}
+.pr-card p{margin:8px 0 0;font-size:15.5px;line-height:1.55;color:#4A423D}
+/* phones: the feature sections get shorter — the pictures do the talking */
+@media (max-width:768px){
+  .td-points .td-pt span,#vz-points li div>span{display:none}
+  .td-points button,#vz-points li{padding-top:9px;padding-bottom:9px;align-items:center}
+  .pr-section{padding:0 0 40px}
+}
+@media (max-width:620px){.td-fit{max-width:330px}}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   .lit *,.lit *::before,.lit *::after{animation:none!important;transition:none!important}
@@ -701,10 +715,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     <a href="#top" class="logo" aria-label="Lit, home" style="font-size:26px"><svg viewBox="0 0 104 104" aria-hidden="true"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95" fill="none" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"></path></svg><span>Lit</span></a>
     <div class="nav-links">
       <a href="#evening">How it works</a>
-      <a href="#today-plan">Today</a>
-      <a href="#vision">Boards</a>
-      <a href="#finance-plan">Finance</a>
-      <a href="#goals-plan">Goals</a>
+      <a href="#today-plan">Inside Lit</a>
       <a href="#faq">Questions</a>
     </div>
     <a class="btn btn-ink btn-sm" href="/app" data-cta><span class="dot"></span>Start for free</a>
@@ -722,7 +733,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       <div class="eyebrow in d1">A calmer planner for a full life</div>
       <h1 class="serif in d2" style="margin:22px 0 0;font-size:clamp(42px,4.9vw,70px);line-height:1.02;font-weight:380;text-wrap:balance">Your mind is for living, <br><em class="accent" style="font-weight:340">not remembering everything.</em></h1>
       <p class="serif in d3" style="margin:26px 0 0;font-size:clamp(22px,2.1vw,28px);line-height:1.25">Get it out of your head. Get it into your life.</p>
-      <p class="lead in d3" style="margin:18px 0 0;max-width:540px">All your ideas, plans, goals and to-dos, finally in one place. Capture what’s on your mind, make sense of it, and turn what matters into action — one step at a time.</p>
+      <p class="lead in d3" style="margin:18px 0 0;max-width:540px">Everything on your mind — tasks, plans, dreams, money — in one calm place. Then you pick three for today. Close your ring, and you're done. Really done.</p>
 
       <div class="in d4" style="margin-top:36px;max-width:540px">
         <a class="btn btn-ink" href="/app" data-cta style="min-height:58px;padding:0 32px;font-size:17px"><span class="dot"></span>Start for free<svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
@@ -748,9 +759,9 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
           </div>
           <div class="ph-body" id="ph-body">
           <section class="ph-view" data-view="today" aria-label="Today">
-            <div class="app-eyebrow">Tuesday 27 October</div>
+            <div class="app-eyebrow" id="ph-date">Tuesday 27 October</div>
             <div class="ph-h serif">Good morning, Lily</div>
-            <div class="ph-week" aria-hidden="true"><span class="ph-day"><small>Mon</small>26</span><span class="ph-day on grad"><small>Tue</small>27</span><span class="ph-day"><small>Wed</small>28</span><span class="ph-day"><small>Thu</small>29</span><span class="ph-day"><small>Fri</small>30</span><span class="ph-day"><small>Sat</small>31</span><span class="ph-day"><small>Sun</small>1</span></div>
+            <div class="ph-week" id="ph-week" aria-hidden="true"><span class="ph-day"><small>Mon</small>26</span><span class="ph-day on grad"><small>Tue</small>27</span><span class="ph-day"><small>Wed</small>28</span><span class="ph-day"><small>Thu</small>29</span><span class="ph-day"><small>Fri</small>30</span><span class="ph-day"><small>Sat</small>31</span><span class="ph-day"><small>Sun</small>1</span></div>
             <p class="ph-quote serif"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4c-6 0-11 4-12 11l-3 5"></path><path d="M8 15c4 0 8-2 9-7"></path></svg> Finish one thing before you feed the next worry.</p>
             <div class="app-card ph-ringcard">
               <div class="ph-ring">
@@ -759,7 +770,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
               </div>
               <div style="min-width:0"><div class="serif ph-ring-t" id="ph-ring-t">A clear runway</div><div class="ph-ring-s" id="ph-ring-s">Choose up to three things that matter today.</div></div>
             </div>
-            <div class="app-eyebrow" style="margin-top:14px">Your 3 today</div>
+            <div class="app-eyebrow" style="margin-top:14px">Your 3 priorities today</div>
             <div class="ph-tasks"><button type="button" class="task ph-task" aria-pressed="false" data-ph-today="0"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Send the flat deposit</span></button><button type="button" class="task ph-task" aria-pressed="false" data-ph-today="1"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Finish the Q4 brief</span></button><button type="button" class="task ph-task" aria-pressed="false" data-ph-today="2"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span><span class="t-label">Call Mum</span></button></div>
             <span class="ph-addtask grad" aria-hidden="true">Add task</span>
           </section>
@@ -773,15 +784,14 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
           <section class="ph-view" data-view="finance" aria-label="Finance" hidden>
             <div class="app-eyebrow">An honest number about your month</div>
             <div class="ph-h serif">Finance</div>
-            <div class="ph-month" aria-hidden="true"><span class="ph-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></span><span class="serif">October 2026</span><span class="ph-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></div>
+            <div class="ph-month" aria-hidden="true"><span class="ph-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></span><span class="serif" id="ph-month">October 2026</span><span class="ph-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></div>
             <div class="app-card" style="padding:16px">
               <div class="app-eyebrow">You can save this month</div>
-              <div class="serif" style="margin-top:4px;font-size:40px;line-height:1;font-weight:450">€1,060</div>
-              <div style="margin-top:14px;height:9px;border-radius:999px;background:#F6F1EA;overflow:hidden;display:flex;gap:3px"><div style="width:45%;height:100%;border-radius:999px;background:#7FB5E0"></div><div style="width:22%;height:100%;border-radius:999px;background:#FFC29E"></div><div style="width:33%;height:100%;border-radius:999px;background:#5EC9A7"></div></div>
+              <div class="serif" style="margin-top:4px;font-size:40px;line-height:1;font-weight:450">€1,917</div>
+              <div style="margin-top:14px;height:9px;border-radius:999px;background:#F6F1EA;overflow:hidden;display:flex;gap:3px"><div style="width:40%;height:100%;border-radius:999px;background:#7FB5E0"></div><div style="width:60%;height:100%;border-radius:999px;background:#5EC9A7"></div></div>
               <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:#5E5650">
-                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#7FB5E0"></span>Bills · €1,450</span>
-                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#FFC29E"></span>Spending · €690</span>
-                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#5EC9A7"></span>Left · €1,060</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#7FB5E0"></span>Bills · €1,283</span>
+                <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#5EC9A7"></span>Left · €1,917</span>
               </div>
               <div style="margin-top:8px;font-size:11.5px;color:#6F665F">Income €3,200</div>
             </div>
@@ -812,7 +822,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
           <div class="ph-inbox" id="ph-inbox" role="dialog" aria-label="Inbox">
             <div class="ph-inbox-sheet">
               <div class="ib-head"><div><div class="ib-title serif">Inbox</div><div class="ib-sub">Capture anything. Decide later.</div></div><button type="button" class="ib-close" id="ph-inbox-close" aria-label="Close Inbox"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>
-              <form class="ib-composer" id="dump-form"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Task</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><label class="sr-only" for="dump-input">Type something to capture</label><input id="dump-input" class="ib-input" type="text" autocomplete="off" maxlength="70" placeholder="Anything on your mind…"><div class="ib-foot"><span class="ib-mic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><button type="submit" class="ib-send grad" aria-label="Capture"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div></form>
+              <form class="ib-composer" id="dump-form"><div class="ib-chips" aria-hidden="true"><span class="ib-chip">Thought</span><span class="ib-chip">List</span><span class="ib-chip">Image</span></div><label class="sr-only" for="dump-input">Type something to capture</label><input id="dump-input" class="ib-input" type="text" autocomplete="off" maxlength="70" placeholder="Anything on your mind…"><div class="ib-foot"><span class="ib-mic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg></span><button type="submit" class="ib-send grad" aria-label="Capture"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div></form>
               <div class="ib-search" aria-hidden="true">Search captures</div>
               <div id="dump-list" class="ib-list" aria-live="polite">
                 <div id="dump-empty" class="serif" style="margin:auto;text-align:center;font-size:17px;font-style:italic;color:#6F665F">Nothing here yet. Your head is still full.</div>
@@ -876,6 +886,30 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
   </div>
 </section>
 
+<!-- PROMISES: the three things every other system got wrong -->
+<section id="promises" class="pr-section" aria-labelledby="pr-h">
+  <div class="wrap">
+    <h2 id="pr-h" class="eyebrow reveal" style="margin:0">Built for full heads, not perfect planners</h2>
+    <ul class="pr-grid reveal">
+      <li class="glass pr-card">
+        <span class="pr-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <h3 class="serif">Nothing to set up.</h3>
+        <p>No templates. No tutorials. Open Lit and your spaces are already there — you're planning in two minutes, not after a weekend.</p>
+      </li>
+      <li class="glass pr-card">
+        <span class="pr-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2.5"/><rect x="13" y="3" width="8" height="8" rx="2.5"/><rect x="3" y="13" width="8" height="8" rx="2.5"/><path d="M14 17h6M17 14v6"/></svg></span>
+        <h3 class="serif">One place, not five apps.</h3>
+        <p>Your to-dos, your calendar, your saved links, your goals and your month's money live together. Lit takes apps away — it isn't one more.</p>
+      </li>
+      <li class="glass pr-card">
+        <span class="pr-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 104 104" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><path d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15 M 22.73,84.85 A 44,44 0 0 1 25.15,17.14 M 30.47,13.63 A 44,44 0 0 1 81.16,84.95"/></svg></span>
+        <h3 class="serif">A streak that waits for you.</h3>
+        <p>Busy week? Bad week? Your streak pauses. It never resets, and nothing shames you for being human.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
 <!-- TODAY: three priorities, not thirty -->
 <section id="today-plan" class="section td-section" aria-labelledby="td-h">
   <div class="wrap td-wrap">
@@ -883,7 +917,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       <div class="eyebrow reveal">Today · Your calendar, with a finish line</div>
       <p class="serif reveal td-pain">Twenty-three things on the list. A calendar wall to wall. Behind before breakfast.</p>
       <h2 id="td-h" class="serif h2 reveal">You can't do it all today. <em class="accent" style="font-weight:340">Do the three that matter.</em></h2>
-      <p class="lead reveal" style="margin:24px 0 0;max-width:520px">Today is your calendar — with one difference. Every morning you choose three priorities. Finish them and your ring closes. The rest waits its turn, without the guilt.</p>
+      <p class="lead reveal" style="margin:24px 0 0;max-width:520px">Today is your calendar, with one difference: every morning you choose three priorities. Finish them and your ring closes. The rest waits its turn, without the guilt.</p>
       <ol class="vz-points td-points reveal" id="td-points">
         <li data-p="1"><button type="button" data-go="1"><span class="vz-n">1</span><span class="td-pt"><b>Pick three.</b><span>Three priorities, one ring. Close it and that's a good day.</span></span></button></li>
         <li data-p="2"><button type="button" data-go="2"><span class="vz-n">2</span><span class="td-pt"><b>Give every part of life a colour.</b><span>Work, health, family. Your day makes sense at a glance.</span></span></button></li>
@@ -959,7 +993,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
         <li data-p="2"><span class="vz-n">2</span><div><b>See it all in one place.</b><span>Every link becomes a card, with its picture and title.</span></div></li>
         <li data-p="3"><span class="vz-n">3</span><div><b>Turn it into a plan.</b><span>A checklist right on the board — book the hotel, reserve the table.</span></div></li>
       </ol>
-      <p class="reveal" style="margin:20px 0 0;font-size:16px;color:#5E5650">When it's time, send it to <b style="color:var(--ink)">Today</b>. Your board keeps the rest.</p>
+      <p class="reveal" style="margin:20px 0 0;font-size:16px;color:#5E5650">When it's time, send it to <b style="color:var(--ink)">Today</b>. Ready to make it real? Break it into steps in <a href="#goals-plan" style="font-weight:600">Goals</a>.</p>
       <div class="reveal" style="margin-top:22px"><a class="link-cta" href="/app" data-cta><span class="u">Make your first board — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
     </div>
     <div class="reveal" id="vz-host" role="img" aria-label="An animated Lit board: scattered links, photos and notes fly onto one board, a checklist gets ticked off, and one item is sent to Today." style="flex:1 1 460px;min-width:0"></div>
@@ -1099,7 +1133,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
     <div class="reveal" style="flex:2 1 520px;min-width:0" id="faq-list">
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="true" aria-controls="faq-a-0"><span>What is Lit?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-0" class="faq-a open"><div><p>Lit isn’t just a calendar or a to-do list. It’s your daily space to plan, think, and feel in control. Tasks, calendar, quick capture, goals, and finances — together, without the clutter.</p></div></div></div>
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-1"><span>Why only three priorities?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-1" class="faq-a"><div><p>Because everything can’t be important. Choosing three helps you focus on what will actually move your day forward, instead of carrying around an endless list you’ll never finish.</p></div></div></div>
-      <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-2"><span>What if I miss a day?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-2" class="faq-a"><div><p>Life isn’t a streak. Lit never punishes you for being busy. Your progress waits exactly where you left it, ready whenever you are.</p></div></div></div>
+      <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-2"><span>What if I miss a day?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-2" class="faq-a"><div><p>Then you miss a day. Lit never punishes you for being busy: your streak pauses, it never resets, and everything waits exactly where you left it.</p></div></div></div>
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-3"><span>Is my financial data private?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-3" class="faq-a"><div><p>Absolutely. Finance is completely optional, and your data stays yours. We never sell it or use it to train AI.</p></div></div></div>
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-4"><span>Can I cancel anytime?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-4" class="faq-a"><div><p>Of course. No phone calls. No hidden steps. No awkward retention flows. Cancel in just a couple of taps.</p></div></div></div>
       <div class="faq-item"><h3 style="margin:0"><button type="button" class="faq-q" aria-expanded="false" aria-controls="faq-a-5"><span>Another subscription?</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span></button></h3><div id="faq-a-5" class="faq-a"><div><p>Free to start, free to keep. €9.99 a month if you want everything — instead of five apps.</p></div></div></div>
@@ -2109,5 +2143,23 @@ const STORIES={
 })();
 </script>
 
+<script>
+/* hero phone: show today's real date, week (Monday first) and month, like the app */
+(function () {
+  var d = document.getElementById('ph-date'), w = document.getElementById('ph-week'), m = document.getElementById('ph-month');
+  if (!d || !w) return;
+  var now = new Date();
+  var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  d.textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MON[now.getMonth()];
+  if (m) m.textContent = MON[now.getMonth()] + ' ' + now.getFullYear();
+  var dow = (now.getDay() + 6) % 7, html = '';
+  for (var i = 0; i < 7; i++) {
+    var x = new Date(now); x.setDate(now.getDate() - dow + i);
+    html += '<span class="ph-day' + (i === dow ? ' on grad' : '') + '"><small>' + ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i] + '</small>' + x.getDate() + '</span>';
+  }
+  w.innerHTML = html;
+})();
+</script>
 </body>
 </html>
