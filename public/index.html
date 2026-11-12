@@ -594,6 +594,94 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 /* narrower screens: no room beside the phone, so the thoughts gather above it */
 @media (max-width:1399px){.fn-thoughts{position:relative;inset:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:16px 12px;margin:0 0 30px;max-width:520px}.fn-th{position:relative;left:auto;top:auto;max-width:none;padding:10px 14px;font-size:14px}}
 @media (max-width:620px){.fn-th.m-hide{display:none}}
+/* ===== Goals section (#goals-plan) — a night section: the app's Goals screen, and a constellation that grows behind it ===== */
+.gl-night{position:relative;overflow:hidden;margin:40px 12px;padding:200px 0 120px;border-radius:48px;color:#FFF3EA;background:radial-gradient(120% 80% at 85% 0%,#4A2B3A 0%,#2A1E26 45%,#17110F 100%)}
+.gl-night::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.9;background-image:radial-gradient(1.2px 1.2px at 8% 14%,rgba(255,255,255,.5) 50%,transparent 51%),radial-gradient(1px 1px at 18% 72%,rgba(255,255,255,.35) 50%,transparent 51%),radial-gradient(1.3px 1.3px at 31% 38%,rgba(255,255,255,.4) 50%,transparent 51%),radial-gradient(1px 1px at 44% 88%,rgba(255,255,255,.3) 50%,transparent 51%),radial-gradient(1.2px 1.2px at 52% 9%,rgba(255,255,255,.45) 50%,transparent 51%),radial-gradient(1px 1px at 63% 55%,rgba(255,255,255,.3) 50%,transparent 51%),radial-gradient(1.3px 1.3px at 74% 24%,rgba(255,255,255,.45) 50%,transparent 51%),radial-gradient(1px 1px at 86% 80%,rgba(255,255,255,.35) 50%,transparent 51%),radial-gradient(1.2px 1.2px at 93% 42%,rgba(255,255,255,.4) 50%,transparent 51%),radial-gradient(1px 1px at 4% 48%,rgba(255,255,255,.3) 50%,transparent 51%),radial-gradient(1px 1px at 38% 6%,rgba(255,255,255,.35) 50%,transparent 51%),radial-gradient(1px 1px at 58% 94%,rgba(255,255,255,.3) 50%,transparent 51%)}
+/* the big constellation lives in a band across the top of the section, so it never sits on the copy */
+.gl-band{position:absolute;left:0;right:0;top:0;height:180px;pointer-events:none}
+.gl-bigsky{position:absolute;inset:0;width:100%;height:100%}
+.gl-bigsky line{stroke:url(#glBig);stroke-width:1.2;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.45}
+.gl-bs{transform-box:fill-box;transform-origin:center;transition:opacity .8s,transform 1.2s cubic-bezier(.2,1.4,.4,1)}
+.gl-bs.off{opacity:0;transform:scale(0)}
+.gl-bl{font:italic 400 1.6px 'Fraunces',Georgia,serif;fill:rgba(255,243,234,.55)}
+.gl-wrap{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:64px}
+.gl-copy{flex:1 1 440px;min-width:0}
+.gl-visual{position:relative;flex:1 1 400px;min-width:0;display:flex;justify-content:center}
+.gl-night .h2{color:#FFF8F3}
+.gl-night .accent{color:#FFB09E}
+.gl-night .eyebrow{color:#FFB09E}
+.gl-pain{margin:22px 0 0;font-size:19px;line-height:1.5;font-style:italic;color:rgba(255,243,234,.62)}
+.gl-lead{margin:24px 0 0;max-width:520px;color:rgba(255,243,234,.78)!important}
+.gl-points li{opacity:.6}
+.gl-points li.on{background:rgba(255,255,255,.07)!important;box-shadow:0 0 0 1px rgba(255,255,255,.08)!important;opacity:1}
+.gl-points .td-pt b{color:#FFF8F3}.gl-points .td-pt span{color:rgba(255,243,234,.68)!important}
+.gl-points .vz-n{background:rgba(255,255,255,.18)}
+.gl-quote{margin:30px 0 0;padding:4px 0 4px 20px;border-left:2px solid rgba(255,176,158,.55);font-size:21px;line-height:1.5;color:rgba(255,243,234,.9)}
+.gl-quote em{color:#FFB09E}
+.gl-cta{color:#FFF8F3!important}
+.gl-night :focus-visible{outline-color:#FFF8F3}
+
+.gl-stage{box-shadow:0 60px 100px -40px rgba(0,0,0,.7),0 0 0 9px #0E0A09,0 0 0 10px rgba(255,255,255,.09),0 0 80px -10px rgba(255,107,94,.25)!important}
+.gl-sky{position:absolute;left:22px;width:346px;top:132px;height:170px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 90% at 80% 0%,#4A2B3A 0%,#2A1E26 45%,#1A1416 100%);box-shadow:0 18px 40px -22px rgba(40,20,30,.7)}
+.gl-sky::before{content:"";position:absolute;inset:0;opacity:.9;background-image:radial-gradient(1.1px 1.1px at 12% 30%,rgba(255,255,255,.35) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 33% 78%,rgba(255,255,255,.25) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 58% 22%,rgba(255,255,255,.3) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 74% 64%,rgba(255,255,255,.3) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 90% 38%,rgba(255,255,255,.25) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 46% 50%,rgba(255,255,255,.2) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 82% 15%,rgba(255,255,255,.3) 50%,transparent 51%)}
+.gl-lines{position:absolute;inset:0;width:100%;height:100%}
+.gl-lines line{stroke:url(#glLine);stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linecap:round;opacity:.75}
+.gl-star{position:absolute;width:34px;height:34px;transform:translate(-50%,-50%);display:grid;place-items:center}
+.gl-star.new{animation:glbloom 1.3s cubic-bezier(.2,1.3,.4,1) .55s both}
+@keyframes glbloom{0%{transform:translate(-50%,-50%) scale(0);opacity:0}55%{transform:translate(-50%,-50%) scale(1.9);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.gl-next{position:absolute;width:8px;height:8px;transform:translate(-50%,-50%);border-radius:50%;border:1px dashed rgba(255,243,234,.4)}
+.gl-count{position:absolute;left:16px;bottom:13px;color:#FFF3EA}
+.gl-count .serif{display:inline-block;font-size:34px;font-weight:500;line-height:1}
+.gl-count .serif.bump{animation:glbump .5s cubic-bezier(.3,1.5,.5,1)}
+@keyframes glbump{50%{transform:scale(1.4)}}
+.gl-count small{display:block;font-size:12px;color:rgba(255,243,234,.72);margin-top:4px}
+.gl-tap{position:absolute;right:14px;bottom:14px;font-size:11px;font-weight:600;color:rgba(255,243,234,.75);background:rgba(255,255,255,.08);padding:5px 9px;border-radius:999px}
+.gl-picked{position:absolute;left:22px;width:346px;top:310px;box-sizing:border-box;padding:12px 14px;border-radius:16px;background:#2E2427;color:#FFF3EA;font-size:12.5px;opacity:0;transform:translateY(-6px);transition:opacity .4s,transform .4s}
+.gl-picked.on{opacity:1;transform:none}
+.gl-picked i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#FFC08F;box-shadow:0 0 8px #ED7B65;margin-right:7px}
+.gl-picked b{font-size:13.5px}.gl-picked span{display:block;opacity:.75;margin-top:2px}
+#gl-goals{position:absolute;left:22px;width:346px;top:318px;transition:transform .7s cubic-bezier(.3,.8,.3,1)}
+.gl-stage.picked #gl-goals{transform:translateY(64px)}
+.gl-goal{position:relative;margin-bottom:14px;padding:20px 20px 12px;border-radius:22px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05);transition:box-shadow .5s}
+.gl-goal.done{box-shadow:0 0 0 1.5px #5EC9A7,0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.gl-gh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.gl-gt{font-size:16.5px;font-weight:700;color:#2E2A26}
+.gl-gd{display:block;font-size:12px;color:#B5ACA1;margin-top:3px;font-weight:400}
+.gl-pct{font:600 30px/1 'Fraunces',Georgia,serif;color:#5EC9A7;font-variant-numeric:tabular-nums;text-align:right}
+.gl-cmp{display:inline-block;margin-top:6px;font-size:10px;font-weight:800;letter-spacing:.1em;color:#5EC9A7;background:rgba(94,201,167,.14);padding:3px 8px;border-radius:999px;opacity:0;transform:scale(.6);transition:opacity .3s,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.gl-goal.done .gl-cmp{opacity:1;transform:none}
+.gl-bar{margin:14px 0 12px;height:8px;border-radius:4px;background:#F6F1EA;overflow:hidden}
+.gl-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#5EC9A7,#7FDCC0);transition:width .6s cubic-bezier(.4,0,.2,1)}
+.gl-ms{display:flex;align-items:center;gap:11px;padding:8px 2px;font-size:13.5px;color:#2E2A26;font-weight:480}
+.gl-ms .b{flex:none;width:20px;height:20px;border-radius:7px;border:1.6px solid #B5ACA1;display:grid;place-items:center;transition:background .25s,border-color .25s}
+.gl-ms .b svg{opacity:0;transition:opacity .2s}
+.gl-ms .t{flex:1;min-width:0}
+.gl-ms .nx{font-size:9.5px;font-weight:800;letter-spacing:.1em;color:#5EC9A7;background:rgba(94,201,167,.14);padding:3px 8px;border-radius:999px;display:none}
+.gl-ms.is-next{font-weight:650}.gl-ms.is-next .b{border-color:#5EC9A7}.gl-ms.is-next .nx{display:inline-block}
+.gl-ms.done .b{background:#5EC9A7;border-color:#5EC9A7;animation:pop .45s cubic-bezier(.2,.8,.2,1)}
+.gl-ms.done .b svg{opacity:1}
+.gl-ms.done .t{color:#B5ACA1;text-decoration:line-through}
+.gl-add{display:flex;align-items:center;gap:8px;margin-top:4px;padding:9px 0 4px;font-size:13px;color:#B5ACA1}
+.gl-add i{flex:1}
+.gl-add b{width:36px;height:36px;border-radius:13px;background:#F6F1EA;display:grid;place-items:center;color:#8A8177}
+.gl-cele{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(24,18,16,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .4s}
+.gl-cele.on{opacity:1}
+.gl-cele g path{stroke-dasharray:1 1;stroke-dashoffset:1}
+.gl-cele .ck{stroke-dasharray:1 1;stroke-dashoffset:1}
+.gl-cele.on g path{animation:gldraw .8s cubic-bezier(.4,0,.2,1) forwards}
+.gl-cele.on g path:nth-child(2){animation-delay:.15s}.gl-cele.on g path:nth-child(3){animation-delay:.3s}
+.gl-cele.on .ck{animation:gldraw .45s ease .75s forwards}
+@keyframes gldraw{to{stroke-dashoffset:0}}
+.gl-cele-t{font-size:30px;color:#FFF8F3}
+.gl-cele-s{font-size:13px;color:rgba(255,243,234,.8)}
+@media (max-width:900px){.gl-band{height:120px}.gl-night{margin:20px 8px;padding:130px 0 80px;border-radius:36px}.gl-wrap{gap:44px}.gl-bl{display:none}}
+.gl-bstar{position:absolute;z-index:0;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;transition:opacity .8s}
+.gl-bstar svg{width:30px;height:30px;filter:drop-shadow(0 0 10px rgba(255,140,110,.6))}
+.gl-bstar em{margin-top:2px;font:italic 400 13px 'Fraunces',Georgia,serif;color:rgba(255,243,234,.6);white-space:nowrap}
+.gl-bstar.off{opacity:0}
+.gl-bstar.new svg{animation:glbloom2 1.4s cubic-bezier(.2,1.3,.4,1) .7s both}
+@keyframes glbloom2{0%{transform:scale(0);opacity:0}55%{transform:scale(2);opacity:1}100%{transform:scale(1);opacity:1}}
+@media (max-width:900px){.gl-bstar em{display:none}.gl-bstar svg{width:22px;height:22px}}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   .lit *,.lit *::before,.lit *::after{animation:none!important;transition:none!important}
@@ -622,6 +710,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       <a href="#today-plan">Today</a>
       <a href="#vision">Boards</a>
       <a href="#finance-plan">Finance</a>
+      <a href="#goals-plan">Goals</a>
       <a href="#faq">Questions</a>
     </div>
     <a class="btn btn-ink btn-sm" href="/app" data-cta><span class="dot"></span>Start for free</a>
@@ -950,6 +1039,58 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
         </div>
       </div>
       <p class="serif fn-caption" id="fn-caption">Every month, the same questions. <em>Answered in one place.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- GOALS: big things, broken into steps — every finished goal is a star -->
+<section id="goals-plan" class="gl-night" aria-labelledby="gl-h">
+  <div class="gl-band" id="gl-band" aria-hidden="true"><svg class="gl-bigsky" id="gl-bigsky" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div>
+  <div class="wrap gl-wrap">
+    <div class="gl-copy">
+      <div class="eyebrow reveal">Goals · Big things, broken into steps</div>
+      <p class="serif reveal gl-pain">"This is the year I run a half marathon." Said in January. Forgotten by March.</p>
+      <h2 id="gl-h" class="serif h2 reveal">Big dreams feel far away. <em class="accent" style="font-weight:340">Small steps don't.</em></h2>
+      <p class="lead reveal gl-lead">Turn anything you want into steps you can tick. €200 a month for Lisbon. A few more kilometres each month for the race. Every tick moves the bar — and every finished goal becomes a star.</p>
+      <ol class="vz-points td-points gl-points reveal" id="gl-points">
+        <li data-p="1"><button type="button"><span class="vz-n">1</span><span class="td-pt"><b>Break it down.</b><span>A trip becomes five savings steps. A race becomes a little further each month.</span></span></button></li>
+        <li data-p="2"><button type="button"><span class="vz-n">2</span><span class="td-pt"><b>Light a star.</b><span>Finish a goal and it joins your sky, joined to the one before.</span></span></button></li>
+        <li data-p="3"><button type="button"><span class="vz-n">3</span><span class="td-pt"><b>Watch your constellation grow.</b><span>Tap any star to remember what you did — and when.</span></span></button></li>
+      </ol>
+      <blockquote class="serif reveal gl-quote">Sailors found their way home by the stars. Yours are the things you've already done. One by one, they draw the shape of the life you're building — <em>and on the hard days, you can look up.</em></blockquote>
+      <div class="reveal" style="margin-top:26px"><a class="link-cta gl-cta" href="/app" data-cta><span class="u">Light your first star — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+    </div>
+
+    <div class="gl-visual reveal">
+      <div class="td-fit gl-fit" id="gl-fit" role="img" aria-label="An animated Lit Goals screen: the steps of a Lisbon trip get ticked off, the goal completes and lights a new star in the constellation, then a half-marathon goal does the same.">
+        <div class="td-stage gl-stage" id="gl-stage" aria-hidden="true">
+          <div class="td-scroll" id="gl-scroll">
+            <div class="td-date" style="top:58px">Big things, broken into steps</div>
+            <div class="serif fn-h1">Goals</div>
+            <div class="gl-sky" id="gl-sky">
+              <svg class="gl-lines" viewBox="0 0 100 100" preserveAspectRatio="none" id="gl-lines"><defs><linearGradient id="glLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4B16B"/><stop offset="1" stop-color="#E35F87"/></linearGradient></defs></svg>
+              <span class="gl-next" id="gl-next"></span>
+              <div id="gl-stars"></div>
+              <div class="gl-count"><span class="serif" id="gl-n">2</span><small id="gl-nl">stars in your sky</small></div>
+              <span class="gl-tap">Tap a star</span>
+            </div>
+            <div class="gl-picked" id="gl-picked"><i></i><b id="gl-pt">Lisbon in May</b><span id="gl-ps">Lit today · 5 milestones</span></div>
+            <div id="gl-goals"></div>
+          </div>
+          <div class="gl-cele" id="gl-cele">
+            <svg viewBox="0 0 104 104" width="96" height="96"><g fill="none" stroke="url(#logoGrad)" stroke-width="6" stroke-linecap="round"><path pathLength="1" d="M 75.77,89.03 A 44,44 0 0 1 28.42,89.15"/><path pathLength="1" d="M 22.73,84.85 A 44,44 0 0 1 25.15,17.14"/><path pathLength="1" d="M 30.47,13.63 A 44,44 0 0 1 81.16,84.95"/></g><path class="ck" pathLength="1" d="M36 53l11 11 22-24" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="serif gl-cele-t">You did it.</div>
+            <div class="gl-cele-s" id="gl-cele-s">"Lisbon in May" — complete</div>
+          </div>
+          <nav class="td-dock">
+            <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Today</span>
+            <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2.5"/><rect x="13" y="3" width="8" height="8" rx="2.5"/><rect x="3" y="13" width="8" height="8" rx="2.5"/><rect x="13" y="13" width="8" height="8" rx="2.5"/></svg>Vision</span>
+            <b class="td-orb"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16.5H7a4.5 4.5 0 0 1-.6-8.96A5.6 5.6 0 0 1 17.3 6.6 4.95 4.95 0 0 1 17 16.5Z"/><circle cx="6.3" cy="19.6" r="1.25"/></svg></b>
+            <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>Finance</span>
+            <span class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>Goals</span>
+          </nav>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1805,6 +1946,177 @@ const STORIES={
   if (reduced) { go(3, true); return; }
 
   var DUR = [3000, 3600, 3400, 4600], playing = false, tick = null;
+  function schedule() {
+    clearTimeout(tick); if (!playing) return;
+    tick = setTimeout(function () { go((step + 1) % 4); schedule(); }, DUR[step]);
+  }
+  go(0);
+  points.forEach(function (li) { li.querySelector('button').addEventListener('click', function () { go(+li.getAttribute('data-p')); schedule(); }); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting && !playing) { playing = true; schedule(); }
+        else if (!e.isIntersecting && playing) { playing = false; clearTimeout(tick); }
+      });
+    }, { threshold: 0.3 }).observe(fit);
+  } else { playing = true; schedule(); }
+})();
+</script>
+
+<script>
+/* ---------- Goals section: the app's Goals screen + a constellation behind it ----------
+   Two goals broken into steps: a Lisbon trip (save €200 a month, book it)
+   and a half marathon (a little further each month). Steps: 0 in progress
+   · 1 Lisbon's last steps get ticked → complete, the celebration plays ·
+   2 a new star lights in the sky, joined to the one before · 3 the race
+   finishes too and lights the next star. The big constellation behind the
+   section lights the same stars, with their names. Plays only while on
+   screen; points jump to a step. Reduced motion: the finished sky, still. */
+(function () {
+  var stage = document.getElementById('gl-stage');
+  if (!stage) return;
+  var section = document.getElementById('goals-plan');
+  var fit = document.getElementById('gl-fit'), scroller = document.getElementById('gl-scroll');
+  var goalsEl = document.getElementById('gl-goals'), starsEl = document.getElementById('gl-stars'), linesEl = document.getElementById('gl-lines');
+  var nEl = document.getElementById('gl-n'), nlEl = document.getElementById('gl-nl'), nextEl = document.getElementById('gl-next');
+  var picked = document.getElementById('gl-picked'), cele = document.getElementById('gl-cele');
+  var big = document.getElementById('gl-bigsky'), band = document.getElementById('gl-band');
+  var points = document.querySelectorAll('#gl-points li');
+  var reduced = false;
+  try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  var STAR_POS = [[22, 40], [33, 22], [45, 40], [56, 18], [67, 36], [79, 18], [89, 42]];
+  var PAST = ['Brand book', 'Learn to swim'];
+  var GOALS = [
+    { t: 'Lisbon in May', by: 'by 15 May 2027', ms: ['Save €200 — September', 'Save €200 — October', 'Save €200 — November', 'Book the flights', 'Book the flat'], start: 2 },
+    { t: 'Run a half marathon', by: 'by 20 Apr 2027', ms: ['5k without stopping', '10k under an hour', '16k long run', 'Race day'], start: 1 }
+  ];
+  var CK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+
+  GOALS.forEach(function (g) {
+    var el = document.createElement('div'); el.className = 'gl-goal';
+    el.innerHTML = '<div class="gl-gh"><div class="gl-gt">' + g.t + '<span class="gl-gd">' + g.by + '</span></div><div><div class="gl-pct">0%</div><span class="gl-cmp">COMPLETE</span></div></div>' +
+      '<div class="gl-bar"><i></i></div>' +
+      g.ms.map(function (m) { return '<div class="gl-ms"><span class="b">' + CK + '</span><span class="t">' + m + '</span><span class="nx">NEXT</span></div>'; }).join('') +
+      '<div class="gl-add"><i>Add a milestone</i><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></b></div>';
+    goalsEl.appendChild(el);
+    g.el = el; g.rows = el.querySelectorAll('.gl-ms'); g.pct = el.querySelector('.gl-pct'); g.bar = el.querySelector('.gl-bar i');
+  });
+  function setGoal(g, n) {
+    g.rows.forEach(function (r, i) { r.classList.toggle('done', i < n); r.classList.toggle('is-next', i === n); });
+    var p = Math.round(n / g.ms.length * 100);
+    g.pct.textContent = p + '%'; g.bar.style.width = p + '%';
+    g.el.classList.toggle('done', n === g.ms.length);
+  }
+
+  /* --- the phone's sky --- */
+  var STAR_SVG = '<svg width="34" height="34" viewBox="-17 -17 34 34"><circle r="15" fill="url(#glsg)"/><path d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2Z" fill="#FFE7CF"/><circle r="2.4" fill="#fff"/></svg>';
+  linesEl.insertAdjacentHTML('beforeend', '<defs><radialGradient id="glsg"><stop offset="0" stop-color="#FFC08F" stop-opacity=".95"/><stop offset=".35" stop-color="#ED7B65" stop-opacity=".45"/><stop offset="1" stop-color="#E35F87" stop-opacity="0"/></radialGradient></defs>');
+
+  /* --- the big constellation behind the section --- */
+  var BIG = [[9, 48], [24, 26], [40, 60], [57, 32], [71, 58], [86, 30], [94, 62]];
+  var NAMES = PAST.concat(GOALS.map(function (g) { return g.t; }));
+  big.innerHTML = '<defs><linearGradient id="glBig" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4B16B"/><stop offset="1" stop-color="#E35F87"/></linearGradient></defs>';
+  var bigStars = [], bigLines = [], bigLabels = [];
+  for (var i = 0; i < 4; i++) {
+    if (i > 0) { var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line'); ln.setAttribute('x1', BIG[i - 1][0]); ln.setAttribute('y1', BIG[i - 1][1]); ln.setAttribute('x2', BIG[i - 1][0]); ln.setAttribute('y2', BIG[i - 1][1]); big.appendChild(ln); bigLines[i] = ln; }
+    var s = document.createElement('span'); s.className = 'gl-bstar off'; s.style.left = BIG[i][0] + '%'; s.style.top = BIG[i][1] + '%';
+    s.innerHTML = STAR_SVG + '<em>' + NAMES[i] + '</em>';
+    band.appendChild(s); bigStars[i] = s;
+  }
+
+  function tweenLine(line, a, b, dur) {
+    var t0 = performance.now();
+    (function f(t) {
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      line.setAttribute('x2', a[0] + (b[0] - a[0]) * e); line.setAttribute('y2', a[1] + (b[1] - a[1]) * e);
+      if (k < 1) requestAnimationFrame(f);
+    })(t0);
+  }
+
+  var count = 0;
+  function setSky(n, animateLast) {
+    starsEl.innerHTML = ''; linesEl.querySelectorAll('line').forEach(function (l) { l.remove(); });
+    for (var i = 0; i < n; i++) {
+      var p = STAR_POS[i];
+      if (i > 0) {
+        var l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), q = STAR_POS[i - 1];
+        l.setAttribute('x1', q[0]); l.setAttribute('y1', q[1]);
+        var last = animateLast && i === n - 1;
+        l.setAttribute('x2', last ? q[0] : p[0]); l.setAttribute('y2', last ? q[1] : p[1]);
+        linesEl.appendChild(l);
+        if (last) tweenLine(l, q, p, 900);
+      }
+      var s = document.createElement('span'); s.className = 'gl-star' + (animateLast && i === n - 1 ? ' new' : '');
+      s.style.left = p[0] + '%'; s.style.top = p[1] + '%'; s.innerHTML = STAR_SVG; starsEl.appendChild(s);
+    }
+    var nx = STAR_POS[n] || STAR_POS[STAR_POS.length - 1];
+    nextEl.style.left = nx[0] + '%'; nextEl.style.top = nx[1] + '%';
+    nEl.textContent = n; nlEl.textContent = n === 1 ? 'star in your sky' : 'stars in your sky';
+    if (animateLast) { nEl.classList.remove('bump'); void nEl.offsetWidth; later(function () { nEl.classList.add('bump'); }, 1300); }
+    /* the big sky mirrors it */
+    bigStars.forEach(function (s, i) { s.classList.toggle('off', i >= n); s.classList.toggle('new', !!animateLast && i === n - 1); });
+    bigLines.forEach(function (l, i) {
+      if (!l) return;
+      if (i < n) { if (animateLast && i === n - 1) tweenLine(l, BIG[i - 1], BIG[i], 1100); else { l.setAttribute('x2', BIG[i][0]); l.setAttribute('y2', BIG[i][1]); } }
+      else { l.setAttribute('x2', BIG[i - 1][0]); l.setAttribute('y2', BIG[i - 1][1]); }
+    });
+    count = n;
+  }
+  function pick(g, on) {
+    if (on) { document.getElementById('gl-pt').textContent = g.t; document.getElementById('gl-ps').textContent = 'Lit today · ' + g.ms.length + ' milestones'; }
+    picked.classList.toggle('on', !!on); stage.classList.toggle('picked', !!on);
+  }
+  function celebrate(g, ms) {
+    document.getElementById('gl-cele-s').textContent = '“' + g.t + '” — complete';
+    cele.classList.remove('on'); void cele.offsetWidth; cele.classList.add('on');
+    later(function () { cele.classList.remove('on'); }, ms);
+  }
+  function scrollTo(y) { scroller.style.transform = 'translateY(' + (-y) + 'px)'; }
+
+  var timers = [];
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  var step = 0, L = GOALS[0], R = GOALS[1];
+  function go(s, instant) {
+    clearTimers(); step = s; cele.classList.remove('on');
+    points.forEach(function (li) { li.classList.toggle('on', +li.getAttribute('data-p') === s); });
+    if (s === 0) {
+      setGoal(L, L.start); setGoal(R, R.start); setSky(2); pick(null, false); scrollTo(0);
+    } else if (s === 1) {
+      setGoal(R, R.start); setSky(2); pick(null, false); scrollTo(120);
+      if (instant) { setGoal(L, L.ms.length); return; }
+      setGoal(L, L.start);
+      for (var k = L.start + 1; k <= L.ms.length; k++) (function (k) { later(function () { setGoal(L, k); }, 300 + (k - L.start) * 550); })(k);
+      later(function () { celebrate(L, 1900); }, 300 + (L.ms.length - L.start) * 550 + 450);
+    } else if (s === 2) {
+      setGoal(L, L.ms.length); setGoal(R, R.start); scrollTo(0); pick(null, false);
+      setSky(3, !instant);
+      later(function () { pick(L, true); }, instant ? 0 : 1900);
+    } else {
+      setGoal(L, L.ms.length); setSky(3); pick(null, false);
+      if (instant) { setGoal(R, R.ms.length); setSky(4); pick(R, true); scrollTo(0); return; }
+      scrollTo(470); setGoal(R, R.start);
+      for (var j = R.start + 1; j <= R.ms.length; j++) (function (j) { later(function () { setGoal(R, j); }, 600 + (j - R.start) * 550); })(j);
+      var done = 600 + (R.ms.length - R.start) * 550 + 400;
+      later(function () { celebrate(R, 1700); }, done);
+      later(function () { scrollTo(0); }, done + 1700);
+      later(function () { setSky(4, true); }, done + 2500);
+      later(function () { pick(R, true); }, done + 4200);
+    }
+  }
+
+  function resize() {
+    var w = Math.min(fit.clientWidth, 400), sc = w / 390;
+    stage.style.transform = 'scale(' + sc + ')';
+    fit.style.height = Math.round(800 * sc + 14) + 'px';
+  }
+  resize(); window.addEventListener('resize', resize);
+
+  if (reduced) { go(3, true); return; }
+
+  var DUR = [2600, 4600, 3800, 9400], playing = false, tick = null;
   function schedule() {
     clearTimeout(tick); if (!playing) return;
     tick = setTimeout(function () { go((step + 1) % 4); schedule(); }, DUR[step]);
