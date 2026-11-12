@@ -537,6 +537,63 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
 .td-orb{position:relative;width:60px;height:60px;margin-top:-26px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#FFB35C,#FF6B5E 55%,#F4508C);box-shadow:0 12px 26px -8px rgba(255,107,94,.7)}
 .td-orb i{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#FF6B5E;border:2px solid #FDFAF5;color:#fff;font:700 10.5px/16px 'Instrument Sans',system-ui,sans-serif;font-style:normal;text-align:center}
 @media (max-width:900px){.td-copy{order:1}.td-visual{order:2}.td-wrap{gap:44px}}
+/* ===== Finance section (#finance-plan) — the app's Finance screen, with the month's worried thoughts around it ===== */
+.fn-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:64px}
+.fn-copy{flex:1 1 440px;min-width:0;order:2}
+.fn-visual{position:relative;flex:1 1 400px;min-width:0;order:1;display:flex;flex-direction:column;align-items:center;padding:10px 0}
+.fn-pain{margin:22px 0 0;font-size:19px;line-height:1.5;font-style:italic;color:#6B625B}
+.fn-fit{position:relative;z-index:1}
+.fn-thoughts{position:absolute;inset:0;z-index:2;pointer-events:none}
+.fn-th{position:absolute;left:var(--x);top:var(--y);max-width:180px;padding:12px 16px;border-radius:22px;background:rgba(253,250,245,.94);box-shadow:0 1px 2px rgba(46,42,38,.05),0 16px 34px -14px rgba(70,35,20,.35);font:italic 400 15.5px/1.3 'Fraunces',Georgia,serif;color:#4A423D;letter-spacing:-0.01em;transform:rotate(var(--r));animation:fnfloat 5.5s ease-in-out infinite;animation-delay:calc(var(--i) * -0.9s);transition:opacity .45s ease,transform .45s cubic-bezier(.3,1.5,.5,1),filter .45s}
+.fn-th::before,.fn-th::after{content:"";position:absolute;border-radius:50%;background:rgba(253,250,245,.94);box-shadow:0 6px 14px -8px rgba(70,35,20,.35)}
+.fn-th::before{width:13px;height:13px;right:18px;bottom:-9px}
+.fn-th::after{width:7px;height:7px;right:10px;bottom:-18px}
+.fn-th.fn-r::before{right:auto;left:18px}.fn-th.fn-r::after{right:auto;left:10px}
+.fn-th.pop{opacity:0;transform:rotate(var(--r)) scale(1.25);filter:blur(3px);animation:none}
+@keyframes fnfloat{0%,100%{translate:0 0}50%{translate:0 -9px}}
+.fn-caption{position:relative;z-index:3;margin:26px 0 0;text-align:center;font-size:19px;color:#6B625B;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.fn-caption em{color:#A93C24}
+.fn-caption.on{opacity:1;transform:none}
+
+.fn-h1{position:absolute;left:22px;top:76px;font-size:34px;font-weight:500;letter-spacing:-0.02em}
+.fn-month{position:absolute;left:22px;right:22px;top:132px;display:flex;align-items:center;justify-content:space-between}
+.fn-month .serif{font-size:17px;font-weight:600}
+.fn-nb{width:38px;height:38px;border-radius:13px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05);display:grid;place-items:center}
+.fn-hero{position:absolute;left:22px;width:346px;top:188px;box-sizing:border-box;padding:22px;border-radius:22px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.04),0 10px 28px rgba(46,42,38,.07)}
+.fn-eb{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#B5ACA1}
+.fn-num{margin:8px 0 14px;font-size:44px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.fn-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#F6F1EA}
+.fn-bar i{display:block;height:100%;width:0;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.fn-bar .b{background:#7FB5E0}.fn-bar .l{background:#5EC9A7}
+.fn-leg{display:flex;gap:16px;margin-top:11px;font-size:11.5px;color:#8A8177}
+.fn-leg span{display:flex;align-items:center;gap:5px}.fn-leg i{width:8px;height:8px;border-radius:4px}
+.fn-leg b{font-weight:500;color:#8A8177}
+.fn-row{display:flex;align-items:center;justify-content:space-between;margin-top:13px}
+.fn-inc{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#B5ACA1}.fn-inc b{color:#2E2A26;font-weight:600}
+.fn-carry{padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:700;background:rgba(255,107,94,.12);color:#FF6B5E;transition:background .3s,color .3s,transform .3s}
+.fn-carry.press{transform:scale(.93)}
+.fn-carry.done{background:rgba(94,201,167,.14);color:#4FB896}
+.fn-extras{display:flex;gap:6px;margin-top:10px;align-items:center}
+.fn-xchip{display:inline-flex;gap:6px;padding:5px 11px;border-radius:999px;background:rgba(94,201,167,.14);color:#4FB896;font-size:12px;font-weight:600;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;padding-left:0;padding-right:0;transition:max-width .6s ease,opacity .4s,padding .6s}
+.fn-xchip span{color:#8A8177;font-weight:500}
+.fn-stage[data-x] .fn-xchip{max-width:200px;opacity:1;padding:5px 11px}
+.fn-xadd{padding:5px 11px;border-radius:999px;background:#F6F1EA;color:#8A8177;font-size:12px;font-weight:600;white-space:nowrap}
+.fn-bills{position:absolute;left:22px;width:346px;top:458px;box-sizing:border-box;padding:20px 18px 12px;border-radius:22px;background:#FDFAF5;box-shadow:0 1px 2px rgba(46,42,38,.03),0 4px 12px rgba(46,42,38,.05)}
+.fn-bt{font-size:15px;font-weight:700}.fn-bh{font-size:12px;color:#B5ACA1;margin-top:3px}
+#fn-list{margin-top:6px;min-height:40px}
+.fn-cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B5ACA1;margin:10px 0 2px;animation:fadein .4s ease both}
+.fn-bill{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid rgba(46,42,38,.08);font-size:14px;animation:fnin .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fnin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.fn-bill .n{flex:1;min-width:0;display:flex;align-items:center;gap:7px;font-weight:500;text-decoration:line-through;text-decoration-color:transparent;transition:color .3s,text-decoration-color .3s}
+.fn-bill .p{font-size:10.5px;font-weight:700;color:#4FB896;background:rgba(94,201,167,.14);padding:3px 8px;border-radius:999px;opacity:0;transform:scale(.6);transition:opacity .3s,transform .4s cubic-bezier(.3,1.6,.5,1)}
+.fn-bill .a{font-weight:600;color:#7FB5E0;font-variant-numeric:tabular-nums}
+.fn-bill .t{color:#B5ACA1;display:grid}
+.fn-bill.paid .n{color:#B5ACA1;text-decoration-color:#B5ACA1}
+.fn-bill.paid .p{opacity:1;transform:none}
+@media (max-width:900px){.fn-copy{order:1}.fn-visual{order:2}.fn-wrap{gap:44px}}
+/* narrower screens: no room beside the phone, so the thoughts gather above it */
+@media (max-width:1399px){.fn-thoughts{position:relative;inset:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:16px 12px;margin:0 0 30px;max-width:520px}.fn-th{position:relative;left:auto;top:auto;max-width:none;padding:10px 14px;font-size:14px}}
+@media (max-width:620px){.fn-th.m-hide{display:none}}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   .lit *,.lit *::before,.lit *::after{animation:none!important;transition:none!important}
@@ -564,6 +621,7 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       <a href="#evening">How it works</a>
       <a href="#today-plan">Today</a>
       <a href="#vision">Boards</a>
+      <a href="#finance-plan">Finance</a>
       <a href="#faq">Questions</a>
     </div>
     <a class="btn btn-ink btn-sm" href="/app" data-cta><span class="dot"></span>Start for free</a>
@@ -822,6 +880,77 @@ button.ib-send:hover{transform:translateY(-1px) rotate(-8deg)}
       <div class="reveal" style="margin-top:22px"><a class="link-cta" href="/app" data-cta><span class="u">Make your first board — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
     </div>
     <div class="reveal" id="vz-host" role="img" aria-label="An animated Lit board: scattered links, photos and notes fly onto one board, a checklist gets ticked off, and one item is sent to Today." style="flex:1 1 460px;min-width:0"></div>
+  </div>
+</section>
+
+<!-- FINANCE: one honest number, no spreadsheet -->
+<section id="finance-plan" class="section fn-section" aria-labelledby="fn-h">
+  <div class="wrap fn-wrap">
+    <div class="fn-copy">
+      <div class="eyebrow reveal">Finance · An honest number about your month</div>
+      <p class="serif reveal fn-pain">Payday feels great. Day twenty feels like a mystery.</p>
+      <h2 id="fn-h" class="serif h2 reveal">No spreadsheet. <em class="accent" style="font-weight:340">Just what's left to save.</em></h2>
+      <p class="lead reveal" style="margin:24px 0 0;max-width:520px">Put in what comes in and what goes out. Lit shows what you can actually save this month — and ticks off each bill as you pay it. Two minutes, not a Sunday afternoon.</p>
+      <ol class="vz-points td-points reveal" id="fn-points">
+        <li data-p="1"><button type="button"><span class="vz-n">1</span><span class="td-pt"><b>Add your bills once.</b><span>Rent, phone, Netflix. They come back every month on their own.</span></span></button></li>
+        <li data-p="2"><button type="button"><span class="vz-n">2</span><span class="td-pt"><b>Tick them as you pay.</b><span>No more "did I pay the electricity?" at midnight.</span></span></button></li>
+        <li data-p="3"><button type="button"><span class="vz-n">3</span><span class="td-pt"><b>Extra money counts.</b><span>A bonus, a gig, what you didn't spend — carry it on to next month.</span></span></button></li>
+      </ol>
+      <p class="reveal" style="margin:20px 0 0;font-size:16px;color:#5E5650">Not a budgeting app. <b style="color:var(--ink)">A calm look at your month.</b></p>
+      <div class="reveal" style="margin-top:22px"><a class="link-cta" href="/app" data-cta><span class="u">See your month in two minutes — free</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+    </div>
+
+    <div class="fn-visual reveal">
+      <div class="td-glow fn-glow" aria-hidden="true"></div>
+      <!-- the thoughts that come back every month — each one pops when the app answers it -->
+      <div class="fn-thoughts" id="fn-thoughts" aria-hidden="true">
+        <span class="fn-th" data-k="salary" style="--x:-18%;--y:3%;--r:-3deg;--i:0">Where did my salary go?</span>
+        <span class="fn-th fn-r" data-k="rent" style="--x:72%;--y:10%;--r:2deg;--i:1">Has the rent gone out yet?</span>
+        <span class="fn-th" data-k="elec" style="--x:-22%;--y:33%;--r:2deg;--i:2">Did I pay the electricity?</span>
+        <span class="fn-th fn-r m-hide" data-k="weekend" style="--x:76%;--y:42%;--r:-2deg;--i:3">Can I afford this weekend?</span>
+        <span class="fn-th m-hide" data-k="twelve" style="--x:-20%;--y:64%;--r:-2deg;--i:4">€12 left… on the 20th?</span>
+        <span class="fn-th fn-r" data-k="sheet" style="--x:73%;--y:73%;--r:3deg;--i:5">I'll fix the spreadsheet on Sunday.</span>
+      </div>
+      <div class="td-fit fn-fit" id="fn-fit" role="img" aria-label="An animated Lit Finance screen: income goes in, bills are added and ticked as paid, extra money is added and carried on, and the worried money thoughts around the phone pop one by one.">
+        <div class="td-stage fn-stage" id="fn-stage" data-step="0" aria-hidden="true">
+          <div class="td-scroll" id="fn-scroll">
+            <div class="td-date" style="top:58px">An honest number about your month</div>
+            <div class="serif fn-h1">Finance</div>
+            <div class="fn-month">
+              <span class="fn-nb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8A8177" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></span>
+              <span class="serif" id="fn-mlabel">November 2026</span>
+              <span class="fn-nb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8A8177" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div class="fn-hero">
+              <div class="fn-eb">You can save this month</div>
+              <div class="serif fn-num" id="fn-num">€3,200</div>
+              <div class="fn-bar"><i class="b" id="fn-bar-b"></i><i class="l" id="fn-bar-l"></i></div>
+              <div class="fn-leg"><span><i style="background:#7FB5E0"></i>Bills · <b id="fn-leg-b">€0</b></span><span><i style="background:#5EC9A7"></i>Left · <b id="fn-leg-l">€3,200</b></span></div>
+              <div class="fn-row">
+                <span class="fn-inc">Income <b>€3,200</b> <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B5ACA1" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg></span>
+                <span class="fn-carry" id="fn-carry">Carry on →</span>
+              </div>
+              <div class="fn-extras"><span class="fn-xchip" id="fn-x">+ €400 <span>Freelance gig</span></span><span class="fn-xadd">+ Extra this month</span></div>
+            </div>
+
+            <div class="fn-bills">
+              <div class="fn-bt">Bills</div>
+              <div class="fn-bh">Tap to mark as paid</div>
+              <div id="fn-list"></div>
+            </div>
+          </div>
+          <nav class="td-dock">
+            <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Today</span>
+            <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2.5"/><rect x="13" y="3" width="8" height="8" rx="2.5"/><rect x="3" y="13" width="8" height="8" rx="2.5"/><rect x="13" y="13" width="8" height="8" rx="2.5"/></svg>Vision</span>
+            <b class="td-orb"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16.5H7a4.5 4.5 0 0 1-.6-8.96A5.6 5.6 0 0 1 17.3 6.6 4.95 4.95 0 0 1 17 16.5Z"/><circle cx="6.3" cy="19.6" r="1.25"/></svg></b>
+            <span class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>Finance</span>
+            <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>Goals</span>
+          </nav>
+        </div>
+      </div>
+      <p class="serif fn-caption" id="fn-caption">Every month, the same questions. <em>Answered in one place.</em></p>
+    </div>
   </div>
 </section>
 
@@ -1550,6 +1679,138 @@ const STORIES={
   points.forEach(function (li) {
     li.querySelector('button').addEventListener('click', function () { go(+li.getAttribute('data-p')); schedule(); });
   });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting && !playing) { playing = true; schedule(); }
+        else if (!e.isIntersecting && playing) { playing = false; clearTimeout(tick); }
+      });
+    }, { threshold: 0.3 }).observe(fit);
+  } else { playing = true; schedule(); }
+})();
+</script>
+
+<script>
+/* ---------- Finance section: the app's Finance screen, answering the month's worries ----------
+   Around the phone float the thoughts that come back every month. Steps:
+   0 income in, worries everywhere · 1 bills added once (by category), the
+   number drops to what's really left · 2 bills ticked as paid · 3 extra
+   money comes in and gets carried on · 4 hold. Each thought pops when the
+   screen answers it. Plays only while on screen; the points on the left
+   jump to a step. Reduced motion: the finished month, no thoughts. */
+(function () {
+  var stage = document.getElementById('fn-stage');
+  if (!stage) return;
+  var fit = document.getElementById('fn-fit'), scroller = document.getElementById('fn-scroll');
+  var list = document.getElementById('fn-list'), num = document.getElementById('fn-num');
+  var barB = document.getElementById('fn-bar-b'), barL = document.getElementById('fn-bar-l');
+  var legB = document.getElementById('fn-leg-b'), legL = document.getElementById('fn-leg-l');
+  var carry = document.getElementById('fn-carry'), caption = document.getElementById('fn-caption');
+  var points = document.querySelectorAll('#fn-points li');
+  var th = {}; document.querySelectorAll('#fn-thoughts .fn-th').forEach(function (e) { th[e.getAttribute('data-k')] = e; });
+  var reduced = false;
+  try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  var now = new Date();
+  var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  document.getElementById('fn-mlabel').textContent = MON[now.getMonth()] + ' ' + now.getFullYear();
+
+  var INCOME = 3200, EXTRA = 400;
+  var BILLS = [
+    { cat: 'Housing', n: 'Rent', a: 1450 },
+    { cat: 'Bills', n: 'Electricity', a: 85 },
+    { cat: 'Bills', n: 'Phone', a: 25 },
+    { cat: 'Subscriptions', n: 'Netflix', a: 13 },
+    { cat: 'Subscriptions', n: 'Gym', a: 45 }
+  ];
+  var PAID_IN_STEP2 = ['Rent', 'Electricity', 'Phone'];
+  var REPEAT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B5ACA1" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>';
+  var TRASH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
+  var fmt = function (n) { return '€' + Math.round(n).toLocaleString('en-IE'); };
+
+  var shown = 0, curNum = INCOME, numAnim = null;
+  function countTo(v) {
+    cancelAnimationFrame(numAnim);
+    var from = curNum, t0 = performance.now(), D = 700;
+    (function f(t) {
+      var k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3);
+      curNum = from + (v - from) * e; num.textContent = fmt(curNum);
+      if (k < 1) numAnim = requestAnimationFrame(f);
+    })(t0);
+  }
+  function totals() {
+    var inc = INCOME + (stage.hasAttribute('data-x') ? EXTRA : 0);
+    var b = BILLS.slice(0, shown).reduce(function (s, x) { return s + x.a; }, 0);
+    barB.style.width = (b / inc * 100) + '%'; barL.style.width = ((inc - b) / inc * 100) + '%';
+    legB.textContent = fmt(b); legL.textContent = fmt(inc - b);
+    countTo(inc - b);
+  }
+  function renderBills() {
+    var html = '', lastCat = null;
+    BILLS.slice(0, shown).forEach(function (b) {
+      if (b.cat !== lastCat) { html += '<div class="fn-cat">' + b.cat + '</div>'; lastCat = b.cat; }
+      html += '<div class="fn-bill" data-n="' + b.n + '"><span class="n">' + b.n + REPEAT + '</span><span class="p">PAID</span><span class="a">' + fmt(b.a) + '</span><span class="t">' + TRASH + '</span></div>';
+    });
+    list.innerHTML = html;
+  }
+  function setPaid(names) {
+    list.querySelectorAll('.fn-bill').forEach(function (r) { r.classList.toggle('paid', names.indexOf(r.getAttribute('data-n')) > -1); });
+  }
+  function pop(keys) { Object.keys(th).forEach(function (k) { th[k].classList.toggle('pop', keys.indexOf(k) > -1); }); }
+
+  var timers = [];
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function scrollTo(y) { scroller.style.transform = 'translateY(' + (-y) + 'px)'; }
+
+  var step = 0;
+  function go(s, instant) {
+    clearTimers(); step = s;
+    stage.setAttribute('data-step', s);
+    points.forEach(function (li) { li.classList.toggle('on', +li.getAttribute('data-p') === s); });
+    caption.classList.toggle('on', s >= 3);
+    if (s >= 3) stage.setAttribute('data-x', ''); else stage.removeAttribute('data-x');
+    carry.classList.remove('done', 'press'); carry.textContent = 'Carry on →';
+
+    if (s === 0) {
+      shown = 0; renderBills(); totals(); scrollTo(0); pop([]);
+    } else if (s === 1) {
+      scrollTo(150); pop([]);
+      if (instant || shown >= BILLS.length) { shown = BILLS.length; renderBills(); totals(); pop(['salary', 'rent']); }
+      else {
+        shown = 0; renderBills(); totals();
+        BILLS.forEach(function (b, i) { later(function () { shown = i + 1; renderBills(); totals(); if (i === 0) pop(['rent']); }, 350 + i * 420); });
+        later(function () { pop(['salary', 'rent']); }, 350 + BILLS.length * 420);
+      }
+    } else if (s === 2) {
+      shown = BILLS.length; renderBills(); totals(); scrollTo(150); pop(['salary', 'rent']);
+      PAID_IN_STEP2.forEach(function (n, i) { later(function () { setPaid(PAID_IN_STEP2.slice(0, i + 1)); if (n === 'Electricity') pop(['salary', 'rent', 'elec']); }, instant ? 0 : 500 + i * 600); });
+      later(function () { pop(['salary', 'rent', 'elec', 'twelve']); }, instant ? 0 : 2300);
+    } else {
+      shown = BILLS.length; renderBills(); setPaid(PAID_IN_STEP2); totals(); scrollTo(0);
+      pop(['salary', 'rent', 'elec', 'twelve']);
+      later(function () { pop(['salary', 'rent', 'elec', 'twelve', 'weekend']); }, instant ? 0 : 700);
+      later(function () { carry.classList.add('press'); }, instant ? 0 : 1500);
+      later(function () { carry.classList.remove('press'); carry.classList.add('done'); carry.textContent = 'Carried ✓'; pop(Object.keys(th)); }, instant ? 0 : 1750);
+    }
+  }
+
+  function resize() {
+    var w = Math.min(fit.clientWidth, 400), s = w / 390;
+    stage.style.transform = 'scale(' + s + ')';
+    fit.style.height = Math.round(800 * s + 14) + 'px';
+  }
+  resize(); window.addEventListener('resize', resize);
+
+  if (reduced) { go(3, true); return; }
+
+  var DUR = [3000, 3600, 3400, 4600], playing = false, tick = null;
+  function schedule() {
+    clearTimeout(tick); if (!playing) return;
+    tick = setTimeout(function () { go((step + 1) % 4); schedule(); }, DUR[step]);
+  }
+  go(0);
+  points.forEach(function (li) { li.querySelector('button').addEventListener('click', function () { go(+li.getAttribute('data-p')); schedule(); }); });
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
